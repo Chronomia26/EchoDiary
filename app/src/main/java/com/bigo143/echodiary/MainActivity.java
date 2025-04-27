@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         window.setNavigationBarColor(ContextCompat.getColor(this, R.color.your_background_color)); // Same color
         getSupportActionBar().hide();
         //hanggang dito, kay rashed to wag galawin
+        //
 
 
 
