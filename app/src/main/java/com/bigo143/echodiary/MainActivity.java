@@ -15,9 +15,9 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.bigo143.echodiary.databinding.ActivityMainBinding;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.Objects;
 
-    private ActivityMainBinding binding;
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         );
 
         //inaayos ko pa dito, navigation bar, action bar, status bar, transparency
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
         Window window = getWindow();
         window.setStatusBarColor(ContextCompat.getColor(this, R.color.your_background_color)); // Already done
         window.setNavigationBarColor(ContextCompat.getColor(this, R.color.your_background_color)); // Same color
@@ -40,11 +40,10 @@ public class MainActivity extends AppCompatActivity {
         //
 
 
-
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        com.bigo143.echodiary.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        BottomNavigationView navView = findViewById(R.id.nav_view);
+        findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
