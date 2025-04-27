@@ -79,7 +79,7 @@ EchoDiary follows a **soft coffee shop vibe**, using gentle tones to create a co
 
 1. Clone the project:
 ```bash
-git clone https://github.com/your-username/EchoDiary.git
+git clone https://github.com/Chronomia26/EchoDiary.git
 ```
 
 2. Open in Android Studio.
