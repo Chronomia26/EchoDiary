@@ -22,27 +22,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        View decorView = getWindow().getDecorView();
-//        decorView.setSystemUiVisibility(
-//                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//        );
 
-        //inaayos ko pa dito, navigation bar, action bar, status bar, transparency
-        Objects.requireNonNull(getSupportActionBar()).hide();
         Window window = getWindow();
-      //  window.setDecorFitsSystemWindows(false);
+        window.setDecorFitsSystemWindows(false);
         window.setStatusBarColor(ContextCompat.getColor(this, R.color.your_background_color));
         window.setNavigationBarColor(ContextCompat.getColor(this, R.color.coffee_2));
-        getSupportActionBar().hide();
         //hanggang dito, kay rashed to wag galawin
-
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
         com.bigo143.echodiary.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
