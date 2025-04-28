@@ -1,27 +1,26 @@
-package com.bigo143.echodiary.ui.home;
+package com.bigo143.echodiary.ui.calendar;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.bigo143.echodiary.databinding.FragmentHomeBinding;
+import com.bigo143.echodiary.databinding.FragmentCalendarBinding;
 
-public class HomeFragment extends Fragment {
+public class CalendarFragment extends Fragment {
 
-    private FragmentHomeBinding binding;
+    private FragmentCalendarBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        HomeViewModel homeViewModel =
-                new ViewModelProvider(this).get(HomeViewModel.class);
+        CalendarViewModel calendarViewModel =
+                new ViewModelProvider(this).get(CalendarViewModel.class);
 
-        binding = FragmentHomeBinding.inflate(inflater, container, false);
+        binding = FragmentCalendarBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         return root;
     }
