@@ -83,10 +83,10 @@ public class MainActivity extends AppCompatActivity {
             return new HomeFragment();
         } else if (itemId == R.id.calendar) {
             return new CalendarFragment();
-        } else if (itemId == R.id.subscriptions) {
-            return new SubscriptionsFragment();
-        } else if (itemId == R.id.library) {
-            return new LibraryFragment();
+        } else if (itemId == R.id.activity) {
+            return new ActivityFragment();
+        } else if (itemId == R.id.diary) {
+            return new DiaryFragment();
         } else {
             return null;
         }

@@ -15,6 +15,13 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <!-- Customize your theme here. -->
+        <item name="toolbarNavigationButtonStyle">@style/CustomNavigationButtonStyle</item>
+    </style>
+
+    <style name="CustomNavigationButtonStyle" parent="Widget.AppCompat.Toolbar.Button.Navigation">
+        <item name="android:minWidth">60dp</item>
+        <item name="android:minHeight">60dp</item>
+        <item name="android:padding">12dp</item>
     </style>
 
     <style name="ThemeOverlay.App.BottomNav" parent="ThemeOverlay.MaterialComponents">

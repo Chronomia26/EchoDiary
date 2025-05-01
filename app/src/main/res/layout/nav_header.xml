@@ -4,29 +4,51 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="176dp"
-    android:gravity="bottom"
+    android:gravity="center"
     android:padding="16dp"
     android:background="@drawable/headbackg"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <ImageView
+    <!-- Horizontal layout for ImageView and TextViews -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/aklogo"/>
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Android Knowledge"
-        android:textColor="@color/white"
-        android:textStyle="bold"/>
+        <!-- ImageView with minimal margin -->
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="70dp"
+            android:src="@drawable/logopic"
+            android:layout_marginEnd="4dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="contact@androidknowledge.com"
-        android:textColor="@color/white"
-        android:textSize="14sp"
-        android:layout_marginBottom="16dp"/>
+        <!-- Vertical layout for TextViews -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
 
+            <!-- Title TextView -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EchoDiary"
+                android:textColor="@color/coffee_brown"
+                android:textStyle="bold"
+                android:textSize="20sp" />
+
+            <!-- Subtitle TextView -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Live Your Day, Keep your Story"
+                android:textColor="@color/coffee_brown"
+                android:textSize="14sp"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

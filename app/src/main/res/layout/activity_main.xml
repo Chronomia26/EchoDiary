@@ -20,6 +20,7 @@
 
             <!-- Toolbar -->
             <androidx.appcompat.widget.Toolbar
+                app:contentInsetStart="16dp"
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
@@ -38,24 +39,34 @@
                 android:layout_weight="1" />
         </LinearLayout>
 
-        <!-- Floating Action Button (styled like BottomAppBar cutout) -->
+        <View
+            android:id="@+id/fab_background"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/circle_background" />
+
+        <!-- Floating Action Button -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="16dp"
-            android:backgroundTint="@color/white"
-            android:elevation="0dp"
-            android:translationZ="0dp"
-            app:pressedTranslationZ="0dp"
+            app:fabCustomSize="64dp"
+            app:backgroundTint="@android:color/white"
+            android:elevation="8dp"
+            android:translationZ="8dp"
+            app:pressedTranslationZ="12dp"
             android:scaleType="center"
             app:tint="@color/coffee_2"
             app:maxImageSize="36dp"
             android:src="@drawable/baseline_add_24"
-            app:itemIconTint = "@color/coffee_brown"
-            android:outlineAmbientShadowColor="@color/dark_roast"
-            android:outlineProvider="none"/>
+            app:itemIconTint="@color/coffee_brown"
+            app:itemTextColor="@color/coffee_brown"/>
+
+
 
         <!-- Custom Bottom Navigation bar with rounded top and "cutout" margin -->
         <FrameLayout
