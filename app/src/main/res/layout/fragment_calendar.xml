@@ -14,4 +14,9 @@
         android:textSize="30sp"
         android:textColor="@color/pale_mocha"/>
 
+    <CalendarView
+        android:id="@+id/calendarView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 </FrameLayout>
