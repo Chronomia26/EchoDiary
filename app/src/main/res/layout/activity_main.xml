@@ -66,6 +66,7 @@
             app:itemIconTint="@color/coffee_brown"
             app:itemTextColor="@color/coffee_brown"/>
 
+        <!--hello -->
 
 
         <!-- Custom Bottom Navigation bar with rounded top and "cutout" margin -->
