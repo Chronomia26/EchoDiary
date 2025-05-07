@@ -1,128 +1,262 @@
 package com.bigo143.echodiary;
-
 import android.app.AppOpsManager;
-import android.app.usage.UsageStats;
+import android.app.usage.UsageEvents;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ActivityFragment extends Fragment {
 
-    private TextView textView;
+    private PieChart pieChart;
+    private BarChart barChart;
+    private final SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", Locale.getDefault());
 
-    public ActivityFragment() {
-        // Required empty public constructor
-    }
+    private final Map<String, Long> appUsageMap = new LinkedHashMap<>();
+    private final Map<String, Integer> appColorMap = new HashMap<>();
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_activity, container, false);
-        textView = view.findViewById(R.id.textViewUsage);
+        pieChart = view.findViewById(R.id.pieChart);
+        barChart = view.findViewById(R.id.barChart);
 
         if (!hasUsageStatsPermission()) {
             startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
         } else {
-            displayUsageByTimeSlot();
+            collectUsageData();
+            generateColorsForApps();
+            displayPieChart();
+            displayBarChart();
+            displayAppLabels(view);
+
+            if (!hasDataBeenSavedToday()) {
+                UsageDataSaver.saveUsageToXml(requireContext(), convertAppUsageToPackageUsage());
+                setDataSavedToday();
+            }
         }
 
         return view;
     }
 
     private boolean hasUsageStatsPermission() {
-        //here is the code to check if the app has the usage stats permission
         AppOpsManager appOps = (AppOpsManager) requireContext().getSystemService(Context.APP_OPS_SERVICE);
         int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
                 android.os.Process.myUid(), requireContext().getPackageName());
         return mode == AppOpsManager.MODE_ALLOWED;
     }
 
-    private void displayUsageByTimeSlot() {
-        //here is the code to display the usage by time slot
+    private void collectUsageData() {
         UsageStatsManager usm = (UsageStatsManager) requireContext().getSystemService(Context.USAGE_STATS_SERVICE);
         long endTime = System.currentTimeMillis();
+
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         long startTime = cal.getTimeInMillis();
 
-        List<UsageStats> usageStatsList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
-        Map<String, List<String>> timeSlotMap = new LinkedHashMap<>();
-        timeSlotMap.put("🌅 Morning (6AM–12PM)", new ArrayList<>());
-        timeSlotMap.put("🌤 Afternoon (12PM–6PM)", new ArrayList<>());
-        timeSlotMap.put("🌙 Evening (6PM–12AM)", new ArrayList<>());
-        timeSlotMap.put("🌃 Night (12AM–6AM)", new ArrayList<>());
+        UsageEvents events = usm.queryEvents(startTime, endTime);
+        UsageEvents.Event event = new UsageEvents.Event();
+        Map<String, Long> foregroundTimestamps = new HashMap<>();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", Locale.getDefault());
-
-        for (UsageStats stat : usageStatsList) {
-            if (stat.getTotalTimeInForeground() > 0) {
-                Calendar lastTimeUsed = Calendar.getInstance();
-                lastTimeUsed.setTimeInMillis(stat.getLastTimeUsed());
-                int hour = lastTimeUsed.get(Calendar.HOUR_OF_DAY);
-
-                String appName = getAppNameFromPackage(stat.getPackageName());//here is the code to get the app name from the package name
-                String entry = appName + " - Last Used: " + sdf.format(lastTimeUsed.getTime());
-
-                if (hour >= 6 && hour < 12)
-                    timeSlotMap.get("🌅 Morning (6AM–12PM)").add(entry);
-                else if (hour >= 12 && hour < 18)
-                    timeSlotMap.get("🌤 Afternoon (12PM–6PM)").add(entry);
-                else if (hour >= 18 && hour < 24)
-                    timeSlotMap.get("🌙 Evening (6PM–12AM)").add(entry);
-                else
-                    timeSlotMap.get("🌃 Night (12AM–6AM)").add(entry);
-            }
-        }
-
-        StringBuilder finalOutput = new StringBuilder();
-
-        for (Map.Entry<String, List<String>> entry : timeSlotMap.entrySet()) {
-            finalOutput.append(entry.getKey()).append(":\n");
-            if (entry.getValue().isEmpty()) {
-                finalOutput.append("  No activity recorded.\n\n");
-            } else {
-                for (String app : entry.getValue()) {
-                    finalOutput.append("  • ").append(app).append("\n");
+        while (events.hasNextEvent()) {
+            events.getNextEvent(event);
+            String packageName = event.getPackageName();
+            if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
+                foregroundTimestamps.put(packageName, event.getTimeStamp());
+            } else if (event.getEventType() == UsageEvents.Event.MOVE_TO_BACKGROUND) {
+                if (foregroundTimestamps.containsKey(packageName)) {
+                    long start = foregroundTimestamps.remove(packageName);
+                    long duration = event.getTimeStamp() - start;
+                    if (!isSystemApp(packageName)) {
+                        String appName = getAppNameFromPackage(packageName);
+                        appUsageMap.put(appName, appUsageMap.getOrDefault(appName, 0L) + duration);
+                    }
                 }
-                finalOutput.append("\n");
             }
-        }
-
-        textView.setText(finalOutput.toString());
-
-        }
-
-    private String getAppNameFromPackage(String packageName) {
-
-        //here is the code to get the app name from the package name
-        //sira pa to, ayusin kasi imbis na appname ung lumabas, ang lumalabas ung package name
-        //like com.example.roblox
-
-        try {
-            PackageManager pm = requireContext().getPackageManager();
-            ApplicationInfo ai = pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
-            CharSequence label = pm.getApplicationLabel(ai);
-            return (label != null) ? label.toString() : packageName;
-        } catch (PackageManager.NameNotFoundException e) {
-            return packageName; // fallback to package name if app not found
         }
     }
 
-}
+    private boolean isSystemApp(String packageName) {
+        try {
+            PackageManager pm = requireContext().getPackageManager();
+            ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
+            return (ai.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
 
+    private void generateColorsForApps() {
+        Random rnd = new Random();
+        for (String appName : appUsageMap.keySet()) {
+            appColorMap.put(appName, Color.rgb(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
+        }
+    }
+
+    private void displayPieChart() {
+        List<PieEntry> entries = new ArrayList<>();
+        List<Integer> colors = new ArrayList<>();
+        long totalTime = 0;
+
+        for (Map.Entry<String, Long> entry : appUsageMap.entrySet()) {
+            String appName = entry.getKey();
+            long duration = entry.getValue();
+            totalTime += duration;
+            entries.add(new PieEntry(duration, appName));
+            colors.add(appColorMap.get(appName));
+        }
+
+        PieDataSet dataSet = new PieDataSet(entries, "");
+        dataSet.setColors(colors);
+        dataSet.setSliceSpace(2f);
+        dataSet.setValueLinePart1Length(0.4f);
+        dataSet.setValueLinePart2Length(0.6f);
+        dataSet.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
+        dataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
+        dataSet.setValueLineColor(Color.BLACK);
+        dataSet.setValueLineWidth(1.5f);
+
+        PieData data = new PieData(dataSet);
+        data.setValueFormatter(new PercentFormatter(pieChart));
+        data.setValueTextSize(12f);
+        data.setValueTextColor(Color.BLACK);
+
+        pieChart.setUsePercentValues(true);
+        pieChart.setData(data);
+        pieChart.setEntryLabelColor(Color.BLACK);  // Set default label color
+        pieChart.setEntryLabelTextSize(12f);
+        pieChart.setCenterText("Total Time\n" + formatDuration(totalTime));
+        pieChart.setCenterTextSize(14f);
+        pieChart.setDrawEntryLabels(true);
+        pieChart.setDescription(null);
+        pieChart.getLegend().setEnabled(false);
+        pieChart.invalidate();
+    }
+
+    private void displayBarChart() {
+        List<BarEntry> entries = new ArrayList<>();
+        final List<String> appNames = new ArrayList<>();
+        int index = 0;
+
+        for (Map.Entry<String, Long> entry : appUsageMap.entrySet()) {
+            entries.add(new BarEntry(index++, entry.getValue()));
+            appNames.add(entry.getKey());
+        }
+
+        BarDataSet dataSet = new BarDataSet(entries, "Time Used (ms)");
+        dataSet.setColor(Color.parseColor("#3F51B5"));
+        BarData data = new BarData(dataSet);
+        data.setBarWidth(0.9f);
+        barChart.setData(data);
+
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                int i = (int) value;
+                return i >= 0 && i < appNames.size() ? appNames.get(i) : "";
+            }
+        });
+        xAxis.setGranularity(1f);
+        xAxis.setGranularityEnabled(true);
+        xAxis.setLabelRotationAngle(-45f);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+
+        barChart.setFitBars(true);
+        barChart.setDescription(new Description());
+        barChart.getDescription().setText("App Usage Today");
+        barChart.getAxisRight().setEnabled(false);
+        barChart.invalidate();
+    }
+
+    private void displayAppLabels(View view) {
+        LinearLayout labelContainer = view.findViewById(R.id.appLabelContainer);
+        labelContainer.removeAllViews();
+
+        for (String appName : appUsageMap.keySet()) {
+            TextView label = new TextView(requireContext());
+            long millis = appUsageMap.get(appName);
+            label.setText(appName + " - " + formatDuration(millis));
+            label.setTextSize(14);
+            label.setTextColor(appColorMap.getOrDefault(appName, Color.BLACK));
+            label.setPadding(10, 5, 10, 5);
+            labelContainer.addView(label);
+        }
+    }
+
+    private String formatDuration(long millis) {
+        long seconds = millis / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        minutes = minutes % 60;
+        return String.format(Locale.getDefault(), "%d h %02d m", hours, minutes);
+    }
+
+    private String getAppNameFromPackage(String packageName) {
+        try {
+            PackageManager pm = requireContext().getPackageManager();
+            PackageInfo packageInfo = pm.getPackageInfo(packageName, 0);
+            CharSequence appName = packageInfo.applicationInfo.loadLabel(pm);
+            if (appName != null) {
+                return appName.toString();
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return fallbackAppName(packageName);
+    }
+
+    private String fallbackAppName(String packageName) {
+        try {
+            PackageManager pm = requireContext().getPackageManager();
+            ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
+            return ai != null ? ai.packageName : packageName;
+        } catch (PackageManager.NameNotFoundException e) {
+            return packageName; // Return package name as fallback if app name is not found
+        }
+    }
+
+    private boolean hasDataBeenSavedToday() {
+        // TODO: Implement persistence check
+        return false;
+    }
+
+    private void setDataSavedToday() {
+        // TODO: Implement persistence save
+    }
+
+    private Map<String, Long> convertAppUsageToPackageUsage() {
+        return new HashMap<>();
+    }
+}
+// TODO: app name tlaga d ko magawan ng paraan try ko ayusin bukas pati yung bar charts
