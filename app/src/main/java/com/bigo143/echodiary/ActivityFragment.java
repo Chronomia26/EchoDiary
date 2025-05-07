@@ -1,4 +1,5 @@
 package com.bigo143.echodiary;
+import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.app.usage.UsageEvents;
 import android.app.usage.UsageStatsManager;
@@ -15,9 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.fragment.app.Fragment;
-
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
@@ -30,7 +29,6 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
-
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -225,25 +223,52 @@ public class ActivityFragment extends Fragment {
     private String getAppNameFromPackage(String packageName) {
         try {
             PackageManager pm = requireContext().getPackageManager();
-            PackageInfo packageInfo = pm.getPackageInfo(packageName, 0);
-            CharSequence appName = packageInfo.applicationInfo.loadLabel(pm);
-            if (appName != null) {
-                return appName.toString();
+            ApplicationInfo appInfo = pm.getApplicationInfo(packageName, 0);
+            CharSequence label = pm.getApplicationLabel(appInfo);
+
+            // If label is null or same as package name, try brute-force fallback
+            if (label == null || label.toString().equalsIgnoreCase(packageName)) {
+                return tryBruteForceAppName(packageName);
             }
+            return label.toString();
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            return tryBruteForceAppName(packageName);
         }
-        return fallbackAppName(packageName);
     }
 
-    private String fallbackAppName(String packageName) {
-        try {
-            PackageManager pm = requireContext().getPackageManager();
-            ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
-            return ai != null ? ai.packageName : packageName;
-        } catch (PackageManager.NameNotFoundException e) {
-            return packageName; // Return package name as fallback if app name is not found
+    private String tryBruteForceAppName(String packageName) {
+        ActivityManager am = (ActivityManager) requireContext().getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> processes = am.getRunningAppProcesses();
+
+        if (processes != null) {
+            for (ActivityManager.RunningAppProcessInfo process : processes) {
+                if (process.processName.equals(packageName)) {
+                    try {
+                        PackageManager pm = requireContext().getPackageManager();
+                        ApplicationInfo ai = pm.getApplicationInfo(process.processName, 0);
+                        CharSequence label = pm.getApplicationLabel(ai);
+                        if (label != null) {
+                            return label.toString();
+                        }
+                    } catch (PackageManager.NameNotFoundException e) {
+                        // ignore and fallback below
+                    }
+                }
+            }
         }
+
+        // Final fallback: strip "com." and return last segment
+        if (packageName.contains(".")) {
+            String[] parts = packageName.split("\\.");
+            return capitalize(parts[parts.length - 1]);
+        }
+
+        return packageName;
+    }
+
+    private String capitalize(String str) {
+        if (str == null || str.isEmpty()) return str;
+        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
 
     private boolean hasDataBeenSavedToday() {
