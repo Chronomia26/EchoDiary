@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         fab = findViewById(R.id.fab);
         drawerLayout = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         Toolbar toolbar = findViewById(R.id.toolbar);
 
         setSupportActionBar(toolbar);
@@ -58,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
             navigationView.setCheckedItem(R.id.nav_home);
         }
 
+        // Handle Drawer Navigation
+        setupDrawerNavigation();
+
         // Set up bottom navigation view
         setupBottomNavigationView();
 
@@ -66,6 +69,32 @@ public class MainActivity extends AppCompatActivity {
         // Floating Action Button click listener to show bottom sheet
         fab.setOnClickListener(view -> showBottomDialog());
     }
+
+    // Set up drawer navigation behavior
+    private void setupDrawerNavigation() {
+        navigationView.setNavigationItemSelectedListener(item -> {
+            Fragment selectedFragment = getDrawerSelectedFragment(item.getItemId());
+            if (selectedFragment != null) {
+                replaceFragment(selectedFragment);
+                drawerLayout.closeDrawers(); // Close drawer after selection
+            }
+            return selectedFragment != null;
+        });
+    }
+
+    // Return fragment based on selected drawer item ID
+    private Fragment getDrawerSelectedFragment(int itemId) {
+        if (itemId == R.id.nav_home) {
+            return new HomeFragment();
+        } else if (itemId == R.id.nav_settings) {
+            return new SettingsFragment();
+        } else if (itemId == R.id.nav_about) {
+            return new AboutFragment();
+        } else {
+            return null;
+        }
+    }
+
 
 
     // Set up bottom navigation behavior
