@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fab;
     private DrawerLayout drawerLayout;
     private BottomNavigationView bottomNavigationView;
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +61,12 @@ public class MainActivity extends AppCompatActivity {
         // Set up bottom navigation view
         setupBottomNavigationView();
 
+        // Handle Draw();
+
         // Floating Action Button click listener to show bottom sheet
         fab.setOnClickListener(view -> showBottomDialog());
     }
+
 
     // Set up bottom navigation behavior
     private void setupBottomNavigationView() {
@@ -76,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
     }
+
 
     // Return fragment based on selected item ID (revised from switch to if-else)
     private Fragment getSelectedFragment(int itemId) {

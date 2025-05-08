@@ -53,7 +53,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Upload a video"
+            android:text="Upload a record"
             android:textColor="@color/dark_roast"
             android:layout_marginLeft="30dp"
             android:textSize="16sp"/>
@@ -77,7 +77,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create a short"
+            android:text="Create another record"
             android:textColor="@color/dark_roast"
             android:layout_marginLeft="30dp"
             android:textSize="16sp"/>
@@ -104,7 +104,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Go live"
+            android:text="Stop recording"
             android:textColor="@color/dark_roast"
             android:layout_marginLeft="30dp"
             android:textSize="16sp"/>

@@ -3,16 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF8E1"
-    tools:context=".DiaryFragment">
+    tools:context=".SettingsFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/diary"
-        android:gravity="center"
-        android:textSize="30sp"
-        android:textColor="@color/pale_mocha"/>
+        android:text="@string/hello_blank_fragment" />
 
 </FrameLayout>
