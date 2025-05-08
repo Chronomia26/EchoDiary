@@ -1,6 +1,7 @@
 package com.bigo143.echodiary;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -152,7 +153,9 @@ public class MainActivity extends AppCompatActivity {
 
         shortsLayout.setOnClickListener(v -> {
             dialog.dismiss();
-            Toast.makeText(MainActivity.this, "Create a Short is clicked", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+            Intent intent = new Intent(MainActivity.this, NewJournalActivity.class);
+            startActivity(intent);
         });
 
         liveLayout.setOnClickListener(v -> {

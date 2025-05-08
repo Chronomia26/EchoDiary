@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Title -->
+        <EditText
+            android:id="@+id/journalTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Title"
+            android:textSize="18sp"
+            android:inputType="text"/>
+
+        <!-- Content -->
+        <EditText
+            android:id="@+id/journalContent"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:textColor="@color/coffee_brown"
+            android:hint="Write your thoughts..."
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:textSize="16sp"
+            android:background="@android:drawable/edit_text"/>
+
+        <!-- Voice Input Button -->
+        <Button
+            android:id="@+id/btnVoiceInput"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🎤 Speak Instead" />
+
+        <!-- Tag -->
+        <EditText
+            android:id="@+id/journalTags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tags (comma separated)"
+            android:inputType="text"/>
+
+        <!-- Save Button -->
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Entry"
+            android:layout_marginTop="20dp"/>
+
+    </LinearLayout>
+</ScrollView>
