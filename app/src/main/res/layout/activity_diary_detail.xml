@@ -1,33 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="20dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    android:background="@color/ic_launcher_background">
+
 
     <LinearLayout
-        android:orientation="vertical"
+
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/detailTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_gravity="center"
             android:text="Title"
+            android:textColor="#4E342E"
             android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="#4E342E"/>
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/detailTimestamp"
-            android:text="April 27, 2025"
-            android:textSize="14sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date"
             android:textColor="#6D4C41"
-            android:layout_marginTop="4dp"
+            android:textSize="14sp"
             android:layout_marginBottom="12dp"/>
 
         <TextView
             android:id="@+id/detailContent"
-            android:text="Journal content here..."
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Journal content goes here..."
+            android:textColor="#3E2723"
             android:textSize="16sp"
-            android:textColor="#3E2723"/>
+            android:lineSpacingExtra="4dp"/>
 
     </LinearLayout>
 </ScrollView>

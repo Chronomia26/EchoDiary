@@ -23,7 +23,8 @@ public class DiaryFragment extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.diaryRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        DiaryAdapter adapter = new DiaryAdapter();
+        DiaryAdapter adapter = new DiaryAdapter(getContext());
+
         recyclerView.setAdapter(adapter);
 
         DiaryDatabase.getInstance(requireContext())

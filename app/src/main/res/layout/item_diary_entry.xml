@@ -6,28 +6,31 @@
     card_view:cardCornerRadius="16dp"
     card_view:cardElevation="4dp"
     android:layout_marginBottom="12dp"
-    android:layout_marginHorizontal="4dp"
-    android:backgroundTint="#FFF3E0">
+    android:layout_marginHorizontal="4dp">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:padding="16dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <TextView
             android:id="@+id/entryTitle"
-            android:text="Entry Title"
-            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sample Title"
             android:textColor="#4E342E"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:layout_marginBottom="4dp"/>
+            android:layout_marginBottom="4dp" />
 
         <TextView
             android:id="@+id/entryDate"
-            android:text="April 27, 2025"
-            android:textSize="14sp"
-            android:textColor="#6D4C41"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="May 11, 2025"
+            android:textColor="#6D4C41"
+            android:textSize="14sp" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

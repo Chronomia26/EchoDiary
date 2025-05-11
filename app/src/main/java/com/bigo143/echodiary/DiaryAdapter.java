@@ -1,5 +1,7 @@
 package com.bigo143.echodiary;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +15,11 @@ import java.util.List;
 public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHolder> {
 
     private List<DiaryEntry> entries;
+    private Context context;
+
+    public DiaryAdapter(Context context) {
+        this.context = context;
+    }
 
     public void setEntries(List<DiaryEntry> entries) {
         this.entries = entries;
@@ -22,7 +29,7 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
     @Override
     public DiaryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(android.R.layout.simple_list_item_2, parent, false);
+                .inflate(R.layout.item_diary_entry, parent, false);
         return new DiaryViewHolder(view);
     }
 
@@ -30,7 +37,15 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
     public void onBindViewHolder(DiaryViewHolder holder, int position) {
         DiaryEntry entry = entries.get(position);
         holder.title.setText(entry.title);
-        holder.content.setText(DateFormat.getDateTimeInstance().format(entry.timestamp));
+        holder.date.setText(DateFormat.getDateTimeInstance().format(entry.timestamp));
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, DiaryDetailActivity.class);
+            intent.putExtra("title", entry.title);
+            intent.putExtra("content", entry.content);
+            intent.putExtra("timestamp", entry.timestamp);
+            context.startActivity(intent);
+        });
     }
 
     @Override
@@ -39,12 +54,12 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
     }
 
     static class DiaryViewHolder extends RecyclerView.ViewHolder {
-        TextView title, content;
+        TextView title, date;
 
         DiaryViewHolder(View itemView) {
             super(itemView);
-            title = itemView.findViewById(android.R.id.text1);
-            content = itemView.findViewById(android.R.id.text2);
+            title = itemView.findViewById(R.id.entryTitle);
+            date = itemView.findViewById(R.id.entryDate);
         }
     }
 }
