@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAlignment="viewStart"
-            android:text="Create"
+            android:text="@string/create"
             android:padding="8dp"
             android:textColor="@color/dark_roast"
             android:layout_marginStart="12dp"
@@ -53,7 +53,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Upload a video"
+            android:text="@string/upload_a_video"
             android:textColor="@color/dark_roast"
             android:layout_marginLeft="30dp"
             android:textSize="16sp"/>
@@ -77,7 +77,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create a short"
+            android:text="@string/create_a_short"
             android:textColor="@color/dark_roast"
             android:layout_marginLeft="30dp"
             android:textSize="16sp"/>
@@ -104,7 +104,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Go live"
+            android:text="@string/go_live"
             android:textColor="@color/dark_roast"
             android:layout_marginLeft="30dp"
             android:textSize="16sp"/>

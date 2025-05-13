@@ -36,7 +36,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="EchoDiary"
+                android:text="@string/app_name"
                 android:textColor="@color/coffee_brown"
                 android:textStyle="bold"
                 android:textSize="20sp" />
@@ -45,7 +45,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Live Your Day, Keep your Story"
+                android:text="@string/app_qoute"
                 android:textColor="@color/coffee_brown"
                 android:textSize="14sp"
                 android:layout_marginTop="2dp" />

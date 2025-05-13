@@ -1,6 +1,7 @@
 package com.bigo143.echodiary;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -188,4 +189,10 @@ public class MainActivity extends AppCompatActivity {
             dialog.getWindow().setGravity(Gravity.BOTTOM);
         }
     }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.wrap(newBase));
+    }
+
 }

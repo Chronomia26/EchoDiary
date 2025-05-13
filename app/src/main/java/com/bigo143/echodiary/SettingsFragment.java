@@ -23,27 +23,10 @@ import android.widget.TextView;
  */
 public class SettingsFragment extends Fragment {
 
-    // Menu item titles as constants for readability
-    private static final String SUMMARIZATION_STYLE = "Summarization Style";
-    private static final String MOOD_DETECTION = "Mood Detection";
-    private static final String ENTRY_LANGUAGE = "Entry Language";
-    private static final String DAILY_REMINDER_TIME = "Daily Reminder Time";
-    private static final String VOICE_CONTROL = "Voice Control";
-    private static final String APP_THEME = "App Theme";
-    private static final String ABOUT_ECHODIARY = "About EchoDiary";
-
     public SettingsFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SettingsFragment.
-     */
     public static SettingsFragment newInstance(String param1, String param2) {
         SettingsFragment fragment = new SettingsFragment();
         Bundle args = new Bundle();
@@ -56,45 +39,40 @@ public class SettingsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the fragment's layout
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
         LinearLayout settingsMenu = view.findViewById(R.id.settings_menu);
 
-        // Add menu items dynamically here
-        addMenuItem(settingsMenu, SUMMARIZATION_STYLE);
-        addMenuItem(settingsMenu, MOOD_DETECTION);
-        addMenuItem(settingsMenu, ENTRY_LANGUAGE);
-        addMenuItem(settingsMenu, DAILY_REMINDER_TIME);
-        addMenuItem(settingsMenu, VOICE_CONTROL);
-        addMenuItem(settingsMenu, APP_THEME);
-        addMenuItem(settingsMenu, ABOUT_ECHODIARY);
+        addMenuItem(settingsMenu, getString(R.string.summarization_style));
+        addMenuItem(settingsMenu, getString(R.string.mood_detection));
+        addMenuItem(settingsMenu, getString(R.string.entry_language));
+        addMenuItem(settingsMenu, getString(R.string.daily_reminder_time));
+        addMenuItem(settingsMenu, getString(R.string.voice_control));
+        addMenuItem(settingsMenu, getString(R.string.theme));
+        addMenuItem(settingsMenu, getString(R.string.about_echodiary));
 
         return view;
     }
 
-    // Method to add each menu item as a clickable TextView
     private void addMenuItem(LinearLayout settingsMenu, String title) {
         TextView textView = new TextView(getContext(), null, R.style.SettingsMenuItem);
         textView.setText(title);
-        textView.setGravity(Gravity.CENTER_VERTICAL);  // Center vertically
-        textView.setTextSize(20); // Larger text
+        textView.setGravity(Gravity.CENTER_VERTICAL);
+        textView.setTextSize(20);
         textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.coffee_brown));
-        textView.setPadding(32, 24, 32, 24); // More padding around the text
+        textView.setPadding(32, 24, 32, 24);
         textView.setOnClickListener(v -> onMenuItemClicked(title));
 
-        // Set icon (resized)
         Drawable icon = getIconDrawableForTitle(title);
         if (icon != null) {
-            int size = getResources().getDimensionPixelSize(R.dimen.icon_size); // define in dimens.xml
+            int size = getResources().getDimensionPixelSize(R.dimen.icon_size);
             icon.setBounds(0, 0, size, size);
             textView.setCompoundDrawables(icon, null, null, null);
-            textView.setCompoundDrawablePadding(getResources().getDimensionPixelSize(R.dimen.icon_text_padding));  // Adjustable padding
+            textView.setCompoundDrawablePadding(getResources().getDimensionPixelSize(R.dimen.icon_text_padding));
         }
 
-        textView.setBackgroundResource(selectableItemBackground()); // ripple effect
+        textView.setBackgroundResource(selectableItemBackground());
         settingsMenu.addView(textView);
 
-        // Set layout parameters
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.bottomMargin = 12;
@@ -111,67 +89,97 @@ public class SettingsFragment extends Fragment {
         int iconResId = getIconResIdForTitle(title);
         Drawable icon = ContextCompat.getDrawable(requireContext(), iconResId);
         if (icon != null) {
-            // Apply coffee_brown color to the icon
             int color = ContextCompat.getColor(requireContext(), R.color.coffee_brown);
-            icon.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN); // Apply color filter
+            icon.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
         }
         return icon;
     }
 
     private int getIconResIdForTitle(String title) {
-        switch (title) {
-            case SUMMARIZATION_STYLE:
-                return R.drawable.baseline_format_list_bulleted_24;
-            case MOOD_DETECTION:
-                return R.drawable.baseline_emoji_emotions_24;
-            case ENTRY_LANGUAGE:
-                return R.drawable.baseline_language_24;
-            case DAILY_REMINDER_TIME:
-                return R.drawable.baseline_alarm_24;
-            case VOICE_CONTROL:
-                return R.drawable.baseline_mic_24;
-            case APP_THEME:
-                return R.drawable.baseline_brightness_6_24;
-            case ABOUT_ECHODIARY:
-                return R.drawable.baseline_info_24;
-            default:
-                return R.drawable.baseline_settings_24; // fallback
+        if (title.equals(getString(R.string.summarization_style))) {
+            return R.drawable.baseline_format_list_bulleted_24;
+        } else if (title.equals(getString(R.string.mood_detection))) {
+            return R.drawable.baseline_emoji_emotions_24;
+        } else if (title.equals(getString(R.string.entry_language))) {
+            return R.drawable.baseline_language_24;
+        } else if (title.equals(getString(R.string.daily_reminder_time))) {
+            return R.drawable.baseline_alarm_24;
+        } else if (title.equals(getString(R.string.voice_control))) {
+            return R.drawable.baseline_mic_24;
+        } else if (title.equals(getString(R.string.theme))) {
+            return R.drawable.baseline_brightness_6_24;
+        } else if (title.equals(getString(R.string.about_echodiary))) {
+            return R.drawable.baseline_info_24;
+        } else {
+            return R.drawable.baseline_settings_24;
         }
     }
 
-    // Handle clicks on menu items
     private void onMenuItemClicked(String title) {
-        // Handle each menu item click, for example, open dialogs
-        switch (title) {
-            case SUMMARIZATION_STYLE:
-                showListDialog("Choose Summarization Style", new String[]{"Formal", "Casual", "Concise"});
-                break;
-            case MOOD_DETECTION:
-                showToggleDialog("Enable Mood Detection");
-                break;
-            case ENTRY_LANGUAGE:
-                showListDialog("Select Entry Language", new String[]{"English", "Filipino", "Japanese"});
-                break;
-            case DAILY_REMINDER_TIME:
-                showTimePickerDialog();
-                break;
-            case VOICE_CONTROL:
-                showToggleDialog("Enable Voice Control");
-                break;
-            case APP_THEME:
-                showListDialog("App Theme", new String[]{"Light", "Dark", "System Default"});
-                break;
-            case ABOUT_ECHODIARY:
-                showAboutDialog();
-                break;
+        if (title.equals(getString(R.string.summarization_style))) {
+            showListDialog(getString(R.string.summarization_style),
+                    getResources().getStringArray(R.array.summarization_styles));
+        } else if (title.equals(getString(R.string.mood_detection))) {
+            showToggleDialog(getString(R.string.mood_detection));
+        } else if (title.equals(getString(R.string.entry_language))) {
+            showLanguageDialog();
+        } else if (title.equals(getString(R.string.daily_reminder_time))) {
+            showTimePickerDialog();
+        } else if (title.equals(getString(R.string.voice_control))) {
+            showToggleDialog(getString(R.string.voice_control));
+        } else if (title.equals(getString(R.string.theme))) {
+            showListDialog(getString(R.string.theme),
+                    getResources().getStringArray(R.array.theme_options));
+        } else if (title.equals(getString(R.string.about_echodiary))) {
+            showAboutDialog();
         }
     }
+
+    private void showLanguageDialog() {
+        String[] languages = {
+                getString(R.string.english),
+                getString(R.string.filipino),
+                getString(R.string.japanese)
+        };
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle(getString(R.string.entry_language))
+                .setItems(languages, (dialog, which) -> {
+                    String langCode = "en";
+                    switch (which) {
+                        case 0: langCode = "en"; break;
+                        case 1: langCode = "fil"; break;
+                        case 2: langCode = "ja"; break;
+                    }
+
+                    // Set locale
+                    LocaleHelper.setLocale(requireContext(), langCode);
+
+                    // Show loading dialog
+                    AlertDialog loadingDialog = new AlertDialog.Builder(requireContext())
+                            .setView(R.layout.dialog_loading)
+                            .setCancelable(false)
+                            .create();
+                    loadingDialog.show();
+
+                    // Delay for 5 seconds, then recreate activity
+                    new android.os.Handler().postDelayed(() -> {
+                        loadingDialog.dismiss();
+                        requireActivity().finish();
+                        requireActivity().startActivity(requireActivity().getIntent());
+                    }, 3000);
+                })
+                .show();
+    }
+
+
+
 
     private void showListDialog(String title, String[] options) {
         new AlertDialog.Builder(requireContext())
                 .setTitle(title)
                 .setItems(options, (dialog, which) -> {
-                    // Save selection if needed
+                    // Handle selection
                 })
                 .show();
     }
@@ -180,25 +188,28 @@ public class SettingsFragment extends Fragment {
         final boolean[] isChecked = {false};
         new AlertDialog.Builder(requireContext())
                 .setTitle(title)
-                .setSingleChoiceItems(new String[]{"On", "Off"}, isChecked[0] ? 0 : 1, (dialog, which) -> {
-                    isChecked[0] = (which == 0);
-                })
-                .setPositiveButton("OK", null)
+                .setSingleChoiceItems(
+                        new String[]{getString(R.string.on), getString(R.string.off)},
+                        isChecked[0] ? 0 : 1,
+                        (dialog, which) -> isChecked[0] = (which == 0)
+                )
+                .setPositiveButton(getString(R.string.ok), null)
                 .show();
     }
 
+
     private void showTimePickerDialog() {
         TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), (view, hourOfDay, minute) -> {
-            // Save the time if needed
+            // Handle time
         }, 8, 0, true);
         timePickerDialog.show();
     }
 
     private void showAboutDialog() {
         new AlertDialog.Builder(requireContext())
-                .setTitle("About EchoDiary")
-                .setMessage("EchoDiary v1.0\nDeveloped by Bigo143\nAll rights reserved.")
-                .setPositiveButton("OK", null)
+                .setTitle(getString(R.string.about_echodiary))
+                .setMessage(getString(R.string.about_message))
+                .setPositiveButton(getString(R.string.ok), null)
                 .show();
     }
 }

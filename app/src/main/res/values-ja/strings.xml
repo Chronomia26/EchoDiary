@@ -1,0 +1,60 @@
+<resources>
+    <string name="app_name">EchoDiary</string>
+    <string name="open_nav">ナビゲーションドロワーを開く</string>
+    <string name="close_nav">ナビゲーションドロワーを閉じる</string>
+    <string name="hello_blank_fragment">こんにちは、空のフラグメント</string>
+    <string name="calendar">カレンダー</string>
+    <string name="home">ホーム</string>
+    <string name="activity">アクティビティ</string>
+    <string name="settings">設定</string>
+    <string name="more">もっと見る</string>
+    <string name="diary">日記</string>
+    <string name="about">アバウト</string>
+    <string name="help">ヘルプ</string>
+    <string name="summarization_style">要約スタイル</string>
+    <string name="mood_detection">感情検出</string>
+    <string name="entry_language">入力言語</string>
+    <string name="daily_reminder_time">毎日のリマインダー時間</string>
+    <string name="voice_control">音声操作</string>
+    <string name="theme">テーマ</string>
+    <string name="about_echodiary">EchoDiaryについて</string>
+    <string name="app_qoute">一日を生きて、自分の物語を残そう</string>
+
+    <string-array name="summarization_styles">
+        <item>フォーマル</item>
+        <item>カジュアル</item>
+        <item>簡潔</item>
+    </string-array>
+
+    <string-array name="language_options">
+        <item>英語</item>
+        <item>スペイン語</item>
+        <item>フランス語</item>
+    </string-array>
+
+    <string-array name="font_sizes">
+        <item>小</item>
+        <item>中</item>
+        <item>大</item>
+    </string-array>
+
+    <string-array name="theme_options">
+        <item>ライト</item>
+        <item>ダーク</item>
+        <item>システムデフォルト</item>
+    </string-array>
+
+    <string name="about_message">EchoDiary v1.0\n開発者：Bigo143\n全著作権所有。</string>
+    <string name="on">オン</string>
+    <string name="off">オフ</string>
+    <string name="ok">OK</string>
+
+    <string name="english">英語</string>
+    <string name="filipino">フィリピン語</string>
+    <string name="japanese">日本語</string>
+    <string name="create">作成</string>
+    <string name="upload_a_video">動画をアップロード</string>
+    <string name="create_a_short">ショート動画を作成</string>
+    <string name="go_live">ライブ配信を開始</string>
+    <string name="applying_language">言語を適用中...</string>
+</resources>

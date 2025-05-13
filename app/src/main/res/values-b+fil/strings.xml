@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">EchoDiary</string>
+    <string name="open_nav">Buksan ang Navigation Drawer</string>
+    <string name="close_nav">Isara ang Navigation Drawer</string>
+    <string name="hello_blank_fragment">Kumusta blangkong fragment</string>
+    <string name="calendar">Kalendaryo</string>
+    <string name="home">Bahay</string>
+    <string name="activity">Aktibidad</string>
+    <string name="settings">Mga Setting</string>
+    <string name="more">Higit Pa</string>
+    <string name="diary">Talaarawan</string>
+    <string name="about">Tungkol</string>
+    <string name="help">Tulong</string>
+    <string name="summarization_style">Estilo ng Buod</string>
+    <string name="mood_detection">Pagtukoy ng Damdamin</string>
+    <string name="entry_language">Wika ng Entry</string>
+    <string name="daily_reminder_time">Oras ng Pang-araw-araw na Paalala</string>
+    <string name="voice_control">Kontrol ng Boses</string>
+    <string name="theme">Tema</string>
+    <string name="about_echodiary">Tungkol sa EchoDiary</string>
+    <string name="app_qoute">Isabuhay ang Araw Mo, Itala ang Iyong Kuwento</string>
+
+
+    <string-array name="summarization_styles">
+        <item>Pormal</item>
+        <item>Kaswal</item>
+        <item>Maikli</item>
+    </string-array>
+
+    <string-array name="language_options">
+        <item>Ingles</item>
+        <item>Espanyol</item>
+        <item>Pranses</item>
+    </string-array>
+
+    <string-array name="font_sizes">
+        <item>Maliit</item>
+        <item>Katamtaman</item>
+        <item>Malaki</item>
+    </string-array>
+
+    <string-array name="theme_options">
+        <item>Liwanag</item>
+        <item>Madilim</item>
+        <item>Ayon sa Sistema</item>
+    </string-array>
+
+    <string name="about_message">EchoDiary v1.0\nBinuo ni Bigo143\nLahat ng karapatan ay nakalaan.</string>
+    <string name="on">Bukas</string>
+    <string name="off">Patay</string>
+    <string name="ok">OK</string>
+
+    <string name="english">Ingles</string>
+    <string name="filipino">Filipino</string>
+    <string name="japanese">Hapones</string>
+    <string name="create">Lumikha</string>
+    <string name="upload_a_video">Mag-upload ng video</string>
+    <string name="create_a_short">Lumikha ng maikling video</string>
+    <string name="go_live">Magsimulang mag-live</string>
+    <string name="applying_language">Ina-apply ang wika...</string>
+
+</resources>
