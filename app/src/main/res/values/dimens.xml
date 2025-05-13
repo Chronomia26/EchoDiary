@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Icon sizes -->
+    <dimen name="icon_size">28dp</dimen>
+    <dimen name="icon_text_padding">40dp</dimen> <!-- Adjust as needed -->
+
+    <!-- Text sizes -->
+    <dimen name="menu_item_text_size">18sp</dimen>
+
+    <!-- Padding and margins -->
+    <dimen name="menu_item_padding_vertical">16dp</dimen>
+    <dimen name="menu_item_padding_horizontal">24dp</dimen>
+    <dimen name="menu_item_margin_bottom">12dp</dimen>
+</resources>

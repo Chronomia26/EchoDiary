@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/menu_summarization_style"
+            android:icon="@drawable/baseline_format_list_bulleted_24"
+            android:title="@string/summarization_style" />
+
+        <item
+            android:id="@+id/menu_mood_detection"
+            android:icon="@drawable/baseline_emoji_emotions_24"
+            android:title="@string/mood_detection" />
+
+        <item
+            android:id="@+id/menu_entry_language"
+            android:icon="@drawable/baseline_language_24"
+            android:title="@string/entry_language" />
+
+        <item
+            android:id="@+id/menu_daily_reminder"
+            android:icon="@drawable/baseline_alarm_24"
+            android:title="@string/daily_reminder_time" />
+
+        <item
+            android:id="@+id/menu_voice_control"
+            android:icon="@drawable/baseline_mic_24"
+            android:title="@string/voice_control" />
+
+        <item
+            android:id="@+id/menu_theme"
+            android:icon="@drawable/baseline_brightness_6_24"
+            android:title="@string/theme" />
+
+        <item
+            android:id="@+id/menu_about"
+            android:icon="@drawable/baseline_info_24"
+            android:title="@string/about_echodiary" />
+
+    </group>
+
+</menu>

@@ -59,6 +59,21 @@ public class MainActivity extends AppCompatActivity {
             navigationView.setCheckedItem(R.id.nav_home);
         }
 
+        ImageView helpIcon = new ImageView(this);
+        helpIcon.setImageResource(R.drawable.baseline_help_outline_24); // your icon
+        helpIcon.setPadding(24, 0, 24, 0);
+        helpIcon.setColorFilter(ContextCompat.getColor(this, R.color.white));
+        Toolbar.LayoutParams layoutParams = new Toolbar.LayoutParams(
+                Toolbar.LayoutParams.WRAP_CONTENT,
+                Toolbar.LayoutParams.WRAP_CONTENT,
+                Gravity.END
+        );
+        helpIcon.setLayoutParams(layoutParams);
+        helpIcon.setOnClickListener(v -> {
+            Toast.makeText(MainActivity.this, "Help clicked", Toast.LENGTH_SHORT).show();
+        });
+        toolbar.addView(helpIcon);
+
         // Handle Drawer Navigation
         setupDrawerNavigation();
 

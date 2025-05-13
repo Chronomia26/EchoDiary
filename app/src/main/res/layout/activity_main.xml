@@ -97,6 +97,10 @@
         android:layout_gravity="start"
         app:menu="@menu/navigation_drawer_menu"
         app:headerLayout="@layout/nav_header"
+        app:itemTextAppearance="@style/NavDrawerItemTextStyle"
+        app:itemIconSize="32dp"
+        app:itemHorizontalPadding="24dp"
+        app:itemVerticalPadding="12dp"
         app:itemIconTint="@color/coffee_brown"
         app:itemTextColor="@color/coffee_brown" />
 </androidx.drawerlayout.widget.DrawerLayout>
