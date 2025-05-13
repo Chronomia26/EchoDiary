@@ -1,16 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFF8E1"
     tools:context=".DiaryFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <!-- Title -->
+    <TextView
+        android:id="@+id/textview_Diary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="12dp"
+        android:includeFontPadding="false"
+        android:text="@string/diary"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:textColor="@color/pale_mocha"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Search Bar -->
+    <LinearLayout
+        android:id="@+id/layout_search"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/background_search"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        app:layout_constraintTop_toBottomOf="@id/textview_Diary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_search"
+            android:tint="@color/white"/>
+
+        <EditText
+            android:id="@+id/edittext_InputSearch"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_marginStart="12dp"
+            android:background="@null"
+            android:hint="Search Diary"
+            android:textColorHint="@color/white"
+            android:imeOptions="actionDone"
+            android:importantForAutofill="no"
+            android:includeFontPadding="false"
+            android:inputType="text"
+            android:textColor="@color/white"
+            android:textSize="13sp"/>
+    </LinearLayout>
+
+    <!-- RecyclerView below search -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/diaryRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"/>
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:padding="12dp"
+        app:layout_constraintTop_toBottomOf="@id/layout_search"
+        app:layout_constraintBottom_toTopOf="@id/imageview_AddNote"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-</FrameLayout>
+    <!-- Add Note Button (bottom left OR bottom right) -->
+    <ImageView
+        android:id="@+id/image_AddNote"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_margin="16dp"
+        android:background="@drawable/background_add_button"
+        android:src="@drawable/ic_add"
+        android:tint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+    <!-- To move to right instead: use app:layout_constraintEnd_toEndOf="parent" instead of Start -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>
