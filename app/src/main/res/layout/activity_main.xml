@@ -11,7 +11,8 @@
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -71,6 +72,7 @@
 
         <!-- Custom Bottom Navigation bar with rounded top and "cutout" margin -->
         <FrameLayout
+            android:id="@+id/bottom_nav_frame"
             android:layout_width="match_parent"
             android:layout_height="70dp"
             android:layout_gravity="bottom"

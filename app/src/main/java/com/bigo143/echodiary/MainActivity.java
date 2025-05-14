@@ -4,9 +4,11 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
@@ -45,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         Toolbar toolbar = findViewById(R.id.toolbar);
+
+        setupKeyboardVisibilityListener();
 
         setSupportActionBar(toolbar);
 
@@ -189,6 +193,37 @@ public class MainActivity extends AppCompatActivity {
             dialog.getWindow().setGravity(Gravity.BOTTOM);
         }
     }
+
+    private void setupKeyboardVisibilityListener() {
+        final View rootView = findViewById(android.R.id.content);
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            Rect r = new Rect();
+            rootView.getWindowVisibleDisplayFrame(r);
+            int screenHeight = rootView.getRootView().getHeight();
+            int keypadHeight = screenHeight - r.bottom;
+
+            boolean isKeyboardOpen = keypadHeight > screenHeight * 0.15;
+
+            View fab = findViewById(R.id.fab);
+            View fabBg = findViewById(R.id.fab_background);
+            View bottomNavFrame = findViewById(R.id.bottom_nav_frame); // ⬅️ Add this ID in XML
+
+
+            if (isKeyboardOpen) {
+                fab.animate().alpha(0f).setDuration(150).withEndAction(() -> fab.setVisibility(View.GONE)).start();
+                fabBg.setVisibility(View.GONE);
+                bottomNavFrame.setVisibility(View.GONE);
+            } else {
+                fab.setVisibility(View.VISIBLE);
+                fab.animate().alpha(1f).setDuration(150).start();
+                fabBg.setVisibility(View.VISIBLE);
+                bottomNavFrame.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+
+
 
     @Override
     protected void attachBaseContext(Context newBase) {

@@ -59,6 +59,8 @@
     <string name="create_a_short">Create a short</string>
     <string name="go_live">Go live</string>
     <string name="applying_language">Applying language...</string>
+    <string name="daytrace">DayTrace</string>
+
 
 
 </resources>
