@@ -12,6 +12,10 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
+import android.widget.ImageView;
+import android.content.Intent;
+
+
 public class DiaryFragment extends Fragment {
 
     private DiaryAdapter adapter;
@@ -33,6 +37,13 @@ public class DiaryFragment extends Fragment {
                 .observe(getViewLifecycleOwner(), entries -> {
                     adapter.setEntries(entries);
                 });
+
+        // Handle Add Note button click
+        ImageView addNoteButton = view.findViewById(R.id.image_AddNote);
+        addNoteButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), CreateNoteActivity.class);
+            startActivity(intent);
+        });
 
         return view;
     }
