@@ -1,13 +1,10 @@
 package com.bigo143.echodiary;
-import android.app.ActivityManager;
+
 import android.app.AppOpsManager;
 import android.app.usage.UsageEvents;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -16,7 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import androidx.fragment.app.Fragment;
+
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
@@ -29,8 +28,10 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class ActivityFragment extends Fragment {
 
@@ -57,7 +58,7 @@ public class ActivityFragment extends Fragment {
             displayAppLabels(view);
 
             if (!hasDataBeenSavedToday()) {
-                UsageDataSaver.saveUsageToXml(requireContext(), convertAppUsageToPackageUsage());
+                UsageDataSaver.saveUsageToXml(requireContext(), appUsageMap); // Save to XML
                 setDataSavedToday();
             }
         }
@@ -75,7 +76,6 @@ public class ActivityFragment extends Fragment {
     private void collectUsageData() {
         UsageStatsManager usm = (UsageStatsManager) requireContext().getSystemService(Context.USAGE_STATS_SERVICE);
         long endTime = System.currentTimeMillis();
-
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
@@ -105,12 +105,16 @@ public class ActivityFragment extends Fragment {
     }
 
     private boolean isSystemApp(String packageName) {
+        return packageName.startsWith("com.android");
+    }
+
+    private String getAppNameFromPackage(String packageName) {
         try {
-            PackageManager pm = requireContext().getPackageManager();
-            ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
-            return (ai.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
+            return requireContext().getPackageManager().getApplicationLabel(
+                    requireContext().getPackageManager().getApplicationInfo(packageName, 0)
+            ).toString();
+        } catch (Exception e) {
+            return packageName;
         }
     }
 
@@ -122,43 +126,73 @@ public class ActivityFragment extends Fragment {
     }
 
     private void displayPieChart() {
+        if (appUsageMap == null || appUsageMap.isEmpty()) {
+            pieChart.setVisibility(View.GONE);
+            return;
+        }
+
         List<PieEntry> entries = new ArrayList<>();
         List<Integer> colors = new ArrayList<>();
         long totalTime = 0;
 
+        // First pass: calculate total time
+        for (long duration : appUsageMap.values()) {
+            if (duration > 0) {
+                totalTime += duration;
+            }
+        }
+
+        // Second pass: add only significant entries (e.g., > 0.5% of total)
         for (Map.Entry<String, Long> entry : appUsageMap.entrySet()) {
             String appName = entry.getKey();
             long duration = entry.getValue();
-            totalTime += duration;
-            entries.add(new PieEntry(duration, appName));
-            colors.add(appColorMap.get(appName));
+
+            if (duration > 0) {
+                float percentage = (float) duration / totalTime * 100f;
+                if (percentage >= 0.5f) {
+                    entries.add(new PieEntry(duration, ""));
+
+                    Integer color = appColorMap.get(appName);
+                    if (color == null) color = Color.GRAY;
+                    colors.add(color);
+                }
+            }
+        }
+
+        if (entries.isEmpty()) {
+            pieChart.setVisibility(View.GONE);
+            return;
         }
 
         PieDataSet dataSet = new PieDataSet(entries, "");
         dataSet.setColors(colors);
-        dataSet.setSliceSpace(2f);
+        dataSet.setSliceSpace(1f);
         dataSet.setValueLinePart1Length(0.4f);
         dataSet.setValueLinePart2Length(0.6f);
         dataSet.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
-        dataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
         dataSet.setValueLineColor(Color.BLACK);
         dataSet.setValueLineWidth(1.5f);
+        dataSet.setValueFormatter(new PercentFormatter(pieChart));
 
         PieData data = new PieData(dataSet);
-        data.setValueFormatter(new PercentFormatter(pieChart));
         data.setValueTextSize(12f);
         data.setValueTextColor(Color.BLACK);
 
         pieChart.setUsePercentValues(true);
         pieChart.setData(data);
-        pieChart.setEntryLabelColor(Color.BLACK);  // Set default label color
-        pieChart.setEntryLabelTextSize(12f);
-        pieChart.setCenterText("Total Time\n" + formatDuration(totalTime));
-        pieChart.setCenterTextSize(14f);
-        pieChart.setDrawEntryLabels(true);
-        pieChart.setDescription(null);
+        pieChart.setDrawEntryLabels(false);
+        pieChart.setHoleRadius(50f);
+        pieChart.setTransparentCircleRadius(55f);
+        pieChart.getDescription().setEnabled(false);
         pieChart.getLegend().setEnabled(false);
+
+        // Updated center text formatting using formatDuration()
+        pieChart.setCenterText(formatDuration(totalTime));
+        pieChart.setCenterTextSize(14f);
+        pieChart.setCenterTextColor(Color.DKGRAY);
+
         pieChart.invalidate();
+        pieChart.setVisibility(View.VISIBLE);
     }
 
     private void displayBarChart() {
@@ -167,12 +201,13 @@ public class ActivityFragment extends Fragment {
         int index = 0;
 
         for (Map.Entry<String, Long> entry : appUsageMap.entrySet()) {
-            entries.add(new BarEntry(index++, entry.getValue()));
+            long durationInMinutes = entry.getValue() / 60000; // Convert to minutes
+            entries.add(new BarEntry(index++, durationInMinutes));
             appNames.add(entry.getKey());
         }
 
-        BarDataSet dataSet = new BarDataSet(entries, "Time Used (ms)");
-        dataSet.setColor(Color.parseColor("#3F51B5"));
+        BarDataSet dataSet = new BarDataSet(entries, "Time Used (min)");
+        dataSet.setColors(new ArrayList<>(appColorMap.values()));  // Set bar chart colors to match pie chart
         BarData data = new BarData(dataSet);
         data.setBarWidth(0.9f);
         barChart.setData(data);
@@ -202,13 +237,29 @@ public class ActivityFragment extends Fragment {
         labelContainer.removeAllViews();
 
         for (String appName : appUsageMap.keySet()) {
-            TextView label = new TextView(requireContext());
             long millis = appUsageMap.get(appName);
+
+            // Create layout for each app label
+            LinearLayout appLabelLayout = new LinearLayout(requireContext());
+            appLabelLayout.setOrientation(LinearLayout.HORIZONTAL);
+            appLabelLayout.setPadding(8, 4, 8, 4);
+
+            // Color Box
+            View colorBox = new View(requireContext());
+            colorBox.setLayoutParams(new LinearLayout.LayoutParams(40, 40));
+            colorBox.setBackgroundColor(appColorMap.getOrDefault(appName, Color.BLACK));
+
+            // App Label Text
+            TextView label = new TextView(requireContext());
             label.setText(appName + " - " + formatDuration(millis));
             label.setTextSize(14);
-            label.setTextColor(appColorMap.getOrDefault(appName, Color.BLACK));
-            label.setPadding(10, 5, 10, 5);
-            labelContainer.addView(label);
+            label.setTextColor(Color.BLACK);
+            label.setPadding(8, 0, 8, 0);
+
+            appLabelLayout.addView(colorBox);
+            appLabelLayout.addView(label);
+
+            labelContainer.addView(appLabelLayout);
         }
     }
 
@@ -216,72 +267,16 @@ public class ActivityFragment extends Fragment {
         long seconds = millis / 1000;
         long minutes = seconds / 60;
         long hours = minutes / 60;
-        minutes = minutes % 60;
-        return String.format(Locale.getDefault(), "%d h %02d m", hours, minutes);
-    }
-
-    private String getAppNameFromPackage(String packageName) {
-        try {
-            PackageManager pm = requireContext().getPackageManager();
-            ApplicationInfo appInfo = pm.getApplicationInfo(packageName, 0);
-            CharSequence label = pm.getApplicationLabel(appInfo);
-
-            // If label is null or same as package name, try brute-force fallback
-            if (label == null || label.toString().equalsIgnoreCase(packageName)) {
-                return tryBruteForceAppName(packageName);
-            }
-            return label.toString();
-        } catch (PackageManager.NameNotFoundException e) {
-            return tryBruteForceAppName(packageName);
-        }
-    }
-
-    private String tryBruteForceAppName(String packageName) {
-        ActivityManager am = (ActivityManager) requireContext().getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> processes = am.getRunningAppProcesses();
-
-        if (processes != null) {
-            for (ActivityManager.RunningAppProcessInfo process : processes) {
-                if (process.processName.equals(packageName)) {
-                    try {
-                        PackageManager pm = requireContext().getPackageManager();
-                        ApplicationInfo ai = pm.getApplicationInfo(process.processName, 0);
-                        CharSequence label = pm.getApplicationLabel(ai);
-                        if (label != null) {
-                            return label.toString();
-                        }
-                    } catch (PackageManager.NameNotFoundException e) {
-                        // ignore and fallback below
-                    }
-                }
-            }
-        }
-
-        // Final fallback: strip "com." and return last segment
-        if (packageName.contains(".")) {
-            String[] parts = packageName.split("\\.");
-            return capitalize(parts[parts.length - 1]);
-        }
-
-        return packageName;
-    }
-
-    private String capitalize(String str) {
-        if (str == null || str.isEmpty()) return str;
-        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
+        seconds %= 60;  // Get the remaining seconds
+        return String.format(Locale.getDefault(), "%02dh %02dm %02ds", hours, minutes % 60, seconds);
     }
 
     private boolean hasDataBeenSavedToday() {
-        // TODO: Implement persistence check
+        // You should implement this method to check if usage data has already been saved today
         return false;
     }
 
     private void setDataSavedToday() {
-        // TODO: Implement persistence save
-    }
-
-    private Map<String, Long> convertAppUsageToPackageUsage() {
-        return new HashMap<>();
+        // You should implement this method to mark that today's data has been saved
     }
 }
-// TODO: app name tlaga d ko magawan ng paraan try ko ayusin bukas pati yung bar charts
