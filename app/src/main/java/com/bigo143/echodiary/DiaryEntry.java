@@ -9,6 +9,7 @@ public class DiaryEntry {
     public int id;
 
     public String title;
+    public String subtitle;
     public String content;
     public long timestamp;
 }

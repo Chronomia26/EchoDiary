@@ -1,45 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/view"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="#FFF8E1"
+tools:context=".DiaryDetailActivity">
+
+<ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
-    android:background="@color/ic_launcher_background">
+    android:layout_marginBottom="40dp"
+    android:clipToPadding="false"
+    android:paddingBottom="10dp">
 
-
-    <LinearLayout
-
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:animateLayoutChanges="true">
 
-        <TextView
+        <ImageView
+            android:id="@+id/detailBack"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/ic_back"
+            android:tint="@color/white"
+            android:background="@drawable/background_add_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <!-- android:background="@drawable/background_done_button" -->
+
+        <ImageView
+            android:id="@+id/detailSave"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="16dp"
+            android:padding="4dp"
+            android:src="@drawable/ic_done"
+            android:tint="@color/white"
+            android:background="@drawable/background_add_button"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/detailDelete"
+            app:layout_constraintVertical_bias="0.0" />
+        <!-- android:background="@drawable/background_done_button"
+        Note: The done was og. not in line with back, had to drag and drop -->
+
+        <EditText
             android:id="@+id/detailTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_gravity="center"
-            android:text="Title"
-            android:textColor="#4E342E"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/background_search"
+            android:paddingStart="12dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="10dp"
+            android:hint="Title"
+            android:textColorHint="@color/white"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:imeOptions="actionDone"
+            android:importantForAutofill="no"
+            android:includeFontPadding="false"
+            android:inputType="text"
+            app:layout_constraintTop_toBottomOf="@id/detailBack"/>
 
         <TextView
             android:id="@+id/detailTimestamp"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Date"
-            android:textColor="#6D4C41"
-            android:textSize="14sp"
-            android:layout_marginBottom="12dp"/>
+            android:includeFontPadding="false"
+            android:textColor="@color/pale_mocha"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="@id/detailTitle"
+            app:layout_constraintStart_toStartOf="@id/detailTitle"
+            app:layout_constraintTop_toBottomOf="@id/detailTitle"/>
 
-        <TextView
+        <EditText
+            android:id="@+id/detailSubtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="12dp"
+            android:background="@null"
+            android:hint="Subtitle"
+            android:textColorHint="@color/pale_mocha"
+            android:textColor="@color/pale_mocha"
+            android:textSize="13sp"
+            android:importantForAutofill="no"
+            android:includeFontPadding="false"
+            android:inputType="textMultiLine"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/detailSubtitleIndicator"
+            app:layout_constraintTop_toBottomOf="@id/detailTimestamp"/>
+
+        <View
+            android:id="@+id/detailSubtitleIndicator"
+            android:layout_width="5dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="12dp"
+            android:background="@drawable/background_subtitle_indicator"
+            app:layout_constraintBottom_toBottomOf="@id/detailSubtitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/detailSubtitle"/>
+
+        <EditText
             android:id="@+id/detailContent"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Journal content goes here..."
-            android:textColor="#3E2723"
-            android:textSize="16sp"
-            android:lineSpacingExtra="4dp"/>
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="15dp"
+            android:background="@null"
+            android:gravity="top"
+            android:hint="Journal content goes here..."
+            android:textColorHint="@color/pale_mocha"
+            android:textColor="@color/pale_mocha"
+            android:textSize="13sp"
+            android:importantForAutofill="no"
+            android:includeFontPadding="false"
+            android:inputType="textMultiLine"
+            android:minHeight="100dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/detailSubtitle" />
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/detailDelete"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="60dp"
+            android:layout_marginBottom="85dp"
+            android:background="@drawable/background_add_button"
+            android:src="@drawable/ic_delete"
+            android:tint="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/detailBack"
+            app:layout_constraintVertical_bias="0.0" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

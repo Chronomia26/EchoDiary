@@ -1,6 +1,10 @@
 package com.bigo143.echodiary;
 
 import android.os.Bundle;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -14,11 +18,13 @@ import java.util.List;
 
 import android.widget.ImageView;
 import android.content.Intent;
+import android.widget.Toast;
 
 
 public class DiaryFragment extends Fragment {
 
     private DiaryAdapter adapter;
+    private ActivityResultLauncher<Intent> detailLauncher;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -30,6 +36,7 @@ public class DiaryFragment extends Fragment {
         DiaryAdapter adapter = new DiaryAdapter(getContext());
 
         recyclerView.setAdapter(adapter);
+
 
         DiaryDatabase.getInstance(requireContext())
                 .diaryDao()

@@ -18,6 +18,12 @@
             android:textSize="18sp"
             android:inputType="text"/>
 
+        <TextView
+            android:id="@+id/journalDateTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"/>
+
         <!-- Content -->
         <EditText
             android:id="@+id/journalContent"

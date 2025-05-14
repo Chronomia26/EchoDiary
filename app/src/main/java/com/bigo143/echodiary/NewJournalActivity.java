@@ -5,10 +5,15 @@ import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 
@@ -18,6 +23,7 @@ public class NewJournalActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_SPEECH_INPUT = 1;
 
     private EditText journalTitle, journalContent, journalTags;
+    private TextView journalDateTime;
     private Button btnVoiceInput, btnSave;
 
     @Override
@@ -28,6 +34,7 @@ public class NewJournalActivity extends AppCompatActivity {
         journalTitle = findViewById(R.id.journalTitle);
         journalContent = findViewById(R.id.journalContent);
         journalTags = findViewById(R.id.journalTags);
+        journalDateTime = findViewById(R.id.journalDateTime);
         btnVoiceInput = findViewById(R.id.btnVoiceInput);
         btnSave = findViewById(R.id.btnSave);
 
@@ -35,10 +42,11 @@ public class NewJournalActivity extends AppCompatActivity {
 
         btnSave.setOnClickListener(v -> {
             String title = journalTitle.getText().toString();
-            String content = journalContent.getText().toString();
-            String tags = journalTags.getText().toString();
+            String body = journalContent.getText().toString();
+            String subtitle = journalTags.getText().toString();
+            String dateTime = journalDateTime.getText().toString().trim();
 
-            if (title.isEmpty() || content.isEmpty()) {
+            if (title.isEmpty() || body.isEmpty()) {
                 Toast.makeText(this, "Please fill in the title and content.", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -46,7 +54,7 @@ public class NewJournalActivity extends AppCompatActivity {
             // ✅ Save to Room database using background thread
             DiaryEntry entry = new DiaryEntry();
             entry.title = title;
-            entry.content = content;
+            entry.content = body;
             entry.timestamp = System.currentTimeMillis();
 
             Executors.newSingleThreadExecutor().execute(() -> {

@@ -16,6 +16,7 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
 
     private List<DiaryEntry> entries;
     private Context context;
+    private DiaryEntry currentEntry;
 
     public DiaryAdapter(Context context) {
         this.context = context;
@@ -46,6 +47,8 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
             intent.putExtra("timestamp", entry.timestamp);
             context.startActivity(intent);
         });
+
+
     }
 
     @Override
@@ -62,4 +65,5 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
             date = itemView.findViewById(R.id.entryDate);
         }
     }
+
 }
