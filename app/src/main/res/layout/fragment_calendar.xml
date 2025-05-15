@@ -1,243 +1,243 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:mcv="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#FFF8E1"
-    android:padding="16dp">
-
-    <TextView
-        android:id="@+id/calendarTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/calendar"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        android:textColor="@color/pale_mocha"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dp" />
-
-    <LinearLayout
-        android:id="@+id/topRow"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:mcv="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="8dp"
-        android:paddingHorizontal="3dp"
-        android:weightSum="1">
-
-        <!-- Year and Month -->
-        <LinearLayout
-            android:id="@+id/yearMonth"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.41"
-            android:orientation="horizontal"
-            android:gravity="start|center_vertical">
-
-            <TextView
-                android:id="@+id/yearText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="2025"
-                android:textSize="30sp"
-                android:textStyle="bold"
-                android:layout_marginEnd="6dp"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <TextView
-                android:id="@+id/monthText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="May"
-                android:textSize="29sp"
-                android:textStyle="bold"
-                android:clickable="true"
-                android:focusable="true" />
-        </LinearLayout>
-
-
-        <!-- Mood Legend -->
-        <LinearLayout
-            android:id="@+id/moodLegend"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.6"
-            android:orientation="horizontal"
-            android:gravity="end|center_vertical"
-            android:layout_marginStart="3dp">
-
-            <!-- Happy -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginEnd="8dp">
-
-                <View
-                    android:layout_width="17dp"
-                    android:layout_height="17dp"
-                    android:background="@drawable/ic_happy_dot" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="Happy"
-                    android:textSize="18sp" />
-            </LinearLayout>
-
-            <!-- Sad -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginEnd="8dp">
-
-                <View
-                    android:layout_width="17dp"
-                    android:layout_height="17dp"
-                    android:background="@drawable/ic_sad_dot" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="Sad"
-                    android:textSize="18sp" />
-            </LinearLayout>
-
-            <!-- Neutral -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <View
-                    android:layout_width="17dp"
-                    android:layout_height="17dp"
-                    android:background="@drawable/ic_neutral_dot" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="Neutral"
-                    android:textSize="18sp" />
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/weekDaysHeader"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:paddingBottom="7dp">
-
-        <TextView style="@style/WeekDayText" android:text="Sun"/>
-        <TextView style="@style/WeekDayText" android:text="Mon"/>
-        <TextView style="@style/WeekDayText" android:text="Tue"/>
-        <TextView style="@style/WeekDayText" android:text="Wed"/>
-        <TextView style="@style/WeekDayText" android:text="Thu"/>
-        <TextView style="@style/WeekDayText" android:text="Fri"/>
-        <TextView style="@style/WeekDayText" android:text="Sat"/>
-
-    </LinearLayout>
-
-    <com.bigo143.echodiary.GestureDetectingGridView
-        android:id="@+id/calendarGrid"
-        android:layout_width="match_parent"
-        android:layout_height="320dp"
-        android:numColumns="7"
-        android:horizontalSpacing="4dp"
-        android:verticalSpacing="4dp"
-        android:stretchMode="columnWidth"
-        android:gravity="center"
-        android:layout_marginBottom="6dp"/>
-
-    <FrameLayout
-        android:id="@+id/events"
-        android:layout_width="match_parent"
-        android:layout_height="20dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#FFF8E1"
+        android:padding="16dp">
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/calendarTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No Events" />
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/maintaskcontainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+            android:text="@string/calendar"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textColor="@color/pale_mocha"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp" />
 
         <LinearLayout
+            android:id="@+id/topRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp"
+            android:paddingHorizontal="3dp"
+            android:weightSum="1">
 
-            <TextView
-                android:id="@+id/textView1"
-                android:layout_width="wrap_content"
+            <!-- Year and Month -->
+            <LinearLayout
+                android:id="@+id/yearMonth"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Notes"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="4dp" />
+                android:layout_weight="0.41"
+                android:orientation="horizontal"
+                android:gravity="start|center_vertical">
 
-            <FrameLayout
-                android:id="@+id/editTextContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <View
-                    android:id="@+id/dimBackground"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="#80000000"
-                    android:visibility="gone" />
-
-                <EditText
-                    android:id="@+id/taskInput"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/yearText"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:hint="Tap to add a task"
-                    android:textAlignment="center"
-                    android:focusable="false"
+                    android:text="2025"
+                    android:textSize="30sp"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="6dp"
                     android:clickable="true"
-                    android:cursorVisible="false"
-                    android:inputType="none"
-                    android:background="@drawable/edit_text_background"
-                    android:padding="12dp"
-                    android:elevation="8dp"/>
-            </FrameLayout>
+                    android:focusable="true" />
 
-            <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:fillViewport="true"
-                android:overScrollMode="ifContentScrolls">
-
-                <LinearLayout
-                    android:id="@+id/tasksContainer"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/monthText"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="8dp" />
-            </ScrollView>
+                    android:text="May"
+                    android:textSize="29sp"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+
+
+            <!-- Mood Legend -->
+            <LinearLayout
+                android:id="@+id/moodLegend"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.6"
+                android:orientation="horizontal"
+                android:gravity="end|center_vertical"
+                android:layout_marginStart="3dp">
+
+                <!-- Happy -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginEnd="8dp">
+
+                    <View
+                        android:layout_width="17dp"
+                        android:layout_height="17dp"
+                        android:background="@drawable/ic_happy_dot" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="Happy"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <!-- Sad -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginEnd="8dp">
+
+                    <View
+                        android:layout_width="17dp"
+                        android:layout_height="17dp"
+                        android:background="@drawable/ic_sad_dot" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="Sad"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <!-- Neutral -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <View
+                        android:layout_width="17dp"
+                        android:layout_height="17dp"
+                        android:background="@drawable/ic_neutral_dot" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="Neutral"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/weekDaysHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingBottom="7dp">
+
+            <TextView style="@style/WeekDayText" android:text="Sun"/>
+            <TextView style="@style/WeekDayText" android:text="Mon"/>
+            <TextView style="@style/WeekDayText" android:text="Tue"/>
+            <TextView style="@style/WeekDayText" android:text="Wed"/>
+            <TextView style="@style/WeekDayText" android:text="Thu"/>
+            <TextView style="@style/WeekDayText" android:text="Fri"/>
+            <TextView style="@style/WeekDayText" android:text="Sat"/>
 
         </LinearLayout>
-    </FrameLayout>
+
+        <com.bigo143.echodiary.GestureDetectingGridView
+            android:id="@+id/calendarGrid"
+            android:layout_width="match_parent"
+            android:layout_height="320dp"
+            android:numColumns="7"
+            android:horizontalSpacing="4dp"
+            android:verticalSpacing="4dp"
+            android:stretchMode="columnWidth"
+            android:gravity="center"
+            android:layout_marginBottom="6dp"/>
+
+        <FrameLayout
+            android:id="@+id/events"
+            android:layout_width="match_parent"
+            android:layout_height="20dp">
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No Events" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/maintaskcontainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Notes"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp" />
+
+                <FrameLayout
+                    android:id="@+id/editTextContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <View
+                        android:id="@+id/dimBackground"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#80000000"
+                        android:visibility="gone" />
+
+                    <EditText
+                        android:id="@+id/taskInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Tap to add a task"
+                        android:textAlignment="center"
+                        android:focusable="false"
+                        android:clickable="true"
+                        android:cursorVisible="false"
+                        android:inputType="none"
+                        android:background="@drawable/edit_text_background"
+                        android:padding="12dp"
+                        android:elevation="8dp"/>
+                </FrameLayout>
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:fillViewport="true"
+                    android:overScrollMode="ifContentScrolls">
+
+                    <LinearLayout
+                        android:id="@+id/tasksContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp" />
+                </ScrollView>
+
+            </LinearLayout>
+        </FrameLayout>
 
 
 
 
-</LinearLayout>
+    </LinearLayout>

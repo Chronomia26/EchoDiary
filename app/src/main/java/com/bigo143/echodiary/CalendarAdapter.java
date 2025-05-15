@@ -10,6 +10,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -19,15 +22,41 @@ public class CalendarAdapter extends BaseAdapter {
     private Map<Integer, Integer> moodMap;
     private int displayedMonth;
     private int displayedYear;
+    private int selectedDay = -1;
+    private int currentDay = -1;
+    private int firstDayOffset;  // number of blank cells before day 1
 
 
-    public CalendarAdapter(Context context, List<String> days, Map<Integer, Integer> moodMap, int displayedMonth, int displayedYear) {
+
+
+    public void setCurrentDay(int day) {
+        currentDay = day;
+        notifyDataSetChanged();
+    }
+
+    public void setSelectedDay(int day) {
+        selectedDay = day;
+        notifyDataSetChanged();
+    }
+
+    public int getCurrentDay() {
+        return currentDay;
+    }
+
+    public int getSelectedDay() {
+        return selectedDay;
+    }
+
+
+    public CalendarAdapter(Context context, List<String> days, Map<Integer, Integer> moodMap, int displayedMonth, int displayedYear, int firstDayOffset) {
         this.context = context;
         this.days = days;
         this.moodMap = moodMap;
         this.displayedMonth = displayedMonth;
         this.displayedYear = displayedYear;
+        this.firstDayOffset = firstDayOffset;
     }
+
 
 
     @Override
@@ -36,10 +65,9 @@ public class CalendarAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
-        return days.get(position);
+    public String getItem(int position) {
+        return (position >= 0 && position < days.size()) ? days.get(position) : null;
     }
-
     @Override
     public long getItemId(int position) {
         return position;
@@ -48,56 +76,41 @@ public class CalendarAdapter extends BaseAdapter {
     @SuppressLint("ViewHolder")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View view = LayoutInflater.from(context).inflate(R.layout.calendar_day_item, parent, false);
+        View view = convertView;
+        if (view == null) {
+            view = LayoutInflater.from(context).inflate(R.layout.calendar_day_item, parent, false);
+        }
 
         TextView dayText = view.findViewById(R.id.dayText);
-        ImageView moodDot = view.findViewById(R.id.moodDot);
+        ImageView moodIcon = view.findViewById(R.id.moodIcon); // Make sure your calendar_day_item.xml has this ImageView!
 
-        String day = days.get(position);
+        String dayStr = days.get(position);
+        dayText.setText(dayStr);
 
-        if (!day.isEmpty()) {
-            dayText.setText(day);
+        // Clear background and mood icon by default
+        view.setBackgroundResource(android.R.color.transparent);
+        moodIcon.setVisibility(View.INVISIBLE);
 
-            try {
-                int dayInt = Integer.parseInt(day);
+        if (!dayStr.isEmpty()) {
+            int day = Integer.parseInt(dayStr);
 
-                // Mood logic
-                if (moodMap.containsKey(dayInt)) {
-                    moodDot.setImageResource(moodMap.get(dayInt));
-                    moodDot.setVisibility(View.VISIBLE);
-                } else {
-                    moodDot.setVisibility(View.GONE);
-                }
-
-                // Highlight today's date
-                java.util.Calendar calendar = java.util.Calendar.getInstance();
-                int today = calendar.get(java.util.Calendar.DAY_OF_MONTH);
-                int currentMonth = calendar.get(java.util.Calendar.MONTH);
-                int currentYear = calendar.get(java.util.Calendar.YEAR);
-
-                // TODO: If your calendar allows viewing other months, compare them too
-                if (dayInt == today &&
-                        currentMonth == displayedMonth &&
-                        currentYear == displayedYear) {
-                    view.setBackgroundResource(R.drawable.border_today);
-                } else {
-                    view.setBackgroundColor(android.graphics.Color.WHITE);
-                }
-
-
-
-            } catch (NumberFormatException ignored) {
+            // Set background for selected or current day
+            if (day == selectedDay) {
+                view.setBackgroundResource(R.drawable.border_selected);
+            } else if (day == currentDay) {
+                view.setBackgroundResource(R.drawable.border_today);
             }
-        } else {
-            dayText.setText("");
-            moodDot.setVisibility(View.GONE);
-            view.setBackground(null);
+
+            // Show mood icon if exists for this day
+            if (moodMap != null && moodMap.containsKey(day)) {
+                int moodDrawableRes = moodMap.get(day);
+                moodIcon.setImageResource(moodDrawableRes);
+                moodIcon.setVisibility(View.VISIBLE);
+            }
         }
 
         return view;
     }
 
+
 }
-
-
-
