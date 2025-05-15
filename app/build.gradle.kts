@@ -45,6 +45,9 @@ dependencies {
 
     implementation(libs.recyclerview)
 
+    implementation(libs.ssp)
+    implementation(libs.sdp)
+
 
 
 
