@@ -2,9 +2,11 @@ package com.bigo143.echodiary;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -13,25 +15,32 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class CalendarFragment extends Fragment {
 
@@ -41,11 +50,17 @@ public class CalendarFragment extends Fragment {
     private int selectedDay = -1;
     private int todayDay = -1;
     private CalendarAdapter calendarAdapter;
+    private MoodNoteDBHelper dbHelper;
+    private LinearLayout tasksContainer;
+    private String selectedDate; // e.g., "2025/05/20"
+
+    private View rootLayout;
+    private MoodManager moodManager;
+    private TaskManager taskManager;
+    private final SimpleDateFormat dbDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
     private final Map<Integer, Integer> moodMap = new HashMap<>();
-    private final Random random = new Random();
-
-    private final Map<String, List<String>> tasksPerDate = new HashMap<>();
+    private final Set<String> promptedDates = new HashSet<>();
 
     private final int[] moodDrawables = {
             R.drawable.ic_happy_dot,
@@ -57,10 +72,16 @@ public class CalendarFragment extends Fragment {
         // Required empty constructor
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         currentCalendar = Calendar.getInstance();
+        moodManager = new MoodManager(requireContext());
+        dbHelper = new MoodNoteDBHelper(requireContext());
+        selectedDate = dbDateFormat.format(currentCalendar.getTime());
+
+
     }
 
     @Override
@@ -68,68 +89,120 @@ public class CalendarFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_calendar, container, false);
 
+
         calendarGrid = view.findViewById(R.id.calendarGrid);
         yearText = view.findViewById(R.id.yearText);
         monthText = view.findViewById(R.id.monthText);
+        tasksContainer = view.findViewById(R.id.tasksContainer);
+        taskManager = new TaskManager(requireContext());
+        rootLayout = view.findViewById(R.id.rootLayout);
+        LinearLayout moodLegend = view.findViewById(R.id.moodLegend);
 
         EditText taskInput = view.findViewById(R.id.taskInput);
-        LinearLayout tasksContainer = view.findViewById(R.id.tasksContainer);
-
-        yearText.setOnClickListener(v -> showYearPickerDialog());
-        monthText.setOnClickListener(v -> showMonthPickerDialog());
-
-        // Set swipe listener to respond to left/right swipes
-        calendarGrid.setOnSwipeListener(new GestureDetectingGridView.OnSwipeListener() {
-            @Override
-            public void onSwipeLeft() {
-                changeMonth(1);  // Swipe left to go to next month
-            }
-
-            @Override
-            public void onSwipeRight() {
-                changeMonth(-1); // Swipe right to go to previous month
-            }
-        });
-
-        // Make taskInput non-editable but clickable
         taskInput.setFocusable(false);
         taskInput.setFocusableInTouchMode(false);
         taskInput.setClickable(true);
         taskInput.setOnClickListener(v -> showTaskInputDialog(tasksContainer));
 
-        // Remove this listener since taskInput is non-editable (optional)
-        // You can remove if you want to allow keyboard input, but currently it's dialog-based input.
-        taskInput.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE ||
-                    (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
-                            && event.getAction() == KeyEvent.ACTION_DOWN)) {
-                v.clearFocus();
-                hideKeyboard(v);
+        yearText.setOnClickListener(v -> showYearPickerDialog());
+        monthText.setOnClickListener(v -> showMonthPickerDialog());
 
-                String taskText = taskInput.getText().toString().trim();
-                if (!taskText.isEmpty()) {
-                    addTaskToLayout(taskText, tasksContainer);
-                    taskInput.setText("");
+        rootLayout.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                int[] loc = new int[2];
+                calendarGrid.getLocationOnScreen(loc);
+                int x = loc[0];
+                int y = loc[1];
+                int w = calendarGrid.getWidth();
+                int h = calendarGrid.getHeight();
+
+                float touchX = event.getRawX();
+                float touchY = event.getRawY();
+
+                boolean outside = !(touchX >= x && touchX <= x + w && touchY >= y && touchY <= y + h);
+
+                if (outside) {
+                    selectedDay = -1;
+                    calendarAdapter.setSelectedDay(-1);
+
+                    Calendar today = Calendar.getInstance();
+                    if (today.get(Calendar.MONTH) == currentCalendar.get(Calendar.MONTH) &&
+                            today.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR)) {
+                        todayDay = today.get(Calendar.DAY_OF_MONTH);
+                        calendarAdapter.setCurrentDay(todayDay);
+                    } else {
+                        todayDay = -1;
+                        calendarAdapter.setCurrentDay(-1);
+                    }
+
+                    calendarGrid.invalidateViews();
+                    return true;
                 }
-                return true;
             }
             return false;
         });
 
-        loadCalendar();
+        if (!isMoodEnabled()) {
+            moodLegend.setVisibility(View.GONE); // Hide the layout
+        } else {
+            moodLegend.setVisibility(View.VISIBLE); // Show the layout
+        }
 
-        calendarGrid.setOnItemClickListener((parent, view1, position, id) -> {
-            String dayStr = calendarAdapter.getItem(position);
-            if (dayStr != null && !dayStr.isEmpty()) {
-                selectedDay = Integer.parseInt(dayStr);
-                calendarAdapter.setSelectedDay(selectedDay);
-                calendarAdapter.setCurrentDay(-1);
-                calendarGrid.invalidateViews();
 
-                showTasksForDate(tasksContainer);
+        calendarGrid.setOnSwipeListener(new GestureDetectingGridView.OnSwipeListener() {
+            @Override
+            public void onSwipeLeft() {
+                changeMonth(1);
+            }
+
+            @Override
+            public void onSwipeRight() {
+                changeMonth(-1);
             }
         });
 
+        calendarGrid.setOnItemClickListener((parent, view1, position, id) -> {
+            String dayStr = calendarAdapter.getItem(position);
+            if (dayStr.isEmpty()) return;
+            int day = Integer.parseInt(dayStr);
+
+            selectedDay = day;
+            calendarAdapter.setSelectedDay(day);
+            calendarGrid.invalidateViews();
+
+            selectedDate = String.format(Locale.getDefault(), "%04d/%02d/%02d",
+                    currentCalendar.get(Calendar.YEAR),
+                    currentCalendar.get(Calendar.MONTH) + 1, day);
+
+            showTasksForDate(tasksContainer);
+
+            if (isMoodEnabled() && !promptedDates.contains(selectedDate)) {
+                showMoodNoteDialog(selectedDate);
+                promptedDates.add(selectedDate);
+            }
+        });
+
+        calendarGrid.setOnItemLongClickListener((parent, view1, position, id) -> {
+            String dayStr = calendarAdapter.getItem(position);
+            if (dayStr.isEmpty()) return false;
+            int day = Integer.parseInt(dayStr);
+            selectedDay = day;
+            calendarAdapter.setSelectedDay(day);
+            calendarGrid.invalidateViews();
+
+            selectedDate = String.format(Locale.getDefault(), "%04d/%02d/%02d",
+                    currentCalendar.get(Calendar.YEAR),
+                    currentCalendar.get(Calendar.MONTH) + 1, day);
+
+            showTasksForDate(tasksContainer);
+
+            if (isMoodEnabled()) {
+                showMoodNoteDialog(selectedDate);
+            }
+            return true;
+        });
+
+        loadCalendar();
         return view;
     }
 
@@ -144,6 +217,11 @@ public class CalendarFragment extends Fragment {
     private void changeMonth(int offset) {
         currentCalendar.add(Calendar.MONTH, offset);
         loadCalendar();
+    }
+
+    private boolean isMoodEnabled() {
+        return requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                .getBoolean("mood_enabled", true);
     }
 
     private void loadCalendar() {
@@ -163,9 +241,29 @@ public class CalendarFragment extends Fragment {
         }
 
         moodMap.clear();
-        for (int i = 1; i <= maxDay; i++) {
-            if (random.nextBoolean()) {
-                moodMap.put(i, moodDrawables[random.nextInt(moodDrawables.length)]);
+        if (isMoodEnabled()) {
+            for (int i = 1; i <= maxDay; i++) {
+                String dateKey = String.format(Locale.getDefault(), "%04d/%02d/%02d",
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH) + 1,
+                        i);
+                MoodNoteDBHelper.MoodNote moodNote = moodManager.getMood(dateKey);
+                if (moodNote != null) {
+                    // Map moods to your drawable ids
+                    int drawableId = R.drawable.ic_neutral_dot; // default
+                    switch (moodNote.mood) {
+                        case "happy":
+                            drawableId = R.drawable.ic_happy_dot;
+                            break;
+                        case "sad":
+                            drawableId = R.drawable.ic_sad_dot;
+                            break;
+                        case "neutral":
+                            drawableId = R.drawable.ic_neutral_dot;
+                            break;
+                    }
+                    moodMap.put(i, drawableId);
+                }
             }
         }
 
@@ -189,6 +287,13 @@ public class CalendarFragment extends Fragment {
         }
 
         calendarAdapter.setSelectedDay(selectedDay);
+
+        // Highlight today only if nothing is selected
+        if (selectedDay == -1 && todayDay != -1) {
+            calendarAdapter.setSelectedDay(-1); // Force adapter to differentiate
+            calendarAdapter.setCurrentDay(todayDay); // Ensure today is highlighted
+        }
+
         calendarGrid.invalidateViews();
     }
 
@@ -250,85 +355,111 @@ public class CalendarFragment extends Fragment {
         }
     }
 
-    private void showEditDialog(CheckBox taskCheckbox) {
+    private void showEditDialog(CheckBox taskCheckbox, MoodNoteDBHelper.Task task) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Edit Task");
 
         EditText input = new EditText(getContext());
-        input.setText(taskCheckbox.getText().toString());
+        input.setText(task.getText());
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setSelection(input.getText().length());
 
         builder.setView(input);
         builder.setPositiveButton("Save", (dialog, which) -> {
             String editedText = input.getText().toString().trim();
             if (!editedText.isEmpty()) {
-                // Update task text in UI
-                String oldText = taskCheckbox.getText().toString();
+                // Use task ID to update the task in DB
+                taskManager.updateTaskById(
+                        task.getId(),    // task ID
+                        editedText,      // newText
+                        task.getTime(),  // keep old time
+                        task.isChecked() // keep old checked status
+                );
+
+                // Update the task object locally as well
+                task.setText(editedText);
+
+                // Update the checkbox text on UI
                 taskCheckbox.setText(editedText);
-
-                // Update task in tasksPerDate
-                Calendar date = (Calendar) currentCalendar.clone();
-                if (selectedDay != -1) {
-                    date.set(Calendar.DAY_OF_MONTH, selectedDay);
-                }
-                String selectedDate = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(date.getTime());
-
-                List<String> tasks = tasksPerDate.get(selectedDate);
-                if (tasks != null) {
-                    int idx = tasks.indexOf(oldText);
-                    if (idx != -1) {
-                        tasks.set(idx, editedText);
-                    }
-                }
+            } else {
+                Toast.makeText(getContext(), "Task cannot be empty", Toast.LENGTH_SHORT).show();
             }
         });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.setNegativeButton("Cancel", null);
         builder.show();
     }
 
-    private void addTaskToLayout(String taskText, LinearLayout container) {
-        if (getContext() == null) return;
 
-        LinearLayout taskLayout = new LinearLayout(getContext());
-        taskLayout.setOrientation(LinearLayout.VERTICAL);
+    private void addTaskView(LinearLayout container, MoodNoteDBHelper.Task task) {
+        // Inflate task_item.xml layout for one task
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        View taskView = inflater.inflate(R.layout.task_item, container, false);
 
-        int paddingPx = (int) (32 * getResources().getDisplayMetrics().density);
-        taskLayout.setPadding(paddingPx, (int)(paddingPx / 1.5f), paddingPx, (int)(paddingPx / 1.5f));
-        taskLayout.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.task_background));
+        CheckBox taskCheckBox = taskView.findViewById(R.id.taskCheckBox);
+        TextView taskTimeText = taskView.findViewById(R.id.taskTimeText);
+        ImageButton taskEditButton = taskView.findViewById(R.id.taskEditButton);
 
-        CheckBox taskCheckbox = new CheckBox(getContext());
-        taskCheckbox.setText(taskText);
+        // Set checkbox text and checked state
+        taskCheckBox.setText(task.getText());
+        taskCheckBox.setChecked(task.isChecked());
 
-        // Only add task to tasksPerDate if it doesn't exist yet (prevent duplicates when refreshing)
-        Calendar date = (Calendar) currentCalendar.clone();
-        if (selectedDay != -1) {
-            date.set(Calendar.DAY_OF_MONTH, selectedDay);
-        }
-        String selectedDate = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(date.getTime());
+        // Set task time
+        taskTimeText.setText(task.getTime());
 
-        List<String> tasks = tasksPerDate.computeIfAbsent(selectedDate, k -> new ArrayList<>());
-        if (!tasks.contains(taskText)) {
-            tasks.add(taskText);
-        }
+        // Checkbox listener to update checked state in DB
+        taskCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // Delete task to avoid container overload
+                taskManager.deleteTaskById(task.getId());
+                // Also remove checkbox from the UI container (e.g., tasksContainer.removeView(checkBox))
+                ((ViewGroup) taskCheckBox.getParent()).removeView(taskCheckBox);
+            } else {
+                // Update the task as unchecked
+                taskManager.updateTaskById(task.getId(), task.getText(), task.getTime(), false);
+                task.setChecked(false);
+            }
+        });
 
-        taskCheckbox.setOnLongClickListener(v -> {
-            showEditDialog(taskCheckbox);
+        // Edit button to open your existing edit dialog
+        taskEditButton.setOnClickListener(v -> showEditDialog(taskCheckBox, task));
+
+        // Add the inflated task view to the container
+        container.addView(taskView);
+    }
+
+
+
+
+    private CheckBox createTaskCheckbox(MoodNoteDBHelper.Task task) {
+        CheckBox checkBox = new CheckBox(getContext());
+        checkBox.setText(task.getText());
+        checkBox.setChecked(task.isChecked());
+
+        checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // Delete task to avoid container overload
+                taskManager.deleteTaskById(task.getId());
+                // Also remove checkbox from the UI container (e.g., tasksContainer.removeView(checkBox))
+                ((ViewGroup) checkBox.getParent()).removeView(checkBox);
+            } else {
+                // Update the task as unchecked
+                    taskManager.updateTaskById(task.getId(), task.getText(), task.getTime(), false);
+                    task.setChecked(false);
+            }
+        });
+
+        checkBox.setOnLongClickListener(v -> {
+            showEditDialog(checkBox, task);
             return true;
         });
 
-        TextView timeText = new TextView(getContext());
-        String time = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
-        timeText.setText("Added at " + time);
-        timeText.setTextSize(12);
-        timeText.setTextColor(Color.GRAY);
-
-        taskLayout.addView(taskCheckbox);
-        taskLayout.addView(timeText);
-
-        container.addView(taskLayout);
+        return checkBox;
     }
 
+
+
     private void showTaskInputDialog(LinearLayout container) {
-        if (getContext() == null) return;
+        if (getContext() == null || selectedDate == null) return;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Add Task");
@@ -338,34 +469,85 @@ public class CalendarFragment extends Fragment {
         input.setHint("Enter task description");
 
         builder.setView(input);
-
         builder.setPositiveButton("Add", (dialog, which) -> {
             String taskText = input.getText().toString().trim();
             if (!taskText.isEmpty()) {
-                addTaskToLayout(taskText, container);
+                String time = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
+                taskManager.insertTask(selectedDate, taskText, time, false);
+                showTasksForDate(tasksContainer);  // Refresh list
             }
         });
 
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-
         builder.show();
     }
 
     private void showTasksForDate(LinearLayout container) {
+        if (selectedDate == null) return;
         container.removeAllViews();
 
-        Calendar date = (Calendar) currentCalendar.clone();
-        if (selectedDay != -1) {
-            date.set(Calendar.DAY_OF_MONTH, selectedDay);
-        }
-        String selectedDate = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(date.getTime());
-
-        List<String> tasks = tasksPerDate.get(selectedDate);
-        if (tasks != null) {
-            for (String taskText : tasks) {
-                addTaskToLayout(taskText, container);
-            }
+        List<MoodNoteDBHelper.Task> tasks = taskManager.getTasks(selectedDate);
+        for (MoodNoteDBHelper.Task task : tasks) {
+            addTaskView(container, task);
         }
     }
 
+
+    private void showMoodNoteDialog(String date) {
+        MoodNoteDBHelper.MoodNote existingMoodNote = moodManager.getMood(date);
+
+        String[] moods = getResources().getStringArray(R.array.mood_options);
+        int selectedMoodIndex = 2; // default "Neutral"
+        if (existingMoodNote != null) {
+            switch (existingMoodNote.mood) {
+                case "happy": selectedMoodIndex = 0; break;
+                case "sad": selectedMoodIndex = 1; break;
+                case "neutral": selectedMoodIndex = 2; break;
+            }
+        }
+
+        LinearLayout layout = new LinearLayout(requireContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(50, 40, 50, 10);
+
+        Spinner moodSpinner = new Spinner(requireContext());
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, moods);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        moodSpinner.setAdapter(adapter);
+        moodSpinner.setSelection(selectedMoodIndex);
+        layout.addView(moodSpinner);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
+                .setTitle("Mood for " + date)
+                .setView(layout)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    String selectedMood = "neutral";
+                    switch (moodSpinner.getSelectedItemPosition()) {
+                        case 0: selectedMood = "happy"; break;
+                        case 1: selectedMood = "sad"; break;
+                        case 2: selectedMood = "neutral"; break;
+                    }
+
+                    moodManager.saveMood(date, selectedMood, "");
+                    loadCalendar();
+                })
+                .setNegativeButton("Cancel", null);
+
+        // Only show Delete button if there's an existing mood
+        if (existingMoodNote != null) {
+            builder.setNeutralButton("Delete", (dialog, which) -> {
+                moodManager.deleteMood(date);
+                loadCalendar();
+            });
+        }
+
+        builder.show();
+    }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        taskManager = null;
+    }
 }

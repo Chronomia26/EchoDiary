@@ -46,6 +46,12 @@
         <item>System Default</item>
     </string-array>
 
+    <string-array name="mood_options">
+        <item>Happy</item>
+        <item>Sad</item>
+        <item>Neutral</item>
+    </string-array>
+
     <string name="about_message">EchoDiary v1.0\nDeveloped by Bigo143\nAll rights reserved.</string>
     <string name="on">On</string>
     <string name="off">Off</string>

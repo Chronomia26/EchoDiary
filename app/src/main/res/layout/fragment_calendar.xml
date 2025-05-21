@@ -4,7 +4,11 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:background="#FFF8E1"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:id="@+id/rootLayout"
+        android:clickable="true"
+        android:focusable="true">
+
 
         <TextView
             android:id="@+id/calendarTitle"
@@ -64,7 +68,8 @@
                 android:id="@+id/moodLegend"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.6"
+                android:visibility="visible"
+                android:layout_weight="0.55"
                 android:orientation="horizontal"
                 android:gravity="end|center_vertical"
                 android:layout_marginStart="3dp">
@@ -87,7 +92,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:text="Happy"
-                        android:textSize="18sp" />
+                        android:textSize="15sp" />
                 </LinearLayout>
 
                 <!-- Sad -->
@@ -108,7 +113,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:text="Sad"
-                        android:textSize="18sp" />
+                        android:textSize="15sp" />
                 </LinearLayout>
 
                 <!-- Neutral -->
@@ -128,7 +133,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:text="Neutral"
-                        android:textSize="18sp" />
+                        android:textSize="15sp" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -236,8 +241,4 @@
 
             </LinearLayout>
         </FrameLayout>
-
-
-
-
     </LinearLayout>

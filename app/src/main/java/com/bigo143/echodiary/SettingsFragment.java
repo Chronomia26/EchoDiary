@@ -2,6 +2,7 @@ package com.bigo143.echodiary;
 
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
@@ -22,6 +23,10 @@ import android.widget.TextView;
  * create an instance of this fragment.
  */
 public class SettingsFragment extends Fragment {
+
+    private static final String PREFS_NAME = "app_prefs";
+    private static final String KEY_MOOD_ENABLED = "mood_enabled";
+
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -120,7 +125,7 @@ public class SettingsFragment extends Fragment {
             showListDialog(getString(R.string.summarization_style),
                     getResources().getStringArray(R.array.summarization_styles));
         } else if (title.equals(getString(R.string.mood_detection))) {
-            showToggleDialog(getString(R.string.mood_detection));
+            showMoodDetection(getString(R.string.mood_detection));
         } else if (title.equals(getString(R.string.entry_language))) {
             showLanguageDialog();
         } else if (title.equals(getString(R.string.daily_reminder_time))) {
@@ -133,6 +138,34 @@ public class SettingsFragment extends Fragment {
         } else if (title.equals(getString(R.string.about_echodiary))) {
             showAboutDialog();
         }
+    }
+
+    private void showMoodDetection(String title) {
+        final boolean[] isChecked = {getMoodEnabledFromPrefs()};
+        new AlertDialog.Builder(requireContext())
+                .setTitle(title)
+                .setSingleChoiceItems(
+                        new String[]{getString(R.string.on), getString(R.string.off)},
+                        isChecked[0] ? 0 : 1,
+                        (dialog, which) -> isChecked[0] = (which == 0)
+                )
+                .setPositiveButton(getString(R.string.ok), (dialog, which) -> {
+                    saveMoodEnabledToPrefs(isChecked[0]);
+                    // Inform CalendarFragment or relevant UI to update mood display
+                })
+                .show();
+    }
+
+    private boolean getMoodEnabledFromPrefs() {
+        return requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(KEY_MOOD_ENABLED, true); // default enabled
+    }
+
+    private void saveMoodEnabledToPrefs(boolean enabled) {
+        requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_MOOD_ENABLED, enabled)
+                .apply();
     }
 
     private void showLanguageDialog() {
@@ -212,4 +245,6 @@ public class SettingsFragment extends Fragment {
                 .setPositiveButton(getString(R.string.ok), null)
                 .show();
     }
+
+
 }

@@ -70,6 +70,8 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <item name="tag_task_text" type="id" />
+    <item name="tag_timestamp" type="id" />
 
 
 </resources>
