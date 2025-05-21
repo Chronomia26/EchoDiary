@@ -18,10 +18,12 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
     private Context context;
     private DiaryEntry currentEntry;
 
-    public DiaryAdapter(Context context) {
+    public DiaryAdapter(Context context, List<DiaryEntry> entries) {
         this.context = context;
+        this.entries = entries;
     }
 
+    // Also include a setter for LiveData updates
     public void setEntries(List<DiaryEntry> entries) {
         this.entries = entries;
         notifyDataSetChanged();
@@ -42,7 +44,9 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, DiaryDetailActivity.class);
+            intent.putExtra("entryId", entry.id);
             intent.putExtra("title", entry.title);
+            intent.putExtra("subtitle", entry.subtitle);
             intent.putExtra("content", entry.content);
             intent.putExtra("timestamp", entry.timestamp);
             context.startActivity(intent);

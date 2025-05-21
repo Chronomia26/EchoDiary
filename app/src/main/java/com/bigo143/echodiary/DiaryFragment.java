@@ -4,6 +4,8 @@ import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -14,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.widget.ImageView;
@@ -33,7 +36,7 @@ public class DiaryFragment extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.diaryRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        DiaryAdapter adapter = new DiaryAdapter(getContext());
+        adapter = new DiaryAdapter(getContext(), new ArrayList<>());
 
         recyclerView.setAdapter(adapter);
 
@@ -53,6 +56,39 @@ public class DiaryFragment extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Setup RecyclerView
+        RecyclerView recyclerView = view.findViewById(R.id.diaryRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        adapter = new DiaryAdapter(requireContext(), new ArrayList<>());
+        recyclerView.setAdapter(adapter);
+
+        // Now it's safe to observe LiveData
+        DiaryDatabase.getInstance(requireContext())
+                .diaryDao()
+                .getAllEntries()
+                .observe(getViewLifecycleOwner(), entries -> {
+                    adapter.setEntries(entries);
+                });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (adapter != null) {
+            DiaryDatabase.getInstance(requireContext())
+                    .diaryDao()
+                    .getAllEntries()
+                    .observe(getViewLifecycleOwner(), entries -> {
+                        adapter.setEntries(entries);
+                    });
+        }
     }
 }
 

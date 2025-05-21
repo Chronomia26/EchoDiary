@@ -55,13 +55,13 @@
             android:layout_marginStart="12dp"
             android:background="@null"
             android:hint="Search Diary"
-            android:textColorHint="@color/white"
             android:imeOptions="actionDone"
             android:importantForAutofill="no"
             android:includeFontPadding="false"
             android:inputType="text"
             android:textColor="@color/white"
-            android:textSize="13sp"/>
+            android:textColorHint="@color/white"
+            android:textSize="13sp" />
     </LinearLayout>
 
     <!-- RecyclerView below search -->

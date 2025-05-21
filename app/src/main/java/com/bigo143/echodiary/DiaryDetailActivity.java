@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.text.DateFormat;
+import java.util.concurrent.Executors;
 
 public class DiaryDetailActivity extends AppCompatActivity {
 
@@ -50,22 +51,32 @@ public class DiaryDetailActivity extends AppCompatActivity {
     }
 
     private void saveChanges() {
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra("entryId", entryId);
-        resultIntent.putExtra("title", title.getText().toString());
-        resultIntent.putExtra("subtitle", subtitle.getText().toString());
-        resultIntent.putExtra("content", content.getText().toString());
-        setResult(RESULT_OK, resultIntent);
-        Toast.makeText(this, "Note updated", Toast.LENGTH_SHORT).show();
-        finish();
+        Executors.newSingleThreadExecutor().execute(() -> {
+            DiaryEntry updated = new DiaryEntry();
+            updated.id = entryId;
+            updated.title = title.getText().toString();
+            updated.subtitle = subtitle.getText().toString();
+            updated.content = content.getText().toString();
+            updated.timestamp = System.currentTimeMillis();
+
+            DiaryDatabase.getInstance(getApplicationContext()).diaryDao().update(updated);
+
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Note updated", Toast.LENGTH_SHORT).show();
+                finish();
+            });
+        });
     }
 
     private void deleteEntry() {
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra("entryId", entryId);
-        resultIntent.putExtra("delete", true);
-        setResult(RESULT_OK, resultIntent);
-        Toast.makeText(this, "Note deleted", Toast.LENGTH_SHORT).show();
-        finish();
+        Executors.newSingleThreadExecutor().execute(() -> {
+            DiaryDatabase.getInstance(getApplicationContext()).diaryDao().deleteById(entryId); // ✅ remove (int) cast
+
+
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Note deleted", Toast.LENGTH_SHORT).show();
+                finish();
+            });
+        });
     }
 }

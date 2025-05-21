@@ -58,28 +58,28 @@ public class CreateNoteActivity extends AppCompatActivity {
 
         // Create DiaryEntry object
         DiaryEntry entry = new DiaryEntry();
+        entry.id = System.currentTimeMillis(); // Unique manual ID
         entry.title = title;
         entry.subtitle = subtitle;
         entry.content = body;
+
         SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd yyyy hh:mm a", Locale.ENGLISH);
         try {
             Date date = sdf.parse(dateTime);
-            entry.timestamp = date.getTime(); // This is the correct long value
+            entry.timestamp = date.getTime();
         } catch (ParseException e) {
             e.printStackTrace();
-            // Optional: Show a Toast or default to current time if parsing fails
             entry.timestamp = System.currentTimeMillis();
         }
 
-
-        // Insert into database (in background thread)
         Executors.newSingleThreadExecutor().execute(() -> {
             DiaryDatabase.getInstance(getApplicationContext())
                     .diaryDao()
                     .insert(entry);
             runOnUiThread(() -> {
                 Toast.makeText(CreateNoteActivity.this, "Note saved", Toast.LENGTH_SHORT).show();
-                finish(); // Go back to DiaryFragment
+                setResult(RESULT_OK);
+                finish();
             });
         });
     }

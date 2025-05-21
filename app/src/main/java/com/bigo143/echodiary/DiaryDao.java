@@ -21,6 +21,6 @@ public interface DiaryDao {
     @Update
     void update(DiaryEntry entry);
     @Query("DELETE FROM diary_entries WHERE id = :id")
-    void deleteById(int id);
+    void deleteById(long id);
 
 }
