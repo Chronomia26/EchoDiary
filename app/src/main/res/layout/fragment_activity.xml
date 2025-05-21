@@ -7,13 +7,26 @@
     android:orientation="vertical"
     android:paddingTop="12dp">
 
+    <!-- Month Display -->
+    <TextView
+        android:id="@+id/monthText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="April 2024"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="8dp"
+        android:textColor="#333" />
+
     <!-- Calendar Row: Fixed first day + scrollable middle days + fixed last day -->
     <LinearLayout
         android:id="@+id/calendarRow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingHorizontal="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:gravity="center_vertical">
 
         <!-- First Day (Fixed) -->
@@ -26,8 +39,8 @@
             android:text="1"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:background="@android:color/holo_blue_light"
-            android:textColor="@android:color/white"
+            android:background="@drawable/day_selector"
+            android:textColor="@color/dayTextColor"
             android:padding="8dp"
             android:layout_gravity="center_vertical" />
 
@@ -56,8 +69,8 @@
             android:text="30"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:background="@android:color/holo_blue_light"
-            android:textColor="@android:color/white"
+            android:background="@drawable/day_selector"
+            android:textColor="@color/dayTextColor"
             android:padding="8dp"
             android:layout_gravity="center_vertical" />
     </LinearLayout>
@@ -76,13 +89,25 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- No Data Message -->
+            <TextView
+                android:id="@+id/noDataText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No data for this day"
+                android:textSize="16sp"
+                android:textColor="#666666"
+                android:gravity="center"
+                android:visibility="gone"
+                android:padding="16dp" />
+
             <!-- Pie Chart -->
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/pieChart"
                 android:layout_width="match_parent"
                 android:layout_height="200dp" />
 
-            <!-- Bar Chart -->
+            <!-- Bar Chart (no HorizontalScrollView, chart handles scroll/zoom itself) -->
             <com.github.mikephil.charting.charts.BarChart
                 android:id="@+id/barChart"
                 android:layout_width="match_parent"
