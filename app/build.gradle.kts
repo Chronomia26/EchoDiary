@@ -47,6 +47,9 @@ dependencies {
 
     implementation(libs.ssp)
     implementation(libs.sdp)
+    implementation(libs.okhttp)
+    implementation("org.json:json:20231013")
+
 
 
 

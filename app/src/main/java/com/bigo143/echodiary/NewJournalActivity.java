@@ -40,6 +40,28 @@ public class NewJournalActivity extends AppCompatActivity {
 
         btnVoiceInput.setOnClickListener(v -> startVoiceInput());
 
+        Button btnSummarize = findViewById(R.id.btnSummarize);
+
+        btnSummarize.setOnClickListener(v -> {
+            String original = journalContent.getText().toString().trim();
+
+            if (original.isEmpty()) {
+                Toast.makeText(this, "Write or record something first.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Run Gemini API call in background
+            new Thread(() -> {
+                String result = GeminiApiHelper.summarizeText("Rewrite this journal entry in first-person diary style: " + original);
+
+                runOnUiThread(() -> {
+                    journalContent.setText(result);
+                    Toast.makeText(this, "Rewritten with AI ✨", Toast.LENGTH_SHORT).show();
+                });
+            }).start();
+        });
+
+
         btnSave.setOnClickListener(v -> {
             String title = journalTitle.getText().toString();
             String body = journalContent.getText().toString();
