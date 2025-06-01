@@ -1,11 +1,15 @@
 package com.bigo143.echodiary;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
+
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -14,26 +18,37 @@ import okhttp3.Response;
 
 public class GeminiApiHelper {
 
-    private static final String API_KEY = "AIzaSyD1yYP--eg--usCTCOwIQjAg8Hnh9wwtcM"; // 👈 Replace this
-    private static final String ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + API_KEY;
+    private static final String API_KEY = "AIzaSyD1yYP--eg--usCTCOwIQjAg8Hnh9wwtcM";
+    private static final String ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY;
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
-    public static String summarizeText(String userText) {
+    public static String summarizeText(Context context, String userText) {
         OkHttpClient client = new OkHttpClient();
 
         try {
-            JSONObject requestJson = new JSONObject();
+            // Read system prompt from JSON in res/raw
+            String systemPrompt = loadSystemPromptFromRaw(context);
+
+            // Create part 1: system instruction
+            JSONObject sysPart = new JSONObject();
+            sysPart.put("text", systemPrompt);
+
+            JSONObject userPart = new JSONObject();
+            userPart.put("text", userText);
+
+            JSONObject sysMessage = new JSONObject();
+            sysMessage.put("role", "user");
+            sysMessage.put("parts", new JSONArray().put(sysPart));
+
+            JSONObject userMessage = new JSONObject();
+            userMessage.put("role", "user");
+            userMessage.put("parts", new JSONArray().put(userPart));
+
             JSONArray contents = new JSONArray();
-            JSONObject message = new JSONObject();
+            contents.put(sysMessage);
+            contents.put(userMessage);
 
-            JSONObject textPart = new JSONObject();
-            textPart.put("text", userText); // <-- wrap text into a JSON object
-
-            message.put("role", "user");
-            message.put("parts", new JSONArray().put(textPart));
-
-
-            contents.put(message);
+            JSONObject requestJson = new JSONObject();
             requestJson.put("contents", contents);
 
             RequestBody body = RequestBody.create(requestJson.toString(), JSON);
@@ -62,6 +77,16 @@ public class GeminiApiHelper {
         } catch (Exception e) {
             e.printStackTrace();
             return "Error: " + e.getMessage();
+        }
+    }
+
+    private static String loadSystemPromptFromRaw(Context context) {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(context.getResources().openRawResource(R.raw.gemini_prompt)))) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        } catch (Exception e) {
+            Log.e("GeminiAPI", "Failed to load prompt: " + e.getMessage());
+            return "Rewrite this journal entry plainly.";
         }
     }
 }

@@ -52,8 +52,7 @@ public class NewJournalActivity extends AppCompatActivity {
 
             // Run Gemini API call in background
             new Thread(() -> {
-                String result = GeminiApiHelper.summarizeText("Rewrite this journal entry in first-person diary style: " + original);
-
+                String result = GeminiApiHelper.summarizeText(this, journalContent.getText().toString());
                 runOnUiThread(() -> {
                     journalContent.setText(result);
                     Toast.makeText(this, "Rewritten with AI ✨", Toast.LENGTH_SHORT).show();

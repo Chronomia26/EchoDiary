@@ -5,9 +5,8 @@ import androidx.room.PrimaryKey;
 
 @Entity(tableName = "diary_entries")
 public class DiaryEntry {
-    @PrimaryKey
-    public long id;  // Manually assigned, not auto-generated
-
+    @PrimaryKey(autoGenerate = true)
+    public long id;
     public String title;
     public String subtitle;
     public String content;
