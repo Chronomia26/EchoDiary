@@ -22,40 +22,23 @@ public class GeminiApiHelper {
     private static final String ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY;
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
-    public static String summarizeText(Context context, String userText) {
+    public static JSONObject summarizeToJson(Context context, String userText) {
         OkHttpClient client = new OkHttpClient();
 
         try {
-            // Read system prompt from JSON in res/raw
             String systemPrompt = loadSystemPromptFromRaw(context);
 
-            // Create part 1: system instruction
-            JSONObject sysPart = new JSONObject();
-            sysPart.put("text", systemPrompt);
-
-            JSONObject userPart = new JSONObject();
-            userPart.put("text", userText);
-
-            JSONObject sysMessage = new JSONObject();
-            sysMessage.put("role", "user");
-            sysMessage.put("parts", new JSONArray().put(sysPart));
-
-            JSONObject userMessage = new JSONObject();
-            userMessage.put("role", "user");
-            userMessage.put("parts", new JSONArray().put(userPart));
-
+            JSONObject sysPart = new JSONObject().put("text", systemPrompt);
+            JSONObject userPart = new JSONObject().put("text", userText);
             JSONArray contents = new JSONArray();
-            contents.put(sysMessage);
-            contents.put(userMessage);
 
-            JSONObject requestJson = new JSONObject();
-            requestJson.put("contents", contents);
+            contents.put(new JSONObject().put("role", "user").put("parts", new JSONArray().put(sysPart)));
+            contents.put(new JSONObject().put("role", "user").put("parts", new JSONArray().put(userPart)));
+
+            JSONObject requestJson = new JSONObject().put("contents", contents);
 
             RequestBody body = RequestBody.create(requestJson.toString(), JSON);
-            Request request = new Request.Builder()
-                    .url(ENDPOINT)
-                    .post(body)
-                    .build();
+            Request request = new Request.Builder().url(ENDPOINT).post(body).build();
 
             Response response = client.newCall(request).execute();
 
@@ -68,17 +51,20 @@ public class GeminiApiHelper {
                         .getJSONArray("parts")
                         .getJSONObject(0)
                         .getString("text");
-                return text;
+                text = text.replaceAll("(?s)```json\\s*|```", "").trim();
+
+                // Parse response string into JSON
+                return new JSONObject(text);
             } else {
                 Log.e("GeminiAPI", "API Error: " + response.body().string());
-                return "Error: " + response.code();
             }
-
         } catch (Exception e) {
             e.printStackTrace();
-            return "Error: " + e.getMessage();
         }
+
+        return null;
     }
+
 
     private static String loadSystemPromptFromRaw(Context context) {
         try (BufferedReader reader = new BufferedReader(

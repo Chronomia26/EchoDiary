@@ -10,6 +10,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,22 +45,27 @@ public class NewJournalActivity extends AppCompatActivity {
         Button btnSummarize = findViewById(R.id.btnSummarize);
 
         btnSummarize.setOnClickListener(v -> {
-            String original = journalContent.getText().toString().trim();
-
-            if (original.isEmpty()) {
-                Toast.makeText(this, "Write or record something first.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Run Gemini API call in background
             new Thread(() -> {
-                String result = GeminiApiHelper.summarizeText(this, journalContent.getText().toString());
+                JSONObject resultJson = GeminiApiHelper.summarizeToJson(this, journalContent.getText().toString());
+
                 runOnUiThread(() -> {
-                    journalContent.setText(result);
-                    Toast.makeText(this, "Rewritten with AI ✨", Toast.LENGTH_SHORT).show();
+                    if (resultJson != null) {
+                        try {
+                            String newTitle = resultJson.getString("title");
+                            String newBody = resultJson.getString("body");
+                            journalTitle.setText(newTitle);
+                            journalContent.setText(newBody);
+                            Toast.makeText(this, "Rewritten with AI ✨", Toast.LENGTH_SHORT).show();
+                        } catch (Exception e) {
+                            Toast.makeText(this, "Failed to parse AI output", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(this, "AI returned nothing", Toast.LENGTH_SHORT).show();
+                    }
                 });
             }).start();
         });
+
 
 
         btnSave.setOnClickListener(v -> {

@@ -47,15 +47,14 @@ public class DiaryFragment extends Fragment {
                 .getAllEntries()
                 .observe(getViewLifecycleOwner(), entries -> {
                     adapter.setEntries(entries);
-
-                    // ✅ Print all entries to the console (Logcat)
-                    for (DiaryEntry entry : entries) {
-                        Log.d("DiaryEntryLog", "ID: " + entry.id +
-                                ", Title: " + entry.title +
-                                ", Subtitle: " + entry.subtitle +
-                                ", Content: " + entry.content +
-                                ", Timestamp: " + entry.timestamp);
-                    }
+//              ✅ Print all entries to the console (Logcat)
+//                    for (DiaryEntry entry : entries) {
+//                        Log.d("DiaryEntryLog", "ID: " + entry.id +
+//                                ", Title: " + entry.title +
+//                                ", Subtitle: " + entry.subtitle +
+//                                ", Content: " + entry.content +
+//                                ", Timestamp: " + entry.timestamp);
+//                    }
                 });
 
         // Handle Add Note button click
