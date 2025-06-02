@@ -42,25 +42,27 @@ public class DiaryFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
 
+
+
         DiaryDatabase.getInstance(requireContext())
                 .diaryDao()
                 .getAllEntries()
                 .observe(getViewLifecycleOwner(), entries -> {
                     adapter.setEntries(entries);
 //              ✅ Print all entries to the console (Logcat)
-//                    for (DiaryEntry entry : entries) {
-//                        Log.d("DiaryEntryLog", "ID: " + entry.id +
-//                                ", Title: " + entry.title +
-//                                ", Subtitle: " + entry.subtitle +
-//                                ", Content: " + entry.content +
-//                                ", Timestamp: " + entry.timestamp);
-//                    }
+                    for (DiaryEntry entry : entries) {
+                        Log.d("DiaryEntryLog", "ID: " + entry.id +
+                                ", Title: " + entry.title +
+                                ", Subtitle: " + entry.subtitle +
+                                ", Content: " + entry.content +
+                                ", Timestamp: " + entry.timestamp);
+                    }
                 });
 
         // Handle Add Note button click
         ImageView addNoteButton = view.findViewById(R.id.image_AddNote);
         addNoteButton.setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), CreateNoteActivity.class);
+            Intent intent = new Intent(getContext(), NewJournalActivity.class);
             startActivity(intent);
         });
 

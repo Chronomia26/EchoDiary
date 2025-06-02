@@ -1,70 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView3"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <!-- Title -->
-        <EditText
-            android:id="@+id/journalTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Title"
-            android:textSize="18sp"
-            android:inputType="text"/>
-
-        <TextView
-            android:id="@+id/journalDateTime"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="13sp"/>
-
-        <!-- Content -->
-        <EditText
-            android:id="@+id/journalContent"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:textColor="@color/coffee_brown"
-            android:hint="Write your thoughts..."
-            android:gravity="top"
-            android:inputType="textMultiLine"
-            android:textSize="16sp"
-            android:background="@android:drawable/edit_text"/>
-
-        <!-- Voice Input Button -->
-        <Button
-            android:id="@+id/btnVoiceInput"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🎤 Speak Instead" />
-        <Button
-            android:id="@+id/btnSummarize"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="✨ Rewrite with AI"
-            android:layout_marginTop="12dp"/>
+    android:layout_height="match_parent">
 
 
-        <!-- Tag -->
-        <EditText
-            android:id="@+id/journalTags"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Tags (comma separated)"
-            android:inputType="text"/>
+    <!-- Title -->
 
-        <!-- Save Button -->
-        <Button
-            android:id="@+id/btnSave"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Save Entry"
-            android:layout_marginTop="20dp"/>
+    <EditText
+        android:id="@+id/journalTitle"
+        android:layout_width="323dp"
+        android:layout_height="63dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="17dp"
+        android:hint="Title(paayos ng design plss)"
+        android:inputType="text"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/journalContent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/journalDateTime"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
-</ScrollView>
+    <TextView
+        android:id="@+id/journalDateTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/journalContent"
+        app:layout_constraintTop_toBottomOf="@+id/journalTitle" />
+
+    <!-- Content -->
+
+    <!-- Voice Input Button -->
+    <EditText
+        android:id="@+id/journalContent"
+        android:layout_width="326dp"
+        android:layout_height="195dp"
+        android:background="@android:drawable/edit_text"
+        android:gravity="top"
+        android:hint="Write your thoughts..."
+        android:inputType="textMultiLine"
+        android:textColor="@color/coffee_brown"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/btnVoiceInput"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/btnVoiceInput"
+        app:layout_constraintTop_toBottomOf="@+id/journalTitle" />
+
+    <Button
+        android:id="@+id/btnVoiceInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginBottom="13dp"
+        android:text="🎤 Speak Instead"
+        app:layout_constraintBottom_toTopOf="@+id/btnSummarize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/journalContent" />
+
+
+    <!-- Tag -->
+    <Button
+        android:id="@+id/btnSummarize"
+        android:layout_width="320dp"
+        android:layout_height="59dp"
+        android:text="✨ Rewrite with AI"
+        app:layout_constraintBottom_toTopOf="@+id/journalTags"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/journalTags"
+        app:layout_constraintTop_toBottomOf="@+id/btnVoiceInput" />
+
+    <EditText
+        android:id="@+id/journalTags"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:hint="Tags (comma separated)"
+        android:inputType="text"
+        app:layout_constraintBottom_toTopOf="@+id/btnSave"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/btnSave"
+        app:layout_constraintTop_toBottomOf="@+id/btnSummarize" />
+
+    <!-- Save Button -->
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="215dp"
+        android:text="Save Entry"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/btnVoiceInput"
+        app:layout_constraintTop_toBottomOf="@+id/journalTags" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

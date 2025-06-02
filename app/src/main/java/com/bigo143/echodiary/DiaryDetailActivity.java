@@ -57,7 +57,8 @@ public class DiaryDetailActivity extends AppCompatActivity {
             updated.title = title.getText().toString();
             updated.subtitle = subtitle.getText().toString();
             updated.content = content.getText().toString();
-            updated.timestamp = System.currentTimeMillis();
+            updated.timestamp = getIntent().getLongExtra("timestamp", System.currentTimeMillis()); // ✅ Use original
+
 
             DiaryDatabase.getInstance(getApplicationContext()).diaryDao().update(updated);
 
