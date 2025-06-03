@@ -43,7 +43,7 @@ public class NewJournalActivity extends AppCompatActivity {
 
         btnVoiceInput.setOnClickListener(v -> startVoiceInput());
 
-        Button btnSummarize = findViewById(R.id.btnSummarize);
+        ImageView btnSummarize = findViewById(R.id.btnSummarize);
 
         btnSummarize.setOnClickListener(v -> {
             new Thread(() -> {

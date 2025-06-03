@@ -157,30 +157,23 @@ tools:context=".DiaryDetailActivity">
             app:layout_constraintTop_toTopOf="@id/journalBack"
             app:layout_constraintVertical_bias="0.0" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-    <!-- Tag -->
-    <Button
-        android:id="@+id/btnSummarize"
-        android:layout_width="320dp"
-        android:layout_height="59dp"
-        android:text="✨ Rewrite with AI"
-        app:layout_constraintBottom_toTopOf="@+id/journalTags"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/journalTags"
-        app:layout_constraintTop_toBottomOf="@+id/btnVoiceInput" />
+        <!-- Tag -->
+        <ImageView
+            android:id="@+id/btnSummarize"
+            android:layout_width="@dimen/_25sdp"
+            android:layout_height="@dimen/_25sdp"
+            android:layout_marginEnd="112dp"
+            android:layout_marginBottom="85dp"
+            android:background="@drawable/background_done_button"
+            android:src="@drawable/ic_summarize"
+            android:tint="@color/pale_mocha"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/journalBack"
+            app:layout_constraintVertical_bias="0.0" />
 
-    <EditText
-        android:id="@+id/journalTags"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:hint="Tags (comma separated)"
-        android:inputType="text"
-        app:layout_constraintBottom_toTopOf="@+id/btnSave"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/btnSave"
-        app:layout_constraintTop_toBottomOf="@+id/btnSummarize" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </ScrollView>
 
