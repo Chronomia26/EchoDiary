@@ -10,7 +10,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class MoodNoteDBHelper extends SQLiteOpenHelper {
 
@@ -28,6 +30,7 @@ public class MoodNoteDBHelper extends SQLiteOpenHelper {
     private static final String COL_TASK_TEXT = "task_text";
     private static final String COL_TASK_TIME = "task_time";
     private static final String COL_TASK_CHECKED = "is_checked";
+
 
     public MoodNoteDBHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -235,7 +238,43 @@ public class MoodNoteDBHelper extends SQLiteOpenHelper {
         return rows;
     }
 
+    public List<Task> getTasksForMonth(int year, int month) {
+        List<Task> tasks = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
 
+        // Compute start and end date strings: "YYYY-MM-DD"
+        String startDate = String.format(Locale.US, "%04d-%02d-01", year, month);
 
+        // Determine number of days in the month
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month - 1, 1); // Month is 0-based in Calendar
+        int maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        String endDate = String.format(Locale.US, "%04d-%02d-%02d", year, month, maxDay);
+
+        Cursor cursor = db.query(
+                TABLE_TASKS,
+                null,
+                COL_TASK_DATE + " BETWEEN ? AND ?",
+                new String[]{startDate, endDate},
+                null,
+                null,
+                null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(COL_TASK_ID));
+                String date = cursor.getString(cursor.getColumnIndexOrThrow(COL_TASK_DATE));
+                String text = cursor.getString(cursor.getColumnIndexOrThrow(COL_TASK_TEXT));
+                String time = cursor.getString(cursor.getColumnIndexOrThrow(COL_TASK_TIME));
+                boolean isChecked = cursor.getInt(cursor.getColumnIndexOrThrow(COL_TASK_CHECKED)) == 1;
+
+                tasks.add(new Task(id, date, text, time, isChecked));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        return tasks;
+    }
 
 }

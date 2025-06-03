@@ -9,6 +9,11 @@ import android.widget.GridView;
 public class GestureDetectingGridView extends GridView {
 
     private GestureDetector gestureDetector;
+    private OnSwipeListener swipeListener;
+    private OnTouchActionListener touchActionListener;
+    private OnVerticalSwipeListener verticalSwipeListener;
+
+
 
     public GestureDetectingGridView(Context context) {
         super(context);
@@ -44,6 +49,15 @@ public class GestureDetectingGridView extends GridView {
                         }
                         return true;
                     }
+                } else {
+                    if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffY > 0) {
+                            onSwipeDown();
+                        } else {
+                            onSwipeUp();
+                        }
+                        return true;
+                    }
                 }
                 return false;
             }
@@ -56,7 +70,7 @@ public class GestureDetectingGridView extends GridView {
         // If gestureDetector detects a gesture, intercept touch event here
         boolean gestureDetected = gestureDetector.onTouchEvent(ev);
         if (gestureDetected) {
-            return true; // Intercept event, so onTouchEvent gets it
+            return false; // Intercept event, so onTouchEvent gets it
         }
         return super.onInterceptTouchEvent(ev);
     }
@@ -64,9 +78,51 @@ public class GestureDetectingGridView extends GridView {
     // Override to handle the gesture
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        gestureDetector.onTouchEvent(ev);
+        int action = ev.getActionMasked();
+
+        if (action == MotionEvent.ACTION_DOWN) {
+            if (touchActionListener != null) {
+                touchActionListener.onActionDown();
+            }
+        } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+            if (touchActionListener != null) {
+                touchActionListener.onActionUp();
+            }
+        }
+
+        boolean gestureDetected = gestureDetector.onTouchEvent(ev);
+        // If gesture detected, consume the event
+        if (gestureDetected) {
+            return true;
+        }
+
         return super.onTouchEvent(ev);
     }
+
+    // Interface for swipe callbacks
+    public interface OnSwipeListener {
+        void onSwipeLeft();
+        void onSwipeRight();
+    }
+
+    public interface OnTouchActionListener {
+        void onActionDown();
+        void onActionUp();
+    }
+
+    public interface OnVerticalSwipeListener {
+        void onSwipeUp();
+        void onSwipeDown();
+    }
+
+    private void onSwipeDown() {
+        if (verticalSwipeListener != null) verticalSwipeListener.onSwipeDown();
+    }
+
+    private void onSwipeUp() {
+        if (verticalSwipeListener != null) verticalSwipeListener.onSwipeUp();
+    }
+
 
     private void onSwipeLeft() {
         // Callback or event to notify swipe left
@@ -78,15 +134,15 @@ public class GestureDetectingGridView extends GridView {
         if (swipeListener != null) swipeListener.onSwipeRight();
     }
 
-    // Interface for swipe callbacks
-    public interface OnSwipeListener {
-        void onSwipeLeft();
-        void onSwipeRight();
+    public void setOnVerticalSwipeListener(OnVerticalSwipeListener listener) {
+        this.verticalSwipeListener = listener;
     }
-
-    private OnSwipeListener swipeListener;
 
     public void setOnSwipeListener(OnSwipeListener listener) {
         this.swipeListener = listener;
+    }
+
+    public void setOnTouchActionListener(OnTouchActionListener listener) {
+        this.touchActionListener = listener;
     }
 }
