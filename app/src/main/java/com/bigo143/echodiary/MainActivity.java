@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Load default fragment on first launch
         if (savedInstanceState == null) {
-            replaceFragment(new HomeFragment()); // Default fragment
+            replaceFragment(new HomeFragmentAct()); // Changed from HomeFragment
             navigationView.setCheckedItem(R.id.nav_home);
         }
 
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
     // Return fragment based on selected drawer item ID
     private Fragment getDrawerSelectedFragment(int itemId) {
         if (itemId == R.id.nav_home) {
-            return new HomeFragment();
+            return new HomeFragmentAct(); // Changed from HomeFragment
         } else if (itemId == R.id.nav_settings) {
             return new SettingsFragment();
         } else if (itemId == R.id.nav_about) {
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
     // Return fragment based on selected item ID (revised from switch to if-else)
     private Fragment getSelectedFragment(int itemId) {
         if (itemId == R.id.home) {
-            return new HomeFragment();
+            return new HomeFragmentAct(); // Changed from HomeFragment
         } else if (itemId == R.id.calendar) {
             return new CalendarFragment();
         } else if (itemId == R.id.activity) {
