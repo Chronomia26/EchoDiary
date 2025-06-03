@@ -47,7 +47,6 @@ public class NewJournalActivity extends AppCompatActivity {
         });
 
         ImageView btnSummarize = findViewById(R.id.btnSummarize);
-
         btnSummarize.setOnClickListener(v -> {
             animateClick(btnSummarize);
             new Thread(() -> {
@@ -59,8 +58,10 @@ public class NewJournalActivity extends AppCompatActivity {
 //                            Log.d("JSON", resultJson.toString());
                             String newTitle = resultJson.getString("title");
                             String newBody = resultJson.getString("body");
+                            String newTags = resultJson.getString("tags");
                             journalTitle.setText(newTitle);
                             journalContent.setText(newBody);
+                            journalTags.setText(newTags);
                             Toast.makeText(this, "Rewritten with AI ✨", Toast.LENGTH_SHORT).show();
                         } catch (Exception e) {
                             Toast.makeText(this, "Failed to parse AI output", Toast.LENGTH_SHORT).show();

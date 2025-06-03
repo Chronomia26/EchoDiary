@@ -10,6 +10,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONObject;
+
 import java.text.DateFormat;
 import java.util.concurrent.Executors;
 
@@ -58,6 +60,34 @@ public class DiaryDetailActivity extends AppCompatActivity {
             animateClick(detailDelete);
             deleteEntry();
         });
+
+        ImageView btnSummarize = findViewById(R.id.btnSummarize);
+        btnSummarize.setOnClickListener(v -> {
+            animateClick(btnSummarize);
+            new Thread(() -> {
+                JSONObject resultJson = GeminiApiHelper.summarizeToJson(this, content.getText().toString());
+
+                runOnUiThread(() -> {
+                    if (resultJson != null) {
+                        try {
+//                            Log.d("JSON", resultJson.toString());
+                            String newTitle = resultJson.getString("title");
+                            String newBody = resultJson.getString("body");
+                            String newTags = resultJson.getString("tags");
+                            title.setText(newTitle);
+                            content.setText(newBody);
+                            subtitle.setText(newTags);
+                            Toast.makeText(this, "Rewritten with AI ✨", Toast.LENGTH_SHORT).show();
+                        } catch (Exception e) {
+                            Toast.makeText(this, "Failed to parse AI output", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(this, "AI returned nothing", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }).start();
+        });
+
     }
 
     private void animateClick(ImageView view) {
