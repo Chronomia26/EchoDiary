@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FFFFFFFF</color>
+    <color name="white">#FF000000</color>
+    <color name="pale_mocha">#91675B</color>
+    <color name="dark_roast">#3C3C3C</color>
+    <color name="coffee_3">#2E2E2E</color>
+    <color name="coffee_2">#4A3D3D</color>
+    <color name="your_background_color">#2A2A2A</color>
+    <color name="fourmain">#817C77</color>
+</resources>

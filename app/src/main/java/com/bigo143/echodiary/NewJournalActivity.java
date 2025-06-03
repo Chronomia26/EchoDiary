@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
@@ -24,7 +25,7 @@ public class NewJournalActivity extends AppCompatActivity {
 
     private EditText journalTitle, journalContent, journalTags;
     private TextView journalDateTime;
-    private Button btnVoiceInput, btnSave;
+    private ImageView btnVoiceInput, btnSave, journalBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +41,9 @@ public class NewJournalActivity extends AppCompatActivity {
 
         btnVoiceInput.setOnClickListener(v -> startVoiceInput());
 
+        journalBack = findViewById(R.id.journalBack);
+        journalBack.setOnClickListener(v -> onBackPressed());
+
         btnSave.setOnClickListener(v -> {
             String title = journalTitle.getText().toString();
             String body = journalContent.getText().toString();
@@ -53,9 +57,19 @@ public class NewJournalActivity extends AppCompatActivity {
 
             // ✅ Save to Room database using background thread
             DiaryEntry entry = new DiaryEntry();
+            entry.id = System.currentTimeMillis(); // ✅ Prevent primary key collision
             entry.title = title;
+            entry.subtitle = subtitle; // Assuming you also want to save tags
             entry.content = body;
-            entry.timestamp = System.currentTimeMillis();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd yyyy hh:mm a", Locale.ENGLISH);
+            try {
+                Date date = sdf.parse(dateTime);
+                entry.timestamp = date.getTime();
+            } catch (ParseException e) {
+                e.printStackTrace();
+                entry.timestamp = System.currentTimeMillis();
+            }
 
             Executors.newSingleThreadExecutor().execute(() -> {
                 DiaryDatabase.getInstance(this).diaryDao().insert(entry);

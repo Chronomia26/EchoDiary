@@ -1,63 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/view"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="@color/fourmain"
+tools:context=".DiaryDetailActivity">
+
+<ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:layout_marginBottom="40dp"
+    android:clipToPadding="false"
+    android:paddingBottom="10dp">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:background="@color/pale_mocha">
 
-        <!-- Title -->
+        <ImageView
+            android:id="@+id/journalBack"
+            android:layout_width="@dimen/_25sdp"
+            android:layout_height="@dimen/_25sdp"
+            android:layout_marginStart="@dimen/_6sdp"
+            android:layout_marginTop="@dimen/_15sdp"
+            android:layout_marginEnd="@dimen/_12sdp"
+            android:src="@drawable/ic_back"
+            android:tint="@color/pale_mocha"
+            android:background="@drawable/background_done_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <!-- android:background="@drawable/background_done_button" -->
+
+        <ImageView
+            android:id="@+id/btnSave"
+            android:layout_width="@dimen/_25sdp"
+            android:layout_height="@dimen/_25sdp"
+            android:layout_marginEnd="@dimen/_16sdp"
+            android:padding="@dimen/_4sdp"
+            android:src="@drawable/ic_done"
+            android:tint="@color/pale_mocha"
+            android:background="@drawable/background_done_button"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/btnVoiceInput"
+            app:layout_constraintVertical_bias="0.0" />
+        <!-- android:background="@drawable/background_done_button"
+        Note: The done was og. not in line with back, had to drag and drop -->
+
         <EditText
             android:id="@+id/journalTitle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/background_text"
+            android:paddingStart="12dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="10dp"
             android:hint="Title"
-            android:textSize="18sp"
-            android:inputType="text"/>
+            android:textColorHint="@color/pale_mocha"
+            android:textColor="@color/pale_mocha"
+            android:textSize="20sp"
+            android:imeOptions="actionDone"
+            android:importantForAutofill="no"
+            android:includeFontPadding="false"
+            android:inputType="text"
+            app:layout_constraintTop_toBottomOf="@id/journalBack"/>
 
         <TextView
             android:id="@+id/journalDateTime"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="13sp"/>
+            android:includeFontPadding="false"
+            android:textColor="@color/fourmain"
+            android:textSize="15sp"
+            app:layout_constraintEnd_toEndOf="@id/journalTitle"
+            app:layout_constraintStart_toStartOf="@id/journalTitle"
+            app:layout_constraintTop_toBottomOf="@id/journalTitle"/>
 
-        <!-- Content -->
+        <EditText
+            android:id="@+id/journalTags"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/background_text"
+            android:hint="Subtitle"
+            android:textColorHint="@color/pale_mocha"
+            android:textColor="@color/pale_mocha"
+            android:textSize="16sp"
+            android:importantForAutofill="no"
+            android:includeFontPadding="false"
+            android:inputType="textMultiLine"
+            android:paddingStart="12dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/journalSubtitleIndicator"
+            app:layout_constraintTop_toBottomOf="@id/journalDateTime"/>
+
+        <View
+            android:id="@+id/journalSubtitleIndicator"
+            android:layout_width="5dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="12dp"
+            android:background="@drawable/background_subtitle_indicator"
+            app:layout_constraintBottom_toBottomOf="@id/journalTags"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/journalTags"/>
+
         <EditText
             android:id="@+id/journalContent"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:textColor="@color/coffee_brown"
-            android:hint="Write your thoughts..."
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="15dp"
+            android:background="@drawable/background_text"
             android:gravity="top"
-            android:inputType="textMultiLine"
+            android:hint="Journal content goes here..."
+            android:textColorHint="@color/pale_mocha"
+            android:textColor="@color/pale_mocha"
             android:textSize="16sp"
-            android:background="@android:drawable/edit_text"/>
+            android:importantForAutofill="no"
+            android:includeFontPadding="false"
+            android:inputType="textMultiLine"
+            android:paddingStart="12dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="10dp"
+            android:minHeight="480dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/journalTags" />
 
-        <!-- Voice Input Button -->
-        <Button
+        <ImageView
             android:id="@+id/btnVoiceInput"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🎤 Speak Instead" />
+            android:layout_width="@dimen/_25sdp"
+            android:layout_height="@dimen/_25sdp"
+            android:layout_marginEnd="66.80dp"
+            android:layout_marginBottom="85dp"
+            android:background="@drawable/background_done_button"
+            android:src="@drawable/ic_voice"
+            android:tint="@color/pale_mocha"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/journalBack"
+            app:layout_constraintVertical_bias="0.0" />
 
-        <!-- Tag -->
-        <EditText
-            android:id="@+id/journalTags"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Tags (comma separated)"
-            android:inputType="text"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- Save Button -->
-        <Button
-            android:id="@+id/btnSave"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Save Entry"
-            android:layout_marginTop="20dp"/>
-
-    </LinearLayout>
 </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+

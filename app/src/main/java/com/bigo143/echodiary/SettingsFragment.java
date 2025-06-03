@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -212,10 +213,32 @@ public class SettingsFragment extends Fragment {
         new AlertDialog.Builder(requireContext())
                 .setTitle(title)
                 .setItems(options, (dialog, which) -> {
-                    // Handle selection
+                    if (title.equals(getString(R.string.theme))) {
+                        // Save preference and apply theme
+                        int mode;
+                        if (which == 0) {
+                            mode = AppCompatDelegate.MODE_NIGHT_NO; // Light mode
+                        } else if (which == 1) {
+                            mode = AppCompatDelegate.MODE_NIGHT_YES; // Dark mode
+                        } else {
+                            mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM; // System default
+                        }
+
+                        // Save to SharedPreferences
+                        requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                                .edit()
+                                .putInt("theme_mode", mode)
+                                .apply();
+
+                        AppCompatDelegate.setDefaultNightMode(mode);
+
+                        // Restart activity to apply theme
+                        requireActivity().recreate();
+                    }
                 })
                 .show();
     }
+
 
     private void showToggleDialog(String title) {
         final boolean[] isChecked = {false};

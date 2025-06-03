@@ -3,23 +3,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#FFF8E1"
+        android:background="@color/fourmain"
         android:padding="16dp"
         android:id="@+id/rootLayout"
         android:clickable="true"
         android:focusable="true">
 
 
-        <TextView
-            android:id="@+id/calendarTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/calendar"
-            android:textSize="30sp"
-            android:textStyle="bold"
-            android:textColor="@color/pale_mocha"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="10dp" />
+
 
         <LinearLayout
             android:id="@+id/topRow"
@@ -45,7 +36,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="2025"
-                    android:textSize="30sp"
+                    android:textSize="25sp"
                     android:textStyle="bold"
                     android:layout_marginEnd="6dp"
                     android:clickable="true"
@@ -56,7 +47,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="May"
-                    android:textSize="29sp"
+                    android:textSize="25sp"
                     android:textStyle="bold"
                     android:clickable="true"
                     android:focusable="true" />

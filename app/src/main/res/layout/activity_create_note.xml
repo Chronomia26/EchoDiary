@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF8E1"
+    android:background="@color/fourmain"
     tools:context=".CreateNoteActivity">
 
     <ScrollView
@@ -27,11 +27,11 @@
                 android:layout_marginStart="@dimen/_6sdp"
                 android:layout_marginTop="@dimen/_15sdp"
                 android:layout_marginEnd="@dimen/_12sdp"
+                android:background="@drawable/background_done_button"
                 android:src="@drawable/ic_back"
-                android:tint="@color/white"
-                android:background="@drawable/background_add_button"
+                android:tint="@color/pale_mocha"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <!-- android:background="@drawable/background_done_button" -->
 
@@ -40,10 +40,10 @@
                 android:layout_width="@dimen/_25sdp"
                 android:layout_height="@dimen/_25sdp"
                 android:layout_marginEnd="@dimen/_16sdp"
+                android:background="@drawable/background_done_button"
                 android:padding="@dimen/_4sdp"
                 android:src="@drawable/ic_done"
-                android:tint="@color/white"
-                android:background="@drawable/background_add_button"
+                android:tint="@color/pale_mocha"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/image_Back"
@@ -54,24 +54,24 @@
             <EditText
                 android:id="@+id/edittext_Title"
                 android:layout_width="match_parent"
-                android:layout_height="35dp"
+                android:layout_height="40dp"
                 android:layout_marginStart="12dp"
                 android:layout_marginTop="15dp"
                 android:layout_marginEnd="12dp"
                 android:background="@null"
-                android:paddingStart="12dp"
-                android:paddingTop="10dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="10dp"
                 android:hint="Title"
-                android:textColorHint="@color/pale_mocha"
-                android:textColor="@color/pale_mocha"
-                android:textSize="16sp"
                 android:imeOptions="actionDone"
                 android:importantForAutofill="no"
                 android:includeFontPadding="false"
                 android:inputType="text"
-                app:layout_constraintTop_toBottomOf="@id/image_Back"/>
+                android:paddingStart="12dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp"
+                android:textColor="@color/pale_mocha"
+                android:textColorHint="@color/pale_mocha"
+                android:textSize="20sp"
+                app:layout_constraintTop_toBottomOf="@id/image_Back" />
 
             <TextView
                 android:id="@+id/textview_DateTime"
@@ -79,10 +79,10 @@
                 android:layout_height="wrap_content"
                 android:includeFontPadding="false"
                 android:textColor="@color/pale_mocha"
-                android:textSize="13sp"
+                android:textSize="15sp"
                 app:layout_constraintEnd_toEndOf="@id/edittext_Title"
                 app:layout_constraintStart_toStartOf="@id/edittext_Title"
-                app:layout_constraintTop_toBottomOf="@id/edittext_Title"/>
+                app:layout_constraintTop_toBottomOf="@id/edittext_Title" />
 
             <EditText
                 android:id="@+id/edittext_Subtitle"
@@ -93,17 +93,17 @@
                 android:layout_marginEnd="12dp"
                 android:background="@null"
                 android:hint="Subtitle"
-                android:textColorHint="@color/pale_mocha"
-                android:textColor="@color/pale_mocha"
-                android:textSize="13sp"
                 android:importantForAutofill="no"
                 android:includeFontPadding="false"
                 android:inputType="textMultiLine"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
+                android:textColor="@color/pale_mocha"
+                android:textColorHint="@color/pale_mocha"
+                android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/view_SubtitleIndicator"
-                app:layout_constraintTop_toBottomOf="@id/textview_DateTime"/>
+                app:layout_constraintTop_toBottomOf="@id/textview_DateTime" />
 
             <View
                 android:id="@+id/view_SubtitleIndicator"
@@ -113,7 +113,7 @@
                 android:background="@drawable/background_subtitle_indicator"
                 app:layout_constraintBottom_toBottomOf="@id/edittext_Subtitle"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/edittext_Subtitle"/>
+                app:layout_constraintTop_toTopOf="@id/edittext_Subtitle" />
 
             <EditText
                 android:id="@+id/edittext_Body"
@@ -126,13 +126,13 @@
                 android:background="@null"
                 android:gravity="top"
                 android:hint="Type text here..."
-                android:textColorHint="@color/pale_mocha"
-                android:textColor="@color/pale_mocha"
-                android:textSize="13sp"
                 android:importantForAutofill="no"
                 android:includeFontPadding="false"
                 android:inputType="textMultiLine"
                 android:minHeight="100dp"
+                android:textColor="@color/pale_mocha"
+                android:textColorHint="@color/pale_mocha"
+                android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/edittext_Subtitle" />
 

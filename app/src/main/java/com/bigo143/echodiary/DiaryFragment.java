@@ -51,7 +51,7 @@ public class DiaryFragment extends Fragment {
         // Handle Add Note button click
         ImageView addNoteButton = view.findViewById(R.id.image_AddNote);
         addNoteButton.setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), CreateNoteActivity.class);
+            Intent intent = new Intent(getContext(), NewJournalActivity.class);
             startActivity(intent);
         });
 

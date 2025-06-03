@@ -206,6 +206,14 @@ public class CalendarFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        showTasksForDate(tasksContainer); // RELOAD from DB every time fragment is visible
+    }
+
+
+
     private void hideKeyboard(View view) {
         InputMethodManager imm = (InputMethodManager) view.getContext()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
