@@ -12,15 +12,18 @@ import java.util.List;
 public interface DiaryDao {
     @Insert
     long insert(DiaryEntry entry);
-    // formerly void, 2 E
 
     @Query("SELECT * FROM diary_entries ORDER BY timestamp DESC")
     LiveData<List<DiaryEntry>> getAllEntries();
 
-    // 4
+    //
     @Update
     void update(DiaryEntry entry);
     @Query("DELETE FROM diary_entries WHERE id = :id")
     void deleteById(long id);
+
+    @Query("SELECT * FROM diary_entries WHERE timestamp BETWEEN :start AND :end ORDER BY timestamp ASC")
+    List<DiaryEntry> getEntriesForDay(long start, long end);
+
 
 }

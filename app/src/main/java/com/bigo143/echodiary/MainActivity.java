@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Load default fragment on first launch
         if (savedInstanceState == null) {
-            replaceFragment(new HomeFragmentAct()); // Changed to HomeFragmentAct
+            replaceFragment(new HomeFragment()); // Default fragment
             navigationView.setCheckedItem(R.id.nav_home);
         }
 
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         // Set up bottom navigation view
         setupBottomNavigationView();
 
-        // Handle Draw(); // This line seems like a leftover comment, keeping for now
+        // Handle Draw();
 
         // Floating Action Button click listener to show bottom sheet
         fab.setOnClickListener(view -> showBottomDialog());
@@ -111,15 +111,16 @@ public class MainActivity extends AppCompatActivity {
     // Return fragment based on selected drawer item ID
     private Fragment getDrawerSelectedFragment(int itemId) {
         if (itemId == R.id.nav_home) {
-            return new HomeFragmentAct(); // Changed to HomeFragmentAct
+            return new HomeFragment();
         } else if (itemId == R.id.nav_settings) {
-            return new SettingsFragment(); // Assuming SettingsFragment exists
+            return new SettingsFragment();
         } else if (itemId == R.id.nav_about) {
-            return new AboutFragment(); // Assuming AboutFragment exists
+            return new AboutFragment();
         } else {
             return null;
         }
     }
+
 
 
     // Set up bottom navigation behavior
@@ -139,13 +140,13 @@ public class MainActivity extends AppCompatActivity {
     // Return fragment based on selected item ID (revised from switch to if-else)
     private Fragment getSelectedFragment(int itemId) {
         if (itemId == R.id.home) {
-            return new HomeFragmentAct(); // Changed to HomeFragmentAct
+            return new HomeFragment();
         } else if (itemId == R.id.calendar) {
-            return new CalendarFragment(); // Assuming CalendarFragment exists
+            return new CalendarFragment();
         } else if (itemId == R.id.activity) {
             return new ActivityFragment();
         } else if (itemId == R.id.diary) {
-            return new DiaryFragment(); // Assuming DiaryFragment exists
+            return new DiaryFragment();
         } else {
             return null;
         }
@@ -155,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.frame_layout, fragment); // Make sure frame_layout exists in activity_main.xml
+        transaction.replace(R.id.frame_layout, fragment);
         transaction.commit();
     }
 
@@ -163,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
     private void showBottomDialog() {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.bottomsheetlayout); // Make sure bottomsheetlayout exists
+        dialog.setContentView(R.layout.bottomsheetlayout);
 
         LinearLayout videoLayout = dialog.findViewById(R.id.layoutVideo);
         LinearLayout shortsLayout = dialog.findViewById(R.id.layoutShorts);
@@ -177,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
 
         shortsLayout.setOnClickListener(v -> {
             dialog.dismiss();
-            // dialog.dismiss(); // This line is redundant
+            dialog.dismiss();
             Intent intent = new Intent(MainActivity.this, NewJournalActivity.class);
             startActivity(intent);
         });
@@ -193,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
         if (dialog.getWindow() != null) {
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation; // Make sure DialogAnimation style exists
+            dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
             dialog.getWindow().setGravity(Gravity.BOTTOM);
         }
     }
@@ -209,27 +210,29 @@ public class MainActivity extends AppCompatActivity {
             boolean isKeyboardOpen = keypadHeight > screenHeight * 0.15;
 
             View fab = findViewById(R.id.fab);
-            View fabBg = findViewById(R.id.fab_background); // Make sure fab_background exists in XML
-            View bottomNavFrame = findViewById(R.id.bottom_nav_frame); // Make sure bottom_nav_frame exists in XML
+            View fabBg = findViewById(R.id.fab_background);
+            View bottomNavFrame = findViewById(R.id.bottom_nav_frame); // ⬅️ Add this ID in XML
 
 
             if (isKeyboardOpen) {
                 fab.animate().alpha(0f).setDuration(150).withEndAction(() -> fab.setVisibility(View.GONE)).start();
-                if (fabBg != null) fabBg.setVisibility(View.GONE);
-                if (bottomNavFrame != null) bottomNavFrame.setVisibility(View.GONE);
+                fabBg.setVisibility(View.GONE);
+                bottomNavFrame.setVisibility(View.GONE);
             } else {
                 fab.setVisibility(View.VISIBLE);
                 fab.animate().alpha(1f).setDuration(150).start();
-                if (fabBg != null) fabBg.setVisibility(View.VISIBLE);
-                if (bottomNavFrame != null) bottomNavFrame.setVisibility(View.VISIBLE);
+                fabBg.setVisibility(View.VISIBLE);
+                bottomNavFrame.setVisibility(View.VISIBLE);
             }
         });
     }
 
 
+
+
     @Override
     protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(LocaleHelper.wrap(newBase)); // Assuming LocaleHelper and wrap method exist
+        super.attachBaseContext(LocaleHelper.wrap(newBase));
     }
 
 }
