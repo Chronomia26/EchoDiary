@@ -5,15 +5,21 @@ import android.app.usage.UsageEvents;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
@@ -47,11 +53,16 @@ public class ActivityFragment extends Fragment {
     private final Map<String, Long> appUsageMap = new LinkedHashMap<>();
     private final Map<String, Integer> appColorMap = new HashMap<>();
 
-    private int selectedDay = -1;
-    private int firstDay = 1;
-    private int lastDay = 31;
-    private int currentMonth = -1;
-    private int currentYear = -1;
+    private LinearLayout progressBarList;
+    private ImageButton btnProgress, btnPie, btnBar;
+    private TextView leftDay, rightDay;
+    private LinearLayout dateContainer;
+    private HorizontalScrollView calendarScrollView;
+
+    // List of all days with data, sorted chronologically
+    private List<Calendar> daysWithData = new ArrayList<>();
+    private int selectedDayIndex = -1; // index in daysWithData
+    private String currentChartType = "progress";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -59,154 +70,249 @@ public class ActivityFragment extends Fragment {
         pieChart = view.findViewById(R.id.pieChart);
         barChart = view.findViewById(R.id.barChart);
         monthText = view.findViewById(R.id.monthText);
-
-        // Add a "No data" TextView programmatically if not in XML
         noDataText = view.findViewById(R.id.noDataText);
-        if (noDataText == null) {
-            noDataText = new TextView(requireContext());
-            noDataText.setId(View.generateViewId());
-            noDataText.setText("No data for this day");
-            noDataText.setTextSize(16);
-            noDataText.setTextColor(Color.DKGRAY);
-            noDataText.setGravity(Gravity.CENTER);
-            noDataText.setVisibility(View.GONE);
-            LinearLayout chartContainer = view.findViewById(R.id.chartContainer);
-            chartContainer.addView(noDataText, 0); // Add at the top
-        }
+        progressBarList = view.findViewById(R.id.progressBarList);
+        btnProgress = view.findViewById(R.id.btnProgress);
+        btnPie = view.findViewById(R.id.btnPie);
+        btnBar = view.findViewById(R.id.btnBar);
+        leftDay = view.findViewById(R.id.leftDay);
+        rightDay = view.findViewById(R.id.rightDay);
+        dateContainer = view.findViewById(R.id.dateContainer);
+        calendarScrollView = view.findViewById(R.id.calendarScrollView);
 
-        setupCalendarRow(view);
+        btnProgress.setOnClickListener(v -> {
+            currentChartType = "progress";
+            showChart(currentChartType);
+        });
+        btnPie.setOnClickListener(v -> {
+            currentChartType = "pie";
+            showChart(currentChartType);
+        });
+        btnBar.setOnClickListener(v -> {
+            currentChartType = "bar";
+            showChart(currentChartType);
+        });
 
-        // Default: show today
-        Calendar calendar = Calendar.getInstance();
-        selectedDay = calendar.get(Calendar.DAY_OF_MONTH);
-        currentMonth = calendar.get(Calendar.MONTH);
-        currentYear = calendar.get(Calendar.YEAR);
+        buildDaysWithData();
+        selectedDayIndex = getTodayOrLatestIndex();
         updateMonthText();
-        loadUsageForDay(selectedDay, view);
-
+        setupCalendarRow();
+        loadUsageForSelectedDay(view);
+        showChart(currentChartType);
         return view;
     }
 
-    private void updateMonthText() {
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.MONTH, currentMonth);
-        cal.set(Calendar.YEAR, currentYear);
-        String monthYear = new SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(cal.getTime());
-        monthText.setText(monthYear);
+    // Build the list of all days with data, sorted, using real usage data
+    private void buildDaysWithData() {
+        daysWithData.clear();
+        Set<Long> availableDays = getAvailableUsageDays();
+        for (Long millis : availableDays) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(millis);
+            daysWithData.add((Calendar) cal.clone());
+        }
+        Collections.sort(daysWithData, Comparator.comparingLong(Calendar::getTimeInMillis));
     }
 
-    private void setupCalendarRow(View view) {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int today = calendar.get(Calendar.DAY_OF_MONTH);
+    // Returns the index of today in daysWithData, or the latest day before today if today is not present
+    private int getTodayOrLatestIndex() {
+        Calendar today = Calendar.getInstance();
+        int latestBeforeToday = -1;
+        for (int i = 0; i < daysWithData.size(); i++) {
+            Calendar cal = daysWithData.get(i);
+            if (isSameDay(cal, today)) {
+                return i;
+            }
+            if (cal.before(today)) {
+                latestBeforeToday = i;
+            }
+        }
+        if (latestBeforeToday != -1) return latestBeforeToday;
+        return daysWithData.size() - 1;
+    }
 
-        // Get number of days in month
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        firstDay = 1;
-        calendar.set(Calendar.MONTH, month + 1);
-        calendar.set(Calendar.DAY_OF_MONTH, 0);
-        lastDay = calendar.get(Calendar.DAY_OF_MONTH);
+    private boolean isSameDay(Calendar c1, Calendar c2) {
+        return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)
+                && c1.get(Calendar.DAY_OF_YEAR) == c2.get(Calendar.DAY_OF_YEAR);
+    }
 
-        // Set first and last day TextViews
-        TextView fixedDay = view.findViewById(R.id.fixedDay);
-        TextView lastDayView = view.findViewById(R.id.lastDay);
-        fixedDay.setText(String.valueOf(firstDay));
-        lastDayView.setText(String.valueOf(lastDay));
+    private void setupCalendarRow() {
+        if (daysWithData.isEmpty()) return;
+        int leftIdx = 0;
+        int rightIdx = getTodayOrLatestIndex();
+        Calendar leftCal = daysWithData.get(leftIdx);
+        Calendar rightCal = daysWithData.get(rightIdx);
 
-        // Add days 2 to (lastDay-1) to dateContainer
-        LinearLayout dateContainer = view.findViewById(R.id.dateContainer);
+        leftDay.setText(String.valueOf(leftCal.get(Calendar.DAY_OF_MONTH)));
+        leftDay.setSelected(selectedDayIndex == leftIdx);
+        leftDay.setOnClickListener(v -> {
+            selectedDayIndex = leftIdx;
+            updateMonthText();
+            setupCalendarRow();
+            loadUsageForSelectedDay(getView());
+            showChart(currentChartType);
+        });
+
+        rightDay.setText(String.valueOf(rightCal.get(Calendar.DAY_OF_MONTH)));
+        rightDay.setSelected(selectedDayIndex == rightIdx);
+        rightDay.setOnClickListener(v -> {
+            selectedDayIndex = rightIdx;
+            updateMonthText();
+            setupCalendarRow();
+            loadUsageForSelectedDay(getView());
+            showChart(currentChartType);
+        });
+
         dateContainer.removeAllViews();
-        for (int day = 2; day < lastDay; day++) {
+        for (int i = leftIdx + 1; i < rightIdx; i++) {
+            Calendar cal = daysWithData.get(i);
             TextView dayView = new TextView(requireContext());
-            dayView.setText(String.valueOf(day));
+            dayView.setText(String.valueOf(cal.get(Calendar.DAY_OF_MONTH)));
             dayView.setTextSize(16);
             dayView.setGravity(Gravity.CENTER);
             dayView.setBackgroundResource(R.drawable.day_selector);
             dayView.setTextColor(ContextCompat.getColor(requireContext(), R.color.dayTextColor));
-            dayView.setEllipsize(TextUtils.TruncateAt.END);
-            dayView.setMaxLines(1);
             dayView.setWidth(dpToPx(48));
             dayView.setHeight(dpToPx(48));
-            dayView.setPadding(0, 0, 0, 0);
-            if (day == today) {
-                dayView.setSelected(true);
-            }
-            int finalDay = day;
+            dayView.setSelected(selectedDayIndex == i);
+            int finalI = i;
             dayView.setOnClickListener(v -> {
-                clearDaySelection(view);
-                dayView.setSelected(true);
-                selectedDay = finalDay;
-                loadUsageForDay(finalDay, view);
+                selectedDayIndex = finalI;
+                updateMonthText();
+                setupCalendarRow();
+                loadUsageForSelectedDay(getView());
+                showChart(currentChartType);
             });
             dateContainer.addView(dayView);
         }
-
-        // Set click listeners for first and last day
-        fixedDay.setOnClickListener(v -> {
-            clearDaySelection(view);
-            fixedDay.setSelected(true);
-            selectedDay = firstDay;
-            loadUsageForDay(firstDay, view);
-        });
-        lastDayView.setOnClickListener(v -> {
-            clearDaySelection(view);
-            lastDayView.setSelected(true);
-            selectedDay = lastDay;
-            loadUsageForDay(lastDay, view);
-        });
     }
 
-    private int dpToPx(int dp) {
-        float density = requireContext().getResources().getDisplayMetrics().density;
-        return Math.round((float) dp * density);
+    private void updateMonthText() {
+        if (selectedDayIndex < 0 || selectedDayIndex >= daysWithData.size()) return;
+        Calendar cal = daysWithData.get(selectedDayIndex);
+        String monthYear = new SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(cal.getTime());
+        monthText.setText(monthYear);
     }
 
-    private void clearDaySelection(View view) {
-        TextView fixedDay = view.findViewById(R.id.fixedDay);
-        TextView lastDayView = view.findViewById(R.id.lastDay);
-        fixedDay.setSelected(false);
-        lastDayView.setSelected(false);
+    private void loadUsageForSelectedDay(View view) {
+        if (selectedDayIndex < 0 || selectedDayIndex >= daysWithData.size()) return;
+        Calendar cal = daysWithData.get(selectedDayIndex);
+        loadUsageForDay(
+                cal.get(Calendar.DAY_OF_MONTH),
+                cal.get(Calendar.MONTH),
+                cal.get(Calendar.YEAR),
+                view
+        );
+        showChart(currentChartType);
+    }
 
-        LinearLayout dateContainer = view.findViewById(R.id.dateContainer);
-        for (int i = 0; i < dateContainer.getChildCount(); i++) {
-            dateContainer.getChildAt(i).setSelected(false);
+    // Only one chart visible at a time, progress is default
+    private void showChart(String type) {
+        progressBarList.setVisibility(type.equals("progress") ? View.VISIBLE : View.GONE);
+        pieChart.setVisibility(type.equals("pie") && !appUsageMap.isEmpty() ? View.VISIBLE : View.GONE);
+        barChart.setVisibility(type.equals("bar") && !appUsageMap.isEmpty() ? View.VISIBLE : View.GONE);
+        if (noDataText != null) noDataText.setVisibility(appUsageMap.isEmpty() ? View.VISIBLE : View.GONE);
+        View appLabelContainer = getView() != null ? getView().findViewById(R.id.appLabelContainer) : null;
+        if (appLabelContainer != null) {
+            if (type.equals("progress")) {
+                appLabelContainer.setVisibility(View.GONE);
+            } else {
+                appLabelContainer.setVisibility(View.VISIBLE);
+                displayAppLabels(getView());
+            }
         }
     }
 
-    private void loadUsageForDay(int day, View view) {
+    private void loadUsageForDay(int day, int month, int year, View view) {
         appUsageMap.clear();
         appColorMap.clear();
-
         Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, month);
         cal.set(Calendar.DAY_OF_MONTH, day);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
         long startTime = cal.getTimeInMillis();
-
         cal.set(Calendar.HOUR_OF_DAY, 23);
         cal.set(Calendar.MINUTE, 59);
         cal.set(Calendar.SECOND, 59);
         cal.set(Calendar.MILLISECOND, 999);
         long endTime = cal.getTimeInMillis();
-
         if (!hasUsageStatsPermission()) {
             startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
         } else {
             collectUsageData(startTime, endTime);
             generateColorsForApps();
+            displayProgressBarList();
             displayPieChart();
             displayBarChart();
-            displayAppLabels(view);
+            // displayAppLabels(view); // removed, now handled in showChart
+        }
+    }
 
-            // Save data for today only
-            if (day == Calendar.getInstance().get(Calendar.DAY_OF_MONTH) && !hasDataBeenSavedToday()) {
-                UsageDataSaver.saveUsageToXml(requireContext(), appUsageMap);
-                setDataSavedToday();
+    // Returns a set of millis for days that have at least one non-system app with usage
+    private Set<Long> getAvailableUsageDays() {
+        Set<Long> daysWithUsage = new TreeSet<>();
+        if (!hasUsageStatsPermission()) return daysWithUsage;
+        UsageStatsManager usm = (UsageStatsManager) requireContext().getSystemService(Context.USAGE_STATS_SERVICE);
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        // Scan up to 60 days back
+        for (int i = 0; i < 60; i++) {
+            long startTime = cal.getTimeInMillis();
+            cal.set(Calendar.HOUR_OF_DAY, 23);
+            cal.set(Calendar.MINUTE, 59);
+            cal.set(Calendar.SECOND, 59);
+            cal.set(Calendar.MILLISECOND, 999);
+            long endTime = cal.getTimeInMillis();
+            Map<String, Long> usage = getUsageForDay(startTime, endTime);
+            if (!usage.isEmpty()) {
+                Calendar dayCal = Calendar.getInstance();
+                dayCal.setTimeInMillis(startTime);
+                dayCal.set(Calendar.HOUR_OF_DAY, 0);
+                dayCal.set(Calendar.MINUTE, 0);
+                dayCal.set(Calendar.SECOND, 0);
+                dayCal.set(Calendar.MILLISECOND, 0);
+                daysWithUsage.add(dayCal.getTimeInMillis());
+            }
+            cal.add(Calendar.DAY_OF_MONTH, -1);
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+        }
+        return daysWithUsage;
+    }
+
+    // Helper to get usage for a day (non-system apps only)
+    private Map<String, Long> getUsageForDay(long startTime, long endTime) {
+        Map<String, Long> usageMap = new HashMap<>();
+        UsageStatsManager usm = (UsageStatsManager) requireContext().getSystemService(Context.USAGE_STATS_SERVICE);
+        UsageEvents events = usm.queryEvents(startTime, endTime);
+        UsageEvents.Event event = new UsageEvents.Event();
+        Map<String, Long> foregroundTimestamps = new HashMap<>();
+        while (events.hasNextEvent()) {
+            events.getNextEvent(event);
+            String packageName = event.getPackageName();
+            if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
+                foregroundTimestamps.put(packageName, event.getTimeStamp());
+            } else if (event.getEventType() == UsageEvents.Event.MOVE_TO_BACKGROUND) {
+                if (foregroundTimestamps.containsKey(packageName)) {
+                    long start = foregroundTimestamps.remove(packageName);
+                    long duration = event.getTimeStamp() - start;
+                    if (!isSystemApp(packageName)) {
+                        String appName = getAppNameFromPackage(packageName);
+                        usageMap.put(appName, usageMap.getOrDefault(appName, 0L) + duration);
+                    }
+                }
             }
         }
+        return usageMap;
     }
 
     private boolean hasUsageStatsPermission() {
@@ -261,6 +367,76 @@ public class ActivityFragment extends Fragment {
         }
     }
 
+    private void displayProgressBarList() {
+        progressBarList.removeAllViews();
+        if (appUsageMap == null || appUsageMap.isEmpty()) {
+            progressBarList.setVisibility(View.GONE);
+            if (noDataText != null) noDataText.setVisibility(View.VISIBLE);
+            return;
+        }
+        if (noDataText != null) noDataText.setVisibility(View.GONE);
+        progressBarList.setVisibility(View.VISIBLE);
+        long totalTime = 0;
+        for (long duration : appUsageMap.values()) {
+            if (duration > 0) totalTime += duration;
+        }
+        PackageManager pm = requireContext().getPackageManager();
+        for (Map.Entry<String, Long> entry : appUsageMap.entrySet()) {
+            String appName = entry.getKey();
+            long duration = entry.getValue();
+            int percent = totalTime > 0 ? (int) (duration * 100 / totalTime) : 0;
+            LinearLayout row = new LinearLayout(requireContext());
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setPadding(8, 8, 8, 8);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            ImageView iconView = new ImageView(requireContext());
+            iconView.setLayoutParams(new LinearLayout.LayoutParams(80, 80));
+            iconView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            try {
+                String packageName = getPackageNameFromAppName(appName);
+                if (packageName != null) {
+                    ApplicationInfo appInfo = pm.getApplicationInfo(packageName, 0);
+                    iconView.setImageDrawable(pm.getApplicationIcon(appInfo));
+                } else {
+                    iconView.setImageResource(android.R.drawable.sym_def_app_icon);
+                }
+            } catch (Exception e) {
+                iconView.setImageResource(android.R.drawable.sym_def_app_icon);
+            }
+            TextView nameView = new TextView(requireContext());
+            nameView.setText(appName);
+            nameView.setTextSize(14);
+            nameView.setTextColor(Color.BLACK);
+            nameView.setPadding(16, 0, 8, 0);
+            ProgressBar progressBar = new ProgressBar(requireContext(), null, android.R.attr.progressBarStyleHorizontal);
+            progressBar.setLayoutParams(new LinearLayout.LayoutParams(0, 40, 1f));
+            progressBar.setMax(100);
+            progressBar.setProgress(percent);
+            TextView percentView = new TextView(requireContext());
+            percentView.setText(percent + "%");
+            percentView.setTextSize(14);
+            percentView.setTextColor(Color.DKGRAY);
+            percentView.setPadding(16, 0, 0, 0);
+            row.addView(iconView);
+            row.addView(nameView);
+            row.addView(progressBar);
+            row.addView(percentView);
+            progressBarList.addView(row);
+        }
+    }
+
+    private String getPackageNameFromAppName(String appName) {
+        PackageManager pm = requireContext().getPackageManager();
+        List<ApplicationInfo> apps = pm.getInstalledApplications(0);
+        for (ApplicationInfo appInfo : apps) {
+            String label = pm.getApplicationLabel(appInfo).toString();
+            if (label.equals(appName)) {
+                return appInfo.packageName;
+            }
+        }
+        return null;
+    }
+
     private void displayPieChart() {
         if (appUsageMap == null || appUsageMap.isEmpty()) {
             pieChart.clear();
@@ -274,30 +450,36 @@ public class ActivityFragment extends Fragment {
         List<PieEntry> entries = new ArrayList<>();
         List<Integer> colors = new ArrayList<>();
         long totalTime = 0;
+
         for (long duration : appUsageMap.values()) {
             if (duration > 0) {
                 totalTime += duration;
             }
         }
+
         for (Map.Entry<String, Long> entry : appUsageMap.entrySet()) {
             String appName = entry.getKey();
             long duration = entry.getValue();
+
             if (duration > 0) {
                 float percentage = (float) duration / totalTime * 100f;
                 if (percentage >= 0.5f) {
                     entries.add(new PieEntry(duration, appName));
+
                     Integer color = appColorMap.get(appName);
                     if (color == null) color = Color.GRAY;
                     colors.add(color);
                 }
             }
         }
+
         if (entries.isEmpty()) {
             pieChart.clear();
             pieChart.setVisibility(View.GONE);
             if (noDataText != null) noDataText.setVisibility(View.VISIBLE);
             return;
         }
+
         PieDataSet dataSet = new PieDataSet(entries, "");
         dataSet.setColors(colors);
         dataSet.setSliceSpace(1f);
@@ -307,9 +489,11 @@ public class ActivityFragment extends Fragment {
         dataSet.setValueLineColor(Color.BLACK);
         dataSet.setValueLineWidth(1.5f);
         dataSet.setValueFormatter(new PercentFormatter(pieChart));
+
         PieData data = new PieData(dataSet);
         data.setValueTextSize(12f);
         data.setValueTextColor(Color.BLACK);
+
         pieChart.setUsePercentValues(true);
         pieChart.setData(data);
         pieChart.setDrawEntryLabels(false);
@@ -317,9 +501,11 @@ public class ActivityFragment extends Fragment {
         pieChart.setTransparentCircleRadius(55f);
         pieChart.getDescription().setEnabled(false);
         pieChart.getLegend().setEnabled(false);
+
         pieChart.setCenterText(formatDuration(totalTime));
         pieChart.setCenterTextSize(14f);
         pieChart.setCenterTextColor(Color.DKGRAY);
+
         pieChart.invalidate();
     }
 
@@ -336,11 +522,13 @@ public class ActivityFragment extends Fragment {
         List<BarEntry> entries = new ArrayList<>();
         final List<String> appNames = new ArrayList<>();
         int index = 0;
+
         for (Map.Entry<String, Long> entry : appUsageMap.entrySet()) {
             long durationInMinutes = entry.getValue() / 60000;
             entries.add(new BarEntry(index++, durationInMinutes));
             appNames.add(entry.getKey());
         }
+
         BarDataSet dataSet = new BarDataSet(entries, "Time Used (min)");
         dataSet.setColors(new ArrayList<>(appColorMap.values()));
         BarData data = new BarData(dataSet);
@@ -348,11 +536,14 @@ public class ActivityFragment extends Fragment {
         data.setValueTextSize(12f);
         data.setValueTextColor(Color.BLACK);
         barChart.setData(data);
+
+        // Show all bars by default, let user zoom in if desired
         barChart.setVisibleXRangeMaximum(appNames.size());
         barChart.moveViewToX(0);
         barChart.setScaleEnabled(true);
         barChart.setPinchZoom(true);
         barChart.setDoubleTapToZoomEnabled(true);
+
         XAxis xAxis = barChart.getXAxis();
         xAxis.setValueFormatter(new ValueFormatter() {
             @Override
@@ -360,6 +551,7 @@ public class ActivityFragment extends Fragment {
                 int i = (int) value;
                 if (i >= 0 && i < appNames.size()) {
                     String name = appNames.get(i);
+                    // Ellipsize long names for readability
                     if (name.length() > 10) {
                         return name.substring(0, 9) + "…";
                     }
@@ -374,8 +566,10 @@ public class ActivityFragment extends Fragment {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setTextSize(12f);
         xAxis.setLabelCount(Math.min(appNames.size(), 10));
+
         YAxis leftAxis = barChart.getAxisLeft();
         leftAxis.setTextSize(12f);
+
         barChart.setFitBars(true);
         Description desc = new Description();
         desc.setText("App Usage (min)");
@@ -429,5 +623,9 @@ public class ActivityFragment extends Fragment {
 
     private void setDataSavedToday() {
         // Implement this method to mark that today's data has been saved
+    }
+
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
     }
 }

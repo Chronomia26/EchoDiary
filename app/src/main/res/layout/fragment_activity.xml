@@ -7,31 +7,41 @@
     android:orientation="vertical"
     android:paddingTop="12dp">
 
-    <!-- Month Display -->
+    <!-- Month Selector Row (not used for navigation in Java, but present for display/future use) -->
+    <LinearLayout
+        android:id="@+id/monthRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="8dp">
+        <!-- Month buttons will be added programmatically if needed -->
+    </LinearLayout>
+
+    <!-- Calendar Row: Leftmost/rightmost day with data + scrollable middle days -->
     <TextView
         android:id="@+id/monthText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="April 2024"
-        android:textSize="20sp"
-        android:textStyle="bold"
         android:gravity="center"
         android:padding="8dp"
-        android:textColor="#333" />
+        android:text="Month Year"
+        android:textColor="#333"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
-    <!-- Calendar Row: Fixed first day + scrollable middle days + fixed last day -->
     <LinearLayout
         android:id="@+id/calendarRow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:gravity="center_vertical">
+        android:paddingRight="8dp">
 
-        <!-- First Day (Fixed) -->
+        <!-- Leftmost Day (Earliest with data) -->
         <TextView
-            android:id="@+id/fixedDay"
+            android:id="@+id/leftDay"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginEnd="4dp"
@@ -44,14 +54,13 @@
             android:padding="8dp"
             android:layout_gravity="center_vertical" />
 
-        <!-- Scrollable Days (2 to 29) -->
+        <!-- Scrollable Days (middle days with data) -->
         <HorizontalScrollView
             android:id="@+id/calendarScrollView"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:scrollbars="none">
-
             <LinearLayout
                 android:id="@+id/dateContainer"
                 android:layout_width="wrap_content"
@@ -59,9 +68,9 @@
                 android:orientation="horizontal" />
         </HorizontalScrollView>
 
-        <!-- Last Day (Fixed) -->
+        <!-- Rightmost Day (Today or latest with data) -->
         <TextView
-            android:id="@+id/lastDay"
+            android:id="@+id/rightDay"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginStart="4dp"
@@ -73,6 +82,42 @@
             android:textColor="@color/dayTextColor"
             android:padding="8dp"
             android:layout_gravity="center_vertical" />
+    </LinearLayout>
+
+    <!-- Chart Option Buttons -->
+    <LinearLayout
+        android:id="@+id/chartOptionButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="8dp">
+        <ImageButton
+            android:id="@+id/btnProgress"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_progress"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Progress Chart"
+            android:padding="8dp" />
+        <ImageButton
+            android:id="@+id/btnPie"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_pie_chart"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Pie Chart"
+            android:padding="8dp"
+            android:layout_marginStart="8dp" />
+        <ImageButton
+            android:id="@+id/btnBar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_bar_chart"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Bar Chart"
+            android:padding="8dp"
+            android:layout_marginStart="8dp" />
     </LinearLayout>
 
     <!-- Scrollable Charts Section -->
@@ -88,32 +133,37 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
             <!-- No Data Message -->
             <TextView
                 android:id="@+id/noDataText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="No data for this day"
-                android:textSize="16sp"
-                android:textColor="#666666"
                 android:gravity="center"
-                android:visibility="gone"
-                android:padding="16dp" />
-
+                android:padding="16dp"
+                android:text="No data for this day"
+                android:textColor="#666666"
+                android:textSize="16sp"
+                android:visibility="gone" />
+            <!-- Progress Bar List (default visible) -->
+            <LinearLayout
+                android:id="@+id/progressBarList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="visible" />
             <!-- Pie Chart -->
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/pieChart"
                 android:layout_width="match_parent"
-                android:layout_height="200dp" />
-
-            <!-- Bar Chart (no HorizontalScrollView, chart handles scroll/zoom itself) -->
+                android:layout_height="200dp"
+                android:visibility="gone" />
+            <!-- Bar Chart -->
             <com.github.mikephil.charting.charts.BarChart
                 android:id="@+id/barChart"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
-                android:layout_marginTop="16dp" />
-
+                android:layout_marginTop="16dp"
+                android:visibility="gone" />
             <!-- App Name Labels -->
             <LinearLayout
                 android:id="@+id/appLabelContainer"
@@ -124,12 +174,10 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Button Section -->
-    <LinearLayout
-        android:id="@+id/buttonSpace"
+    <!-- Spacer for future bottom buttons -->
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:padding="30dp" />
+        android:layout_height="80dp"
+        android:background="@android:color/transparent" />
+
 </LinearLayout>
