@@ -1,66 +1,78 @@
 package com.bigo143.echodiary;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONObject;
+
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class SummaryActivity extends AppCompatActivity {
 
+    TextView tvTitle, tvBody;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_summary);
 
-        long targetDayMillis = getIntent().getLongExtra("summaryDayMillis", System.currentTimeMillis());
-        summarizeSelectedDay(targetDayMillis);
-    }
+        tvTitle = findViewById(R.id.tvSummaryTitle);
+        tvBody = findViewById(R.id.tvSummaryBody);
 
-    private void summarizeSelectedDay(long dayMillis) {
+        long selectedDayMillis = getIntent().getLongExtra("summaryDayMillis", System.currentTimeMillis());
+
         new Thread(() -> {
-            long start = getStartOfDayMillis(dayMillis);
-            long end = getEndOfDayMillis(dayMillis);
+            long start = getStartOfDayMillis(selectedDayMillis);
+            long end = getEndOfDayMillis(selectedDayMillis);
 
             List<DiaryEntry> entries = DiaryDatabase.getInstance(this)
                     .diaryDao()
                     .getEntriesForDay(start, end);
 
             if (entries == null || entries.isEmpty()) {
-                runOnUiThread(() ->
-                        Toast.makeText(this, "No entries for this date.", Toast.LENGTH_SHORT).show()
-                );
-                finish();
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "No entries for selected day.", Toast.LENGTH_SHORT).show();
+                    finish();
+                });
                 return;
             }
+
+// ... rest of your code that processes entries ...
 
             StringBuilder combined = new StringBuilder();
             for (DiaryEntry entry : entries) {
                 combined.append("- ").append(entry.content).append("\n\n");
             }
 
-            String prompt = "Summarize my day based on these journal entries. " +
-                    "Write in first-person diary tone and keep it concise:\n" + combined;
+            JSONObject summary = GeminiApiHelper.summarizeToJson(this, combined.toString());
 
-            String result = GeminiApiHelper.summarizeText(this, prompt);
-
-            runOnUiThread(() -> {
-                new AlertDialog.Builder(this)
-                        .setTitle("✨ AI Summary")
-                        .setMessage(result)
-                        .setPositiveButton("OK", (dialog, which) -> finish())
-                        .show();
-            });
-
+            if (summary != null) {
+                runOnUiThread(() -> {
+                    try {
+                        tvTitle.setText(summary.getString("title"));
+                        tvBody.setText(summary.getString("body"));
+                    } catch (Exception e) {
+                        tvTitle.setText("Summary failed");
+                        tvBody.setText(e.getMessage());
+                        Log.e("SummaryActivity", "Parsing error", e);
+                    }
+                });
+            } else {
+                runOnUiThread(() -> {
+                    tvTitle.setText("AI Summary Failed");
+                    tvBody.setText("Please try again later.");
+                });
+            }
         }).start();
     }
 
-    private long getStartOfDayMillis(long dayMillis) {
+    private long getStartOfDayMillis(long millis) {
         Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(dayMillis);
+        c.setTimeInMillis(millis);
         c.set(Calendar.HOUR_OF_DAY, 0);
         c.set(Calendar.MINUTE, 0);
         c.set(Calendar.SECOND, 0);
@@ -68,9 +80,9 @@ public class SummaryActivity extends AppCompatActivity {
         return c.getTimeInMillis();
     }
 
-    private long getEndOfDayMillis(long dayMillis) {
+    private long getEndOfDayMillis(long millis) {
         Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(dayMillis);
+        c.setTimeInMillis(millis);
         c.set(Calendar.HOUR_OF_DAY, 23);
         c.set(Calendar.MINUTE, 59);
         c.set(Calendar.SECOND, 59);

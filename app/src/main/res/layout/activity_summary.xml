@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/pale_mocha"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/summary_card"
+        android:padding="20dp"
+        android:elevation="4dp">
+
+        <TextView
+            android:id="@+id/tvSummaryTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Summary Title"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/dark_roast"
+            android:paddingBottom="12dp"/>
+
+        <TextView
+            android:id="@+id/tvSummaryBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Loading..."
+            android:textSize="16sp"
+            android:textColor="@color/coffee_brown"
+            android:lineSpacingExtra="6dp" />
+
+    </LinearLayout>
+
+</ScrollView>

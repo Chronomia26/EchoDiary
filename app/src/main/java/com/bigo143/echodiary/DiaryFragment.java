@@ -89,10 +89,31 @@ public class DiaryFragment extends Fragment {
                 String query = s.toString().toLowerCase();
                 List<DiaryEntry> filteredList = new ArrayList<>();
 
+                // Assuming 'query' is already lowercased for efficiency, if not, do it once outside the loop:
+// String lowerCaseQuery = query.toLowerCase();
+
                 for (DiaryEntry entry : originalList) {
-                    if (entry.title.toLowerCase().contains(query) ||
-                            entry.subtitle.toLowerCase().contains(query) ||
-                            entry.content.toLowerCase().contains(query)) {
+                    // Check if the entry itself is not null (good practice, though less likely the cause here if originalList is populated)
+                    if (entry == null) {
+                        continue; // Skip this entry
+                    }
+
+                    boolean titleMatches = false;
+                    if (entry.title != null) {
+                        titleMatches = entry.title.toLowerCase().contains(query); // If query isn't lowercased: .contains(lowerCaseQuery)
+                    }
+
+                    boolean subtitleMatches = false;
+                    if (entry.subtitle != null) {
+                        subtitleMatches = entry.subtitle.toLowerCase().contains(query); // If query isn't lowercased: .contains(lowerCaseQuery)
+                    }
+
+                    boolean contentMatches = false;
+                    if (entry.content != null) {
+                        contentMatches = entry.content.toLowerCase().contains(query); // If query isn't lowercased: .contains(lowerCaseQuery)
+                    }
+
+                    if (titleMatches || subtitleMatches || contentMatches) {
                         filteredList.add(entry);
                     }
                 }
