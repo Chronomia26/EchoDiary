@@ -10,7 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
+import android.util.Log;
 import org.json.JSONObject;
 
 import java.text.ParseException;
@@ -52,6 +52,7 @@ public class NewJournalActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     if (resultJson != null) {
                         try {
+//                            Log.d("JSON", resultJson.toString());
                             String newTitle = resultJson.getString("title");
                             String newBody = resultJson.getString("body");
                             journalTitle.setText(newTitle);

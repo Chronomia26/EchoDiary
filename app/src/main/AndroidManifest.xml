@@ -22,6 +22,9 @@
         <activity
             android:name=".DiaryDetailActivity" />
         <activity
+            android:name=".SummaryActivity"
+            android:exported="false" />
+        <activity
             android:name=".NewJournalActivity"
             android:exported="false" />
         <activity

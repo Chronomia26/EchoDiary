@@ -66,6 +66,47 @@ public class GeminiApiHelper {
     }
 
 
+    public static String summarizeText(Context context, String userText) {
+        OkHttpClient client = new OkHttpClient();
+
+        try {
+            String systemPrompt = loadSystemPromptFromRaw(context);
+
+            JSONObject sysPart = new JSONObject().put("text", systemPrompt);
+            JSONObject userPart = new JSONObject().put("text", userText);
+            JSONArray contents = new JSONArray();
+
+            contents.put(new JSONObject().put("role", "user").put("parts", new JSONArray().put(sysPart)));
+            contents.put(new JSONObject().put("role", "user").put("parts", new JSONArray().put(userPart)));
+
+            JSONObject requestJson = new JSONObject().put("contents", contents);
+
+            RequestBody body = RequestBody.create(requestJson.toString(), JSON);
+            Request request = new Request.Builder().url(ENDPOINT).post(body).build();
+
+            Response response = client.newCall(request).execute();
+
+            if (response.isSuccessful()) {
+                JSONObject json = new JSONObject(response.body().string());
+                String text = json
+                        .getJSONArray("candidates")
+                        .getJSONObject(0)
+                        .getJSONObject("content")
+                        .getJSONArray("parts")
+                        .getJSONObject(0)
+                        .getString("text");
+                return text.trim();
+            } else {
+                Log.e("GeminiAPI", "API Error: " + response.body().string());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "Failed to get AI response.";
+    }
+
+
     private static String loadSystemPromptFromRaw(Context context) {
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(context.getResources().openRawResource(R.raw.gemini_prompt)))) {
