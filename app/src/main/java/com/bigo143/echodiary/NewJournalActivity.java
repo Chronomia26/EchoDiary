@@ -41,11 +41,15 @@ public class NewJournalActivity extends AppCompatActivity {
         btnVoiceInput = findViewById(R.id.btnVoiceInput);
         btnSave = findViewById(R.id.btnSave);
 
-        btnVoiceInput.setOnClickListener(v -> startVoiceInput());
+        btnVoiceInput.setOnClickListener(v -> {
+            animateClick(btnVoiceInput);
+            startVoiceInput();
+        });
 
         ImageView btnSummarize = findViewById(R.id.btnSummarize);
 
         btnSummarize.setOnClickListener(v -> {
+            animateClick(btnSummarize);
             new Thread(() -> {
                 JSONObject resultJson = GeminiApiHelper.summarizeToJson(this, journalContent.getText().toString());
 
@@ -71,9 +75,13 @@ public class NewJournalActivity extends AppCompatActivity {
 
 
         journalBack = findViewById(R.id.journalBack);
-        journalBack.setOnClickListener(v -> onBackPressed());
+        journalBack.setOnClickListener(v -> {
+            animateClick(journalBack);
+            onBackPressed();
+        });
 
         btnSave.setOnClickListener(v -> {
+            animateClick(btnSave);
             String title = journalTitle.getText().toString();
             String body = journalContent.getText().toString();
             String subtitle = journalTags.getText().toString();
@@ -108,6 +116,12 @@ public class NewJournalActivity extends AppCompatActivity {
             finish();
         });
     }
+
+    private void animateClick(ImageView view) {
+        view.animate().scaleX(0.9f).scaleY(0.9f).setDuration(50)
+                .withEndAction(() -> view.animate().scaleX(1f).scaleY(1f).setDuration(50)).start();
+    }
+
 
     private void startVoiceInput() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);

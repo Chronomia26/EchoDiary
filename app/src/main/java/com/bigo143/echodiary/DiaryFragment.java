@@ -22,6 +22,7 @@ import java.util.List;
 
 import android.widget.ImageView;
 import android.content.Intent;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 
@@ -62,11 +63,17 @@ public class DiaryFragment extends Fragment {
         // Handle Add Note button click
         ImageView addNoteButton = view.findViewById(R.id.image_AddNote);
         addNoteButton.setOnClickListener(v -> {
+            animateClick(addNoteButton);
             Intent intent = new Intent(getContext(), NewJournalActivity.class);
             startActivity(intent);
         });
 
         return view;
+    }
+
+    private void animateClick(ImageView view) {
+        view.animate().scaleX(0.9f).scaleY(0.9f).setDuration(50)
+                .withEndAction(() -> view.animate().scaleX(1f).scaleY(1f).setDuration(50)).start();
     }
 
     @Override

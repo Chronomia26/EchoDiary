@@ -41,13 +41,27 @@ public class DiaryDetailActivity extends AppCompatActivity {
         timestamp.setText(DateFormat.getDateTimeInstance().format(time));
 
         ImageView detailBack = findViewById(R.id.detailBack);
-        detailBack.setOnClickListener(v -> onBackPressed());
+        detailBack.setOnClickListener(v -> {
+            animateClick(detailBack);
+            onBackPressed();
+        });
 
         ImageView detailSave = findViewById(R.id.detailSave);
-        detailSave.setOnClickListener(v -> saveChanges());
+        detailSave.setOnClickListener(v -> {
+            animateClick(detailSave);
+            saveChanges();
+        });
 
         ImageView detailDelete = findViewById(R.id.detailDelete);
-        detailDelete.setOnClickListener(v -> deleteEntry());
+        detailDelete.setOnClickListener(v -> {
+            animateClick(detailDelete);
+            deleteEntry();
+        });
+    }
+
+    private void animateClick(ImageView view) {
+        view.animate().scaleX(0.9f).scaleY(0.9f).setDuration(50)
+                .withEndAction(() -> view.animate().scaleX(1f).scaleY(1f).setDuration(50)).start();
     }
 
     private void saveChanges() {

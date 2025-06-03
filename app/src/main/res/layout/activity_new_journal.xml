@@ -23,14 +23,15 @@ tools:context=".DiaryDetailActivity">
 
         <ImageView
             android:id="@+id/journalBack"
-            android:layout_width="@dimen/_25sdp"
-            android:layout_height="@dimen/_25sdp"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
             android:layout_marginStart="@dimen/_6sdp"
             android:layout_marginTop="@dimen/_15sdp"
             android:layout_marginEnd="@dimen/_12sdp"
             android:src="@drawable/ic_back"
             android:tint="@color/pale_mocha"
             android:background="@drawable/background_done_button"
+            android:elevation="16dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
@@ -38,13 +39,14 @@ tools:context=".DiaryDetailActivity">
 
         <ImageView
             android:id="@+id/btnSave"
-            android:layout_width="@dimen/_25sdp"
-            android:layout_height="@dimen/_25sdp"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
             android:layout_marginEnd="@dimen/_16sdp"
             android:padding="@dimen/_4sdp"
             android:src="@drawable/ic_done"
             android:tint="@color/pale_mocha"
             android:background="@drawable/background_done_button"
+            android:elevation="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/btnVoiceInput"
@@ -72,6 +74,7 @@ tools:context=".DiaryDetailActivity">
             android:importantForAutofill="no"
             android:includeFontPadding="false"
             android:inputType="text"
+            android:elevation="16dp"
             app:layout_constraintTop_toBottomOf="@id/journalBack"/>
 
         <TextView
@@ -104,6 +107,7 @@ tools:context=".DiaryDetailActivity">
             android:paddingTop="10dp"
             android:paddingEnd="12dp"
             android:paddingBottom="10dp"
+            android:elevation="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/journalSubtitleIndicator"
             app:layout_constraintTop_toBottomOf="@id/journalDateTime"/>
@@ -114,6 +118,7 @@ tools:context=".DiaryDetailActivity">
             android:layout_height="0dp"
             android:layout_marginStart="12dp"
             android:background="@drawable/background_subtitle_indicator"
+            android:elevation="16dp"
             app:layout_constraintBottom_toBottomOf="@id/journalTags"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/journalTags"/>
@@ -140,16 +145,20 @@ tools:context=".DiaryDetailActivity">
             android:paddingEnd="12dp"
             android:paddingBottom="10dp"
             android:minHeight="480dp"
+            android:elevation="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/journalTags" />
 
+        <!-- Tag -->
+
         <ImageView
             android:id="@+id/btnVoiceInput"
-            android:layout_width="@dimen/_25sdp"
-            android:layout_height="@dimen/_25sdp"
-            android:layout_marginEnd="66.80dp"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
+            android:layout_marginEnd="76dp"
             android:layout_marginBottom="85dp"
             android:background="@drawable/background_done_button"
+            android:elevation="16dp"
             android:src="@drawable/ic_voice"
             android:tint="@color/pale_mocha"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -157,14 +166,14 @@ tools:context=".DiaryDetailActivity">
             app:layout_constraintTop_toTopOf="@id/journalBack"
             app:layout_constraintVertical_bias="0.0" />
 
-        <!-- Tag -->
         <ImageView
             android:id="@+id/btnSummarize"
-            android:layout_width="@dimen/_25sdp"
-            android:layout_height="@dimen/_25sdp"
-            android:layout_marginEnd="112dp"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
+            android:layout_marginEnd="132dp"
             android:layout_marginBottom="85dp"
             android:background="@drawable/background_done_button"
+            android:elevation="16dp"
             android:src="@drawable/ic_summarize"
             android:tint="@color/pale_mocha"
             app:layout_constraintBottom_toBottomOf="parent"

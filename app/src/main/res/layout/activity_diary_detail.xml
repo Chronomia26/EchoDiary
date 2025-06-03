@@ -23,14 +23,15 @@ z<ScrollView
 
         <ImageView
             android:id="@+id/detailBack"
-            android:layout_width="@dimen/_25sdp"
-            android:layout_height="@dimen/_25sdp"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
             android:layout_marginStart="@dimen/_6sdp"
             android:layout_marginTop="@dimen/_15sdp"
             android:layout_marginEnd="@dimen/_12sdp"
             android:src="@drawable/ic_back"
             android:tint="@color/pale_mocha"
             android:background="@drawable/background_done_button"
+            android:elevation="16dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
@@ -38,13 +39,14 @@ z<ScrollView
 
         <ImageView
             android:id="@+id/detailSave"
-            android:layout_width="@dimen/_25sdp"
-            android:layout_height="@dimen/_25sdp"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
             android:layout_marginEnd="@dimen/_16sdp"
             android:padding="@dimen/_4sdp"
             android:src="@drawable/ic_done"
             android:tint="@color/pale_mocha"
             android:background="@drawable/background_done_button"
+            android:elevation="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/detailDelete"
@@ -72,6 +74,7 @@ z<ScrollView
             android:importantForAutofill="no"
             android:includeFontPadding="false"
             android:inputType="text"
+            android:elevation="16dp"
             app:layout_constraintTop_toBottomOf="@id/detailBack"/>
 
         <TextView
@@ -104,6 +107,7 @@ z<ScrollView
             android:paddingTop="10dp"
             android:paddingEnd="12dp"
             android:paddingBottom="10dp"
+            android:elevation="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/detailSubtitleIndicator"
             app:layout_constraintTop_toBottomOf="@id/detailTimestamp"/>
@@ -114,6 +118,7 @@ z<ScrollView
             android:layout_height="0dp"
             android:layout_marginStart="12dp"
             android:background="@drawable/background_subtitle_indicator"
+            android:elevation="16dp"
             app:layout_constraintBottom_toBottomOf="@id/detailSubtitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/detailSubtitle"/>
@@ -140,16 +145,18 @@ z<ScrollView
             android:paddingEnd="12dp"
             android:paddingBottom="10dp"
             android:minHeight="480dp"
+            android:elevation="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/detailSubtitle" />
 
         <ImageView
             android:id="@+id/detailDelete"
-            android:layout_width="@dimen/_25sdp"
-            android:layout_height="@dimen/_25sdp"
-            android:layout_marginEnd="66.80dp"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
+            android:layout_marginEnd="76dp"
             android:layout_marginBottom="85dp"
             android:background="@drawable/background_done_button"
+            android:elevation="16dp"
             android:src="@drawable/ic_delete"
             android:tint="@color/pale_mocha"
             app:layout_constraintBottom_toBottomOf="parent"

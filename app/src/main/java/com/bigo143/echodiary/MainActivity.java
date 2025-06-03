@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -56,12 +57,27 @@ public class MainActivity extends AppCompatActivity {
         setupKeyboardVisibilityListener();
 
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false); // Remove default title
+
+
+        View customToolbar = getLayoutInflater().inflate(R.layout.toolbar_custom, null);
+        toolbar.addView(customToolbar);
+
+        ImageView profileIcon = customToolbar.findViewById(R.id.toolbar_profile);
+        TextView profileName = customToolbar.findViewById(R.id.toolbar_title);
+
+        // TODO: Load real profile data
+        profileName.setText("John Doe"); // Replace with user's name
+
+        profileIcon.setOnClickListener(v -> drawerLayout.openDrawer(Gravity.LEFT));
+
+
 
         // Set up navigation drawer
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        /* ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.open_nav, R.string.close_nav);
         drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
+        toggle.syncState(); */
 
         // Load default fragment on first launch
         if (savedInstanceState == null) {
@@ -116,6 +132,8 @@ public class MainActivity extends AppCompatActivity {
             return new SettingsFragment();
         } else if (itemId == R.id.nav_about) {
             return new AboutFragment();
+        } else if (itemId == R.id.nav_profile) {
+            return new ProfileFragment();
         } else {
             return null;
         }
@@ -158,7 +176,25 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.frame_layout, fragment);
         transaction.commit();
+
+        // Check if fragment is one where bottom UI should be hidden
+        boolean shouldHideBottomUI = fragment instanceof SettingsFragment;
+
+        // Hide or show BottomNavigationView
+        bottomNavigationView.setVisibility(shouldHideBottomUI ? View.GONE : View.VISIBLE);
+
+        // Hide or show FloatingActionButton
+        fab.setVisibility(shouldHideBottomUI ? View.GONE : View.VISIBLE);
+
+        // Hide or show FAB background and nav frame (optional styling views)
+        View fabBg = findViewById(R.id.fab_background);
+        View bottomNavFrame = findViewById(R.id.bottom_nav_frame);
+
+        if (fabBg != null) fabBg.setVisibility(shouldHideBottomUI ? View.GONE : View.VISIBLE);
+        if (bottomNavFrame != null) bottomNavFrame.setVisibility(shouldHideBottomUI ? View.GONE : View.VISIBLE);
     }
+
+
 
     // Display bottom sheet dialog for upload options
     private void showBottomDialog() {
