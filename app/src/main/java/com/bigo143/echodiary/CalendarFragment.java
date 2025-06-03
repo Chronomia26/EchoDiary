@@ -1,5 +1,6 @@
 package com.bigo143.echodiary;
 
+import android.animation.ValueAnimator;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -8,6 +9,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.InputType;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -20,6 +22,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
@@ -61,6 +64,10 @@ public class CalendarFragment extends Fragment {
 
     private final Map<Integer, Integer> moodMap = new HashMap<>();
     private final Set<String> promptedDates = new HashSet<>();
+    private static final int ANIMATION_DURATION = 300; // or any duration you prefer (ms)
+
+    private int displayedYear;
+    private int displayedMonth;
 
     private final int[] moodDrawables = {
             R.drawable.ic_happy_dot,
@@ -71,6 +78,9 @@ public class CalendarFragment extends Fragment {
     public CalendarFragment() {
         // Required empty constructor
     }
+    private boolean isCalendarExpanded = false; // Global to persist state
+    final int[] calendarNormalHeightHolder = new int[1]; // Store normal height after layout
+    final int[] calendarExpandedHeightHolder = new int[1];
 
 
     @Override
@@ -80,8 +90,6 @@ public class CalendarFragment extends Fragment {
         moodManager = new MoodManager(requireContext());
         dbHelper = new MoodNoteDBHelper(requireContext());
         selectedDate = dbDateFormat.format(currentCalendar.getTime());
-
-
     }
 
     @Override
@@ -97,6 +105,7 @@ public class CalendarFragment extends Fragment {
         taskManager = new TaskManager(requireContext());
         rootLayout = view.findViewById(R.id.rootLayout);
         LinearLayout moodLegend = view.findViewById(R.id.moodLegend);
+        ImageView addSpecificTaskBtn = view.findViewById(R.id.addSpecificTasks);
 
         EditText taskInput = view.findViewById(R.id.taskInput);
         taskInput.setFocusable(false);
@@ -107,8 +116,57 @@ public class CalendarFragment extends Fragment {
         yearText.setOnClickListener(v -> showYearPickerDialog());
         monthText.setOnClickListener(v -> showMonthPickerDialog());
 
+        // Variables for vertical swipe detection & expand/collapse
+        final float[] startY = new float[1];  // Use array to modify inside lambda
+        final int SWIPE_THRESHOLD = 100;  // Minimum vertical swipe distance
+        final int animationDuration = 300;
+
+        addSpecificTaskBtn.setVisibility(View.GONE);  // Hide initially
+
+        // Capture calendar normal & expanded height after layout
+        calendarGrid.post(() -> {
+            calendarNormalHeightHolder[0] = calendarGrid.getHeight();
+            calendarExpandedHeightHolder[0] = (int) (calendarNormalHeightHolder[0] * 1.5f);
+            calendarGrid.requestLayout();  // force re-layout
+            calendarGrid.invalidate();     // force redraw
+        });
+
+        calendarGrid.setOnVerticalSwipeListener(new GestureDetectingGridView.OnVerticalSwipeListener() {
+            @Override
+            public void onSwipeDown() {
+                if (!isCalendarExpanded) {
+                    setCalendarExpandedState(true);
+                }
+            }
+
+            @Override
+            public void onSwipeUp() {
+                if (isCalendarExpanded) {
+                    setCalendarExpandedState(false);
+                }
+            }
+        });
+
+
+
+        calendarGrid.setOnSwipeListener(new GestureDetectingGridView.OnSwipeListener() {
+            @Override
+            public void onSwipeLeft() {
+                changeMonth(1);
+            }
+
+            @Override
+            public void onSwipeRight() {
+                changeMonth(-1);
+            }
+        });
+
         rootLayout.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            int action = event.getAction();
+            if (action == MotionEvent.ACTION_DOWN) {
+                // Save startY for swipe detection
+                startY[0] = event.getRawY();
+
                 int[] loc = new int[2];
                 calendarGrid.getLocationOnScreen(loc);
                 int x = loc[0];
@@ -135,11 +193,32 @@ public class CalendarFragment extends Fragment {
                         calendarAdapter.setCurrentDay(-1);
                     }
 
+                    addSpecificTaskBtn.setVisibility(View.GONE);
                     calendarGrid.invalidateViews();
-                    return true;
+
+                    return true; // consume event to prevent further propagation
+                }
+            } else if (action == MotionEvent.ACTION_UP) {
+                float endY = event.getRawY();
+                float deltaY = endY - startY[0];
+
+                if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
+                    if (deltaY > 0 && !isCalendarExpanded) {
+                        animateCalendarHeight(calendarGrid, calendarExpandedHeightHolder[0], animationDuration);
+                        scaleCalendarItems(calendarGrid, 1.2f, animationDuration);
+                        calendarAdapter.setExpanded(true);
+                        isCalendarExpanded = true;
+                        return true;
+                    } else if (deltaY < 0 && isCalendarExpanded) {
+                        animateCalendarHeight(calendarGrid, calendarNormalHeightHolder[0], animationDuration);
+                        scaleCalendarItems(calendarGrid, 1.0f, animationDuration);
+                        calendarAdapter.setExpanded(false);
+                        isCalendarExpanded = false;
+                        return true;
+                    }
                 }
             }
-            return false;
+            return false; // allow other events to be handled normally
         });
 
         if (!isMoodEnabled()) {
@@ -148,53 +227,59 @@ public class CalendarFragment extends Fragment {
             moodLegend.setVisibility(View.VISIBLE); // Show the layout
         }
 
-
-        calendarGrid.setOnSwipeListener(new GestureDetectingGridView.OnSwipeListener() {
-            @Override
-            public void onSwipeLeft() {
-                changeMonth(1);
-            }
-
-            @Override
-            public void onSwipeRight() {
-                changeMonth(-1);
-            }
-        });
-
         calendarGrid.setOnItemClickListener((parent, view1, position, id) -> {
-            String dayStr = calendarAdapter.getItem(position);
-            if (dayStr.isEmpty()) return;
-            int day = Integer.parseInt(dayStr);
+            CalendarDay day = calendarAdapter.getItem(position);
+            addSpecificTaskBtn.setVisibility(View.GONE);  // Hide button if invalid day clicked
+            if (day == null || day.day <= 0) return;
 
-            selectedDay = day;
-            calendarAdapter.setSelectedDay(day);
-            calendarGrid.invalidateViews();
+            if (day.isCurrentMonth) {
+                selectedDay = day.day;
+                calendarAdapter.setSelectedDay(selectedDay);
+                calendarGrid.invalidateViews();
 
-            selectedDate = String.format(Locale.getDefault(), "%04d/%02d/%02d",
-                    currentCalendar.get(Calendar.YEAR),
-                    currentCalendar.get(Calendar.MONTH) + 1, day);
+                selectedDate = String.format(Locale.getDefault(), "%04d/%02d/%02d",
+                        currentCalendar.get(Calendar.YEAR),
+                        currentCalendar.get(Calendar.MONTH) + 1, selectedDay);
 
-            showTasksForDate(tasksContainer);
+                showTasksForDate(tasksContainer);
 
-            if (isMoodEnabled() && !promptedDates.contains(selectedDate)) {
-                showMoodNoteDialog(selectedDate);
-                promptedDates.add(selectedDate);
+                addSpecificTaskBtn.setVisibility(View.VISIBLE); // Show button when valid date selected
+
+
+                if (isMoodEnabled() && !promptedDates.contains(selectedDate)) {
+                    showMoodNoteDialog(selectedDate);
+                    promptedDates.add(selectedDate);
+                }
+            } else {
+                if (day.isTrailing) {
+                    currentCalendar.add(Calendar.MONTH, -1);
+                } else if (day.isLeading) {
+                    currentCalendar.add(Calendar.MONTH, 1);
+                }
+                selectedDay = day.day;
+                loadCalendar(); // This will re-highlight the selected day for the new month
+                setCalendarExpandedState(isCalendarExpanded); // Reapply expanded/collapsed layout
+
+                addSpecificTaskBtn.setVisibility(View.GONE); // Hide button after month switch
             }
         });
 
         calendarGrid.setOnItemLongClickListener((parent, view1, position, id) -> {
-            String dayStr = calendarAdapter.getItem(position);
-            if (dayStr.isEmpty()) return false;
-            int day = Integer.parseInt(dayStr);
-            selectedDay = day;
-            calendarAdapter.setSelectedDay(day);
+            CalendarDay day = calendarAdapter.getItem(position);
+            addSpecificTaskBtn.setVisibility(View.GONE);  // Hide button if invalid day clicked
+            if (day == null || !day.isCurrentMonth || day.day <= 0) return false;
+
+            selectedDay = day.day;
+            calendarAdapter.setSelectedDay(selectedDay);
             calendarGrid.invalidateViews();
 
             selectedDate = String.format(Locale.getDefault(), "%04d/%02d/%02d",
                     currentCalendar.get(Calendar.YEAR),
-                    currentCalendar.get(Calendar.MONTH) + 1, day);
+                    currentCalendar.get(Calendar.MONTH) + 1, selectedDay);
 
             showTasksForDate(tasksContainer);
+            addSpecificTaskBtn.setVisibility(View.VISIBLE); // Show button when valid date selected
+
 
             if (isMoodEnabled()) {
                 showMoodNoteDialog(selectedDate);
@@ -212,20 +297,72 @@ public class CalendarFragment extends Fragment {
         showTasksForDate(tasksContainer); // RELOAD from DB every time fragment is visible
     }
 
+    private void setCalendarExpandedState(boolean expanded) {
+        float scale = requireContext().getResources().getDisplayMetrics().density;
+        int padding = (int) ((expanded ? 60 : 8) * scale + 0.5f);
+        int margin = (int) ((expanded ? 12 : 6) * scale + 0.5f);
+        int targetHeight = expanded ? calendarExpandedHeightHolder[0] : calendarNormalHeightHolder[0];
 
+        animateCalendarHeight(calendarGrid, targetHeight, ANIMATION_DURATION);
 
-    private void hideKeyboard(View view) {
-        InputMethodManager imm = (InputMethodManager) view.getContext()
-                .getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        calendarGrid.animate().alpha(0f).setDuration(100).withEndAction(() -> {
+            calendarAdapter.setExpanded(expanded);
+            calendarAdapter.setTotalHeight(targetHeight);
+            calendarAdapter.setBottomCellMargin(margin);
+            calendarGrid.animate().alpha(1f).setDuration(100).start();
+        }).start();
+
+        calendarGrid.setPadding(0, expanded ? 0 : padding, 0, expanded ? 0 : padding);
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) calendarGrid.getLayoutParams();
+        params.setMargins(0, expanded ? 0 : padding, 0, expanded ? 0 : padding);
+        calendarGrid.setLayoutParams(params);
+
+        isCalendarExpanded = expanded;
+    }
+
+    private void scaleCalendarItems(GridView gridView, float scaleFactor, long duration) {
+        for (int i = 0; i < gridView.getChildCount(); i++) {
+            View child = gridView.getChildAt(i);
+            if (child instanceof TextView) {
+                TextView dayView = (TextView) child;
+
+                dayView.animate()
+                        .scaleX(scaleFactor)
+                        .scaleY(scaleFactor)
+                        .setDuration(duration)
+                        .start();
+
+            }
         }
+    }
+
+    private void animateCalendarHeight(View view, int toHeight, int duration) {
+        int fromHeight = view.getHeight();
+        ValueAnimator animator = ValueAnimator.ofInt(fromHeight, toHeight);
+        animator.setDuration(duration);
+        animator.addUpdateListener(animation -> {
+            int val = (int) animation.getAnimatedValue();
+            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+            layoutParams.height = val;
+
+            // Make sure the GridView remains aligned to top
+            if (layoutParams instanceof ViewGroup.MarginLayoutParams) {
+                ((ViewGroup.MarginLayoutParams) layoutParams).topMargin = 0;
+            }
+
+            view.setLayoutParams(layoutParams);
+        });
+        animator.start();
     }
 
     private void changeMonth(int offset) {
         currentCalendar.add(Calendar.MONTH, offset);
         loadCalendar();
+
+        calendarGrid.post(() -> setCalendarExpandedState(isCalendarExpanded));
     }
+
+
 
     private boolean isMoodEnabled() {
         return requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
@@ -233,20 +370,49 @@ public class CalendarFragment extends Fragment {
     }
 
     private void loadCalendar() {
-        List<String> days = new ArrayList<>();
+        List<CalendarDay> calendarDays = new ArrayList<>();
         Calendar calendar = (Calendar) currentCalendar.clone();
+        Set<Integer> sundayPositions = new HashSet<>();
+        Set<Integer> taskDays = new HashSet<>();
+
+        displayedYear = calendar.get(Calendar.YEAR);
+        displayedMonth = calendar.get(Calendar.MONTH); // 0-based
 
         calendar.set(Calendar.DAY_OF_MONTH, 1);
         int firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1;
         int maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-        for (int i = 0; i < firstDayOfWeek; i++) {
-            days.add("");
+        // Fill days from previous month
+        Calendar prevMonth = (Calendar) calendar.clone();
+        prevMonth.add(Calendar.MONTH, -1);
+        int maxPrevDay = prevMonth.getActualMaximum(Calendar.DAY_OF_MONTH);
+        for (int i = firstDayOfWeek - 1; i >= 0; i--) {
+            CalendarDay cd = new CalendarDay(maxPrevDay - i, false, true, false);
+            calendarDays.add(cd);
         }
 
+        // Current month days
         for (int i = 1; i <= maxDay; i++) {
-            days.add(String.valueOf(i));
+            CalendarDay cd = new CalendarDay(i, true, false, false);
+            calendar.set(Calendar.DAY_OF_MONTH, i);
+            if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+                sundayPositions.add(firstDayOfWeek + i - 1);
+            }
+            calendarDays.add(cd);
         }
+
+        // Leading days from next month
+        int totalCells = calendarDays.size();
+        int rows = (int) Math.ceil(totalCells / 7.0);
+        int requiredCells = (rows == 5 && totalCells <= 35) ? 35 : 42;
+
+        for (int i = 1; calendarDays.size() < requiredCells; i++) {
+            CalendarDay cd = new CalendarDay(i, false, false, true);
+            calendarDays.add(cd);
+        }
+
+
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
 
         moodMap.clear();
         if (isMoodEnabled()) {
@@ -275,14 +441,33 @@ public class CalendarFragment extends Fragment {
             }
         }
 
+        if (taskManager != null) {
+            for (int i = 1; i <= maxDay; i++) {
+                String dateKey = String.format(Locale.getDefault(), "%04d/%02d/%02d",
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH) + 1,
+                        i);
+                List<MoodNoteDBHelper.Task> tasks = taskManager.getTasks(dateKey); // <--- here fixed
+                if (tasks != null && !tasks.isEmpty()) {
+                    taskDays.add(i);
+                }
+            }
+        }
+
+
         String monthName = new SimpleDateFormat("MMMM", Locale.getDefault()).format(calendar.getTime());
         String year = new SimpleDateFormat("yyyy", Locale.getDefault()).format(calendar.getTime());
         monthText.setText(monthName);
         yearText.setText(year);
 
-        calendarAdapter = new CalendarAdapter(requireContext(), days, moodMap,
+        calendarAdapter = new CalendarAdapter(requireContext(), calendarDays, moodMap,
                 calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), firstDayOfWeek);
+
+        calendarAdapter.setSundayPositions(sundayPositions); // 🔴 Apply Sunday highlights
+        calendarAdapter.setTaskDays(taskDays); // ✅ Make sure this method exists in your adapter
         calendarGrid.setAdapter(calendarAdapter);
+        calendarAdapter.setExpanded(isCalendarExpanded);
+        calendarGrid.invalidateViews();
 
         Calendar today = Calendar.getInstance();
         if (today.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) &&
@@ -295,6 +480,7 @@ public class CalendarFragment extends Fragment {
         }
 
         calendarAdapter.setSelectedDay(selectedDay);
+        calendarGrid.invalidateViews();
 
         // Highlight today only if nothing is selected
         if (selectedDay == -1 && todayDay != -1) {
@@ -302,7 +488,6 @@ public class CalendarFragment extends Fragment {
             calendarAdapter.setCurrentDay(todayDay); // Ensure today is highlighted
         }
 
-        calendarGrid.invalidateViews();
     }
 
     private void showYearPickerDialog() {
@@ -354,14 +539,17 @@ public class CalendarFragment extends Fragment {
     }
 
     private void setNumberPickerTextSize(NumberPicker numberPicker, float textSizeSp) {
+        float scaledSizeInPixels = textSizeSp * getResources().getDisplayMetrics().scaledDensity;
         int count = numberPicker.getChildCount();
         for (int i = 0; i < count; i++) {
             View child = numberPicker.getChildAt(i);
-            if (child instanceof EditText) {
-                ((EditText) child).setTextSize(textSizeSp);
+            if (child instanceof TextView) {
+                ((TextView) child).setTextSize(scaledSizeInPixels);
             }
         }
     }
+
+
 
     private void showEditDialog(CheckBox taskCheckbox, MoodNoteDBHelper.Task task) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -389,6 +577,8 @@ public class CalendarFragment extends Fragment {
 
                 // Update the checkbox text on UI
                 taskCheckbox.setText(editedText);
+                refreshTaskMarksOnCalendar();  // ✅ Refresh marks after update
+
             } else {
                 Toast.makeText(getContext(), "Task cannot be empty", Toast.LENGTH_SHORT).show();
             }
@@ -419,8 +609,10 @@ public class CalendarFragment extends Fragment {
             if (isChecked) {
                 // Delete task to avoid container overload
                 taskManager.deleteTaskById(task.getId());
+                showTasksForDate(tasksContainer);
                 // Also remove checkbox from the UI container (e.g., tasksContainer.removeView(checkBox))
                 ((ViewGroup) taskCheckBox.getParent()).removeView(taskCheckBox);
+                refreshTaskMarksOnCalendar(); // <-- update underline on calendar
             } else {
                 // Update the task as unchecked
                 taskManager.updateTaskById(task.getId(), task.getText(), task.getTime(), false);
@@ -434,37 +626,6 @@ public class CalendarFragment extends Fragment {
         // Add the inflated task view to the container
         container.addView(taskView);
     }
-
-
-
-
-    private CheckBox createTaskCheckbox(MoodNoteDBHelper.Task task) {
-        CheckBox checkBox = new CheckBox(getContext());
-        checkBox.setText(task.getText());
-        checkBox.setChecked(task.isChecked());
-
-        checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                // Delete task to avoid container overload
-                taskManager.deleteTaskById(task.getId());
-                // Also remove checkbox from the UI container (e.g., tasksContainer.removeView(checkBox))
-                ((ViewGroup) checkBox.getParent()).removeView(checkBox);
-            } else {
-                // Update the task as unchecked
-                    taskManager.updateTaskById(task.getId(), task.getText(), task.getTime(), false);
-                    task.setChecked(false);
-            }
-        });
-
-        checkBox.setOnLongClickListener(v -> {
-            showEditDialog(checkBox, task);
-            return true;
-        });
-
-        return checkBox;
-    }
-
-
 
     private void showTaskInputDialog(LinearLayout container) {
         if (getContext() == null || selectedDate == null) return;
@@ -482,6 +643,7 @@ public class CalendarFragment extends Fragment {
             if (!taskText.isEmpty()) {
                 String time = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
                 taskManager.insertTask(selectedDate, taskText, time, false);
+                refreshTaskMarksOnCalendar(); // <-- update underline on calendar
                 showTasksForDate(tasksContainer);  // Refresh list
             }
         });
@@ -538,6 +700,8 @@ public class CalendarFragment extends Fragment {
 
                     moodManager.saveMood(date, selectedMood, "");
                     loadCalendar();
+                    setCalendarExpandedState(isCalendarExpanded); // Restore expanded/collapsed state
+
                 })
                 .setNegativeButton("Cancel", null);
 
@@ -546,10 +710,33 @@ public class CalendarFragment extends Fragment {
             builder.setNeutralButton("Delete", (dialog, which) -> {
                 moodManager.deleteMood(date);
                 loadCalendar();
+                setCalendarExpandedState(isCalendarExpanded); // Restore expanded/collapsed state
             });
         }
 
         builder.show();
+    }
+
+    private void refreshTaskMarksOnCalendar() {
+        List<MoodNoteDBHelper.Task> tasks = taskManager.getTasksForMonth(displayedYear, displayedMonth + 1);
+        Set<Integer> daysWithTasks = new HashSet<>();
+
+        for (MoodNoteDBHelper.Task task : tasks) {
+            String date = task.getDate(); // Expecting yyyy-MM-dd
+
+            if (date != null && date.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                String[] parts = date.split("-");
+                try {
+                    int day = Integer.parseInt(parts[2]);
+                    daysWithTasks.add(day);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace(); // or Log.w("Calendar", "Invalid date: " + date);
+                }
+            }
+        }
+
+        calendarAdapter.setTaskDays(daysWithTasks);
+        calendarGrid.invalidateViews(); // Refresh visuals
     }
 
 
@@ -558,4 +745,7 @@ public class CalendarFragment extends Fragment {
         super.onDestroyView();
         taskManager = null;
     }
+
+
 }
+

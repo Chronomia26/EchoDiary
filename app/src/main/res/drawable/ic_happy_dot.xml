@@ -1,5 +1,5 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/green" />
+    <solid android:color="@color/orange" />
     <size android:width="16dp" android:height="16dp" />
     <corners android:radius="8dp" /> <!-- For a circular dot -->
 </shape>

@@ -7,10 +7,8 @@
         android:padding="16dp"
         android:id="@+id/rootLayout"
         android:clickable="true"
-        android:focusable="true">
-
-
-
+        android:focusable="true"
+        android:gravity="top">
 
         <LinearLayout
             android:id="@+id/topRow"
@@ -153,22 +151,45 @@
             android:layout_height="320dp"
             android:numColumns="7"
             android:horizontalSpacing="4dp"
-            android:verticalSpacing="4dp"
+            android:verticalSpacing="0dp"
             android:stretchMode="columnWidth"
             android:gravity="center"
             android:layout_marginBottom="6dp"/>
 
-        <FrameLayout
+
+        <LinearLayout
             android:id="@+id/events"
             android:layout_width="match_parent"
-            android:layout_height="20dp">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="5dp"
+            android:paddingHorizontal="4dp"
+            android:weightSum="0">
 
             <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
+                android:id="@+id/textViews"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="No Events" />
-        </FrameLayout>
+                android:layout_weight="0.8"
+                android:text="No Events"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/addSpecificTasks"
+                android:layout_width="50dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:layout_weight="0"
+                android:layout_marginEnd="0dp"
+                android:background="@drawable/background_add_button"
+                android:contentDescription="Add Event"
+                android:src="@drawable/ic_add"
+                android:visibility="visible"
+                android:gravity="end|center_vertical" />
+
+        </LinearLayout>
 
         <FrameLayout
             android:id="@+id/maintaskcontainer"
@@ -177,17 +198,17 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="263dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/textView1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
                     android:text="Notes"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="4dp" />
+                    android:textStyle="bold" />
 
                 <FrameLayout
                     android:id="@+id/editTextContainer"
@@ -205,15 +226,15 @@
                         android:id="@+id/taskInput"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Tap to add a task"
-                        android:textAlignment="center"
-                        android:focusable="false"
+                        android:background="@drawable/edit_text_background"
                         android:clickable="true"
                         android:cursorVisible="false"
+                        android:elevation="8dp"
+                        android:focusable="false"
+                        android:hint="Tap to add a task"
                         android:inputType="none"
-                        android:background="@drawable/edit_text_background"
                         android:padding="12dp"
-                        android:elevation="8dp"/>
+                        android:textAlignment="center" />
                 </FrameLayout>
 
                 <ScrollView
@@ -229,7 +250,6 @@
                         android:orientation="vertical"
                         android:padding="8dp" />
                 </ScrollView>
-
             </LinearLayout>
         </FrameLayout>
     </LinearLayout>

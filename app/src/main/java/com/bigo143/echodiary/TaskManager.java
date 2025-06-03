@@ -31,4 +31,8 @@ public class TaskManager {
         dbHelper.deleteTaskById(id);
     }
 
+    public List<MoodNoteDBHelper.Task> getTasksForMonth(int year, int month) {
+        return dbHelper.getTasksForMonth(year, month);
+    }
+
 }
