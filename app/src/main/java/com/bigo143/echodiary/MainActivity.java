@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
         transaction.commit();
 
         // Check if fragment is one where bottom UI should be hidden
-        boolean shouldHideBottomUI = fragment instanceof SettingsFragment;
+        boolean shouldHideBottomUI = fragment instanceof SettingsFragment || fragment instanceof AboutFragment;
 
         // Hide or show BottomNavigationView
         bottomNavigationView.setVisibility(shouldHideBottomUI ? View.GONE : View.VISIBLE);
