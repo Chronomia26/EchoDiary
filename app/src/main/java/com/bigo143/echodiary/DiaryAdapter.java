@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.DateFormat;
 import java.util.List;
+import android.app.ActivityOptions;
+import android.os.Bundle;
 
 public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHolder> {
 
@@ -49,7 +51,8 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
             intent.putExtra("subtitle", entry.subtitle);
             intent.putExtra("content", entry.content);
             intent.putExtra("timestamp", entry.timestamp);
-            context.startActivity(intent);
+            ActivityOptions options = ActivityOptions.makeCustomAnimation(context, R.anim.fade_in, R.anim.fade_out);
+            context.startActivity(intent, options.toBundle());
         });
 
 

@@ -44,6 +44,7 @@ public class DiaryDetailActivity extends AppCompatActivity {
         detailBack.setOnClickListener(v -> {
             animateClick(detailBack);
             onBackPressed();
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
         ImageView detailSave = findViewById(R.id.detailSave);
@@ -79,6 +80,7 @@ public class DiaryDetailActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 Toast.makeText(this, "Note updated", Toast.LENGTH_SHORT).show();
                 finish();
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             });
         });
     }
@@ -91,6 +93,7 @@ public class DiaryDetailActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 Toast.makeText(this, "Note deleted", Toast.LENGTH_SHORT).show();
                 finish();
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             });
         });
     }

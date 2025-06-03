@@ -1,5 +1,6 @@
 package com.bigo143.echodiary;
 
+import android.app.ActivityOptions;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -20,6 +21,7 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.content.Intent;
 import android.widget.LinearLayout;
@@ -42,8 +44,7 @@ public class DiaryFragment extends Fragment {
 
         recyclerView.setAdapter(adapter);
 
-
-
+        EditText searchInput = view.findViewById(R.id.edittext_InputSearch);
 
         DiaryDatabase.getInstance(requireContext())
                 .diaryDao()
@@ -58,6 +59,7 @@ public class DiaryFragment extends Fragment {
                                 ", Content: " + entry.content +
                                 ", Timestamp: " + entry.timestamp);
                     }
+                    setupSearch(searchInput, entries);
                 });
 
         // Handle Add Note button click
@@ -65,7 +67,9 @@ public class DiaryFragment extends Fragment {
         addNoteButton.setOnClickListener(v -> {
             animateClick(addNoteButton);
             Intent intent = new Intent(getContext(), NewJournalActivity.class);
-            startActivity(intent);
+            ActivityOptions options = ActivityOptions.makeCustomAnimation(getContext(), R.anim.slide_in_right, R.anim.slide_out_left);
+            startActivity(intent, options.toBundle());
+
         });
 
         return view;
@@ -75,6 +79,32 @@ public class DiaryFragment extends Fragment {
         view.animate().scaleX(0.9f).scaleY(0.9f).setDuration(50)
                 .withEndAction(() -> view.animate().scaleX(1f).scaleY(1f).setDuration(50)).start();
     }
+    private void setupSearch(EditText searchInput, List<DiaryEntry> originalList) {
+        searchInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String query = s.toString().toLowerCase();
+                List<DiaryEntry> filteredList = new ArrayList<>();
+
+                for (DiaryEntry entry : originalList) {
+                    if (entry.title.toLowerCase().contains(query) ||
+                            entry.subtitle.toLowerCase().contains(query) ||
+                            entry.content.toLowerCase().contains(query)) {
+                        filteredList.add(entry);
+                    }
+                }
+
+                adapter.setEntries(filteredList);
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+        });
+    }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
