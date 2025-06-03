@@ -22,6 +22,7 @@ public class GeminiApiHelper {
     private static final String ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY;
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
+    // ✅ 1. JSON-parsing version (already exists)
     public static JSONObject summarizeToJson(Context context, String userText) {
         OkHttpClient client = new OkHttpClient();
 
@@ -52,8 +53,6 @@ public class GeminiApiHelper {
                         .getJSONObject(0)
                         .getString("text");
                 text = text.replaceAll("(?s)```json\\s*|```", "").trim();
-
-                // Parse response string into JSON
                 return new JSONObject(text);
             } else {
                 Log.e("GeminiAPI", "API Error: " + response.body().string());
@@ -65,7 +64,7 @@ public class GeminiApiHelper {
         return null;
     }
 
-
+    // ✅ 2. Simple summarization (plain string)
     public static String summarizeText(Context context, String userText) {
         OkHttpClient client = new OkHttpClient();
 
@@ -106,7 +105,7 @@ public class GeminiApiHelper {
         return "Failed to get AI response.";
     }
 
-
+    // ✅ Reuse the shared system prompt
     private static String loadSystemPromptFromRaw(Context context) {
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(context.getResources().openRawResource(R.raw.gemini_prompt)))) {

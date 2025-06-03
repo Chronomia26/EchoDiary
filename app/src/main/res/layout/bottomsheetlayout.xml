@@ -8,7 +8,7 @@
 
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
@@ -16,22 +16,22 @@
             android:id="@+id/createText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAlignment="viewStart"
-            android:text="@string/create"
-            android:padding="8dp"
-            android:textColor="@color/dark_roast"
             android:layout_marginStart="12dp"
             android:layout_marginTop="5dp"
+            android:padding="8dp"
+            android:text="@string/create"
+            android:textAlignment="viewStart"
+            android:textColor="@color/dark_roast"
             android:textSize="25dp" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/baseline_clear_24"
-            android:layout_marginLeft="250dp"
-            android:layout_marginTop="8dp"
-            android:id="@+id/cancelButton"
-            app:tint="@color/coffee_brown"/>
+        <!--        <ImageView-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:src="@drawable/"-->
+        <!--            android:layout_marginLeft="250dp"-->
+        <!--            android:layout_marginTop="8dp"-->
+        <!--            android:id="@+id/cancelButton"-->
+        <!--            app:tint="@color/coffee_brown"/>-->
 
     </LinearLayout>
 
@@ -47,13 +47,13 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/baseline_video_library_24"
+            android:src="@drawable/summarize_24px"
             app:tint="@color/coffee_brown" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/upload_a_video"
+            android:text="Summarize a day"
             android:textColor="@color/dark_roast"
             android:layout_marginLeft="30dp"
             android:textSize="16sp"/>
@@ -71,13 +71,13 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/baseline_whatshot_24"
+            android:src="@drawable/book_5_24px"
             app:tint="@color/coffee_brown"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/create_a_short"
+            android:text="Create a journal entry"
             android:textColor="@color/dark_roast"
             android:layout_marginLeft="30dp"
             android:textSize="16sp"/>
@@ -98,13 +98,13 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/baseline_cast_connected_24"
+            android:src="@drawable/device_unknown_24px"
             app:tint="@color/coffee_brown"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/go_live"
+            android:text="Placeholder"
             android:textColor="@color/dark_roast"
             android:layout_marginLeft="30dp"
             android:textSize="16sp"/>
