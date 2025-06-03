@@ -1,5 +1,6 @@
 package com.bigo143.echodiary;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +29,8 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -169,12 +172,31 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout videoLayout = dialog.findViewById(R.id.layoutVideo);
         LinearLayout shortsLayout = dialog.findViewById(R.id.layoutShorts);
         LinearLayout liveLayout = dialog.findViewById(R.id.layoutLive);
-        ImageView cancelButton = dialog.findViewById(R.id.cancelButton);
+        //ImageView cancelButton = dialog.findViewById(R.id.cancelButton);
 
         videoLayout.setOnClickListener(v -> {
-            dialog.dismiss();
-            Toast.makeText(MainActivity.this, "Upload a Video is clicked", Toast.LENGTH_SHORT).show();
+            dialog.dismiss(); // Close the bottom sheet
+
+            Calendar today = Calendar.getInstance();
+
+            DatePickerDialog datePicker = new DatePickerDialog(
+                    MainActivity.this,
+                    (view, year, month, dayOfMonth) -> {
+                        Calendar selectedDay = Calendar.getInstance();
+                        selectedDay.set(year, month, dayOfMonth);
+
+                        Intent intent = new Intent(MainActivity.this, SummaryActivity.class);
+                        intent.putExtra("summaryDayMillis", selectedDay.getTimeInMillis());
+                        startActivity(intent);
+                    },
+                    today.get(Calendar.YEAR),
+                    today.get(Calendar.MONTH),
+                    today.get(Calendar.DAY_OF_MONTH)
+            );
+
+            datePicker.show();
         });
+
 
         shortsLayout.setOnClickListener(v -> {
             dialog.dismiss();
@@ -188,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Go Live is clicked", Toast.LENGTH_SHORT).show();
         });
 
-        cancelButton.setOnClickListener(view -> dialog.dismiss());
+        //cancelButton.setOnClickListener(view -> dialog.dismiss());
 
         dialog.show();
         if (dialog.getWindow() != null) {

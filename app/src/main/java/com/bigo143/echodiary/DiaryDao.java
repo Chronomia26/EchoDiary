@@ -24,6 +24,4 @@ public interface DiaryDao {
 
     @Query("SELECT * FROM diary_entries WHERE timestamp BETWEEN :start AND :end ORDER BY timestamp ASC")
     List<DiaryEntry> getEntriesForDay(long start, long end);
-
-
 }

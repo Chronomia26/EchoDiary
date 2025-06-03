@@ -16,7 +16,10 @@ public abstract class DiaryDatabase extends RoomDatabase {
         if (instance == null) {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                             DiaryDatabase.class, "diary_database")
-                    .fallbackToDestructiveMigration()
+                     //PLSS LANG WAG NYO IDAGDAG UNG DESTRUCTIVE MIGRATION
+                    //todo: IMMEDIATELY REMOVE UNG DESTRUCTIVE MIGRATION WHEN PUSHING or COMMENT OUT UNG LINE
+                    //.fallbackToDestructiveMigration()
+                    //THAT IS ONLY FOR TESTING PHASE, NABUBURA UNG DATABASE KO
                     .build();
 
         }

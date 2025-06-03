@@ -14,10 +14,10 @@ public class BottomSheetDialogHelper {
         bottomSheetDialog.setContentView(view);
 
         // Optional: close button logic
-        View cancelBtn = view.findViewById(R.id.cancelButton);
-        if (cancelBtn != null) {
-            cancelBtn.setOnClickListener(v -> bottomSheetDialog.dismiss());
-        }
+//        View cancelBtn = view.findViewById(R.id.cancelButton);
+//        if (cancelBtn != null) {
+//            cancelBtn.setOnClickListener(v -> bottomSheetDialog.dismiss());
+//        }
 
         bottomSheetDialog.show();
     }
