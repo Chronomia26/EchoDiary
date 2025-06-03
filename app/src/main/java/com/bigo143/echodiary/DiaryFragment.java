@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,11 +42,21 @@ public class DiaryFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
 
+
+
         DiaryDatabase.getInstance(requireContext())
                 .diaryDao()
                 .getAllEntries()
                 .observe(getViewLifecycleOwner(), entries -> {
                     adapter.setEntries(entries);
+//              ✅ Print all entries to the console (Logcat)
+                    for (DiaryEntry entry : entries) {
+                        Log.d("DiaryEntryLog", "ID: " + entry.id +
+                                ", Title: " + entry.title +
+                                ", Subtitle: " + entry.subtitle +
+                                ", Content: " + entry.content +
+                                ", Timestamp: " + entry.timestamp);
+                    }
                 });
 
         // Handle Add Note button click

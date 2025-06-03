@@ -11,6 +11,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -40,6 +42,32 @@ public class NewJournalActivity extends AppCompatActivity {
         btnSave = findViewById(R.id.btnSave);
 
         btnVoiceInput.setOnClickListener(v -> startVoiceInput());
+
+        Button btnSummarize = findViewById(R.id.btnSummarize);
+
+        btnSummarize.setOnClickListener(v -> {
+            new Thread(() -> {
+                JSONObject resultJson = GeminiApiHelper.summarizeToJson(this, journalContent.getText().toString());
+
+                runOnUiThread(() -> {
+                    if (resultJson != null) {
+                        try {
+                            String newTitle = resultJson.getString("title");
+                            String newBody = resultJson.getString("body");
+                            journalTitle.setText(newTitle);
+                            journalContent.setText(newBody);
+                            Toast.makeText(this, "Rewritten with AI ✨", Toast.LENGTH_SHORT).show();
+                        } catch (Exception e) {
+                            Toast.makeText(this, "Failed to parse AI output", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(this, "AI returned nothing", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }).start();
+        });
+
+
 
         journalBack = findViewById(R.id.journalBack);
         journalBack.setOnClickListener(v -> onBackPressed());
