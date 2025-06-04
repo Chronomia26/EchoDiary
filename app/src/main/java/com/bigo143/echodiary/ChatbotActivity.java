@@ -1,0 +1,61 @@
+package com.bigo143.echodiary;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ScrollView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+
+public class ChatbotActivity extends AppCompatActivity {
+
+    private EditText inputField;
+    private Button sendButton;
+
+    private RecyclerView chatRecyclerView;
+    private ChatAdapter chatAdapter;
+    private final List<ChatMessage> chatMessages = new ArrayList<>();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_chatbot);
+
+        inputField = findViewById(R.id.inputField);
+        sendButton = findViewById(R.id.sendButton);
+        chatRecyclerView = findViewById(R.id.chatRecyclerView);
+
+        chatAdapter = new ChatAdapter(chatMessages);
+        chatRecyclerView.setAdapter(chatAdapter);
+        chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        sendButton.setOnClickListener(v -> {
+            String userInput = inputField.getText().toString().trim();
+            if (userInput.isEmpty()) return;
+
+            inputField.setText("");
+            addMessage(userInput, true);
+
+            Executors.newSingleThreadExecutor().execute(() -> {
+                String response = GeminiApiHelper.chatWithGemini(this, chatMessages); // ⬅️ Pass full chat history
+                runOnUiThread(() -> addMessage(response, false));
+            });
+
+        });
+    }
+
+    private void addMessage(String message, boolean isUser) {
+        chatMessages.add(new ChatMessage(message, isUser));
+        chatAdapter.notifyItemInserted(chatMessages.size() - 1);
+        chatRecyclerView.scrollToPosition(chatMessages.size() - 1);
+    }
+}
