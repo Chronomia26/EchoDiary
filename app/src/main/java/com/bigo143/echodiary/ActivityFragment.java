@@ -21,6 +21,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.graphics.Typeface;
+import android.util.Log; // Added Log import
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -45,6 +47,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import android.os.Handler;
 import android.os.Looper;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.widget.Switch;
+
+// Import necessary classes for JSON (Only if you still use them elsewhere in this file)
+// import org.json.JSONException;
+// import org.json.JSONObject;
+
+// Import the GeminiApiHelper and its Callback interface
+import com.bigo143.echodiary.GeminiApiHelper;
+import com.bigo143.echodiary.GeminiApiHelper.ApiResponseCallback;
 
 
 public class ActivityFragment extends Fragment {
@@ -66,6 +79,19 @@ public class ActivityFragment extends Fragment {
     private Button btnShowAll, btnHide;
     private LinearLayout progressBarsContainer;
 
+    // Advisor UI elements
+    private LinearLayout advisorLayout;
+    private ImageView characterIcon;
+    private TextView advisorBubble;
+    private Switch advisorToggle;
+    private static final String PREF_ADVISOR_ENABLED = "advisor_enabled";
+
+    // Executor for background tasks (still needed for other background tasks like data loading)
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    // Handler to post results back to the main thread (still needed for UI updates)
+    private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+
+
     // List of all days with data, sorted chronologically
     private List<Calendar> daysWithData = new ArrayList<>();
     private int selectedDayIndex = -1; // index in daysWithData
@@ -81,7 +107,7 @@ public class ActivityFragment extends Fragment {
         progressBarList = view.findViewById(R.id.progressBarList);
         btnProgress = view.findViewById(R.id.btnProgress);
         btnPie = view.findViewById(R.id.btnPie);
-        btnBar = view.findViewById(R.id.btnBar);
+        btnBar = view.findViewById(R.id.btnBar); // Corrected ID from R.id.barChart to R.id.btnBar
         leftDay = view.findViewById(R.id.leftDay);
         rightDay = view.findViewById(R.id.rightDay);
         dateContainer = view.findViewById(R.id.dateContainer);
@@ -91,6 +117,13 @@ public class ActivityFragment extends Fragment {
         btnShowAll = view.findViewById(R.id.btnShowAll);
         btnHide = view.findViewById(R.id.btnHide);
         progressBarsContainer = view.findViewById(R.id.progressBarsContainer);
+
+        // Advisor UI elements
+        advisorLayout = view.findViewById(R.id.advisorLayout);
+        characterIcon = view.findViewById(R.id.character_icon);
+        advisorBubble = view.findViewById(R.id.advisor_bubble);
+        advisorToggle = view.findViewById(R.id.advisor_toggle);
+
 
         btnProgress.setOnClickListener(v -> {
             currentChartType = "progress";
@@ -105,13 +138,24 @@ public class ActivityFragment extends Fragment {
             showChart(currentChartType);
         });
 
+        setupAdvisor(); // Setup advisor toggle and initial state
+
         buildDaysWithData();
         selectedDayIndex = getTodayOrLatestIndex();
         updateMonthText();
         setupCalendarRow();
-        loadUsageForSelectedDay(view);
-        showChart(currentChartType);
+        loadUsageForSelectedDay(view); // This will now trigger data loading on background thread and advice update
+        showChart(currentChartType); // Keep this here to set initial chart visibility based on default type
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Shutdown the executor service when the fragment view is destroyed
+        if (executorService != null && !executorService.isShutdown()) {
+            executorService.shutdown();
+        }
     }
 
     // Build the list of all days with data, sorted, using real usage data
@@ -140,7 +184,7 @@ public class ActivityFragment extends Fragment {
             }
         }
         if (latestBeforeToday != -1) return latestBeforeToday;
-        return daysWithData.size() - 1;
+        return daysWithData.size() > 0 ? daysWithData.size() - 1 : -1; // Handle empty daysWithData
     }
 
     private boolean isSameDay(Calendar c1, Calendar c2) {
@@ -149,65 +193,124 @@ public class ActivityFragment extends Fragment {
     }
 
     private void setupCalendarRow() {
-        if (daysWithData.isEmpty()) return;
-        int leftIdx = 0;
-        int rightIdx = getTodayOrLatestIndex();
-        Calendar leftCal = daysWithData.get(leftIdx);
-        Calendar rightCal = daysWithData.get(rightIdx);
+        if (daysWithData.isEmpty()) {
+            leftDay.setVisibility(View.GONE);
+            rightDay.setVisibility(View.GONE);
+            calendarScrollView.setVisibility(View.GONE);
+            dateContainer.removeAllViews(); // Clear any residual views
+            updateMonthText(); // Update month text to reflect no data
+            return;
+        }
 
-        leftDay.setText(String.valueOf(leftCal.get(Calendar.DAY_OF_MONTH)));
+        leftDay.setVisibility(View.VISIBLE);
+        rightDay.setVisibility(View.VISIBLE);
+        calendarScrollView.setVisibility(View.VISIBLE);
+
+
+        int leftIdx = 0;
+        int rightIdx = daysWithData.size() - 1; // Corrected to be the actual last index
+        Calendar earliestDay = daysWithData.get(leftIdx);
+        Calendar latestDay = daysWithData.get(rightIdx);
+
+
+        leftDay.setText(String.valueOf(earliestDay.get(Calendar.DAY_OF_MONTH)));
         leftDay.setSelected(selectedDayIndex == leftIdx);
         leftDay.setOnClickListener(v -> {
             selectedDayIndex = leftIdx;
             updateMonthText();
-            setupCalendarRow();
+            updateCalendarSelection(); // Call updateCalendarSelection instead of setupCalendarRow
             loadUsageForSelectedDay(getView());
-            showChart(currentChartType);
+            // showChart(currentChartType); // Show chart after data loads
         });
 
-        rightDay.setText(String.valueOf(rightCal.get(Calendar.DAY_OF_MONTH)));
+        rightDay.setText(String.valueOf(latestDay.get(Calendar.DAY_OF_MONTH)));
         rightDay.setSelected(selectedDayIndex == rightIdx);
         rightDay.setOnClickListener(v -> {
             selectedDayIndex = rightIdx;
             updateMonthText();
-            setupCalendarRow();
+            updateCalendarSelection(); // Call updateCalendarSelection instead of setupCalendarRow
             loadUsageForSelectedDay(getView());
-            showChart(currentChartType);
+            // showChart(currentChartType); // Show chart after data loads
         });
 
         dateContainer.removeAllViews();
         for (int i = leftIdx + 1; i < rightIdx; i++) {
             Calendar cal = daysWithData.get(i);
             TextView dayView = new TextView(requireContext());
+            dayView.setLayoutParams(new LinearLayout.LayoutParams(dpToPx(48), dpToPx(48)));
+            dayView.setGravity(Gravity.CENTER);
             dayView.setText(String.valueOf(cal.get(Calendar.DAY_OF_MONTH)));
             dayView.setTextSize(16);
-            dayView.setGravity(Gravity.CENTER);
+
             dayView.setBackgroundResource(R.drawable.day_selector);
-            dayView.setTextColor(ContextCompat.getColor(requireContext(), R.color.dayTextColor));
-            dayView.setWidth(dpToPx(48));
-            dayView.setHeight(dpToPx(48));
-            dayView.setSelected(selectedDayIndex == i);
+            dayView.setTextColor(ContextCompat.getColorStateList(requireContext(), R.color.dayTextColor)); // Use color state list for selection
+            dayView.setPadding(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8));
             int finalI = i;
             dayView.setOnClickListener(v -> {
                 selectedDayIndex = finalI;
                 updateMonthText();
-                setupCalendarRow();
+                updateCalendarSelection(); // Call updateCalendarSelection instead of setupCalendarRow
                 loadUsageForSelectedDay(getView());
-                showChart(currentChartType);
+                // showChart(currentChartType); // Show chart after data loads
             });
             dateContainer.addView(dayView);
         }
+        updateCalendarSelection(); // Initial selection highlight
     }
 
+    private void updateCalendarSelection() {
+        // Reset backgrounds for all day views
+        leftDay.setSelected(false);
+        rightDay.setSelected(false);
+        for (int i = 0; i < dateContainer.getChildCount(); i++) {
+            dateContainer.getChildAt(i).setSelected(false);
+        }
+
+        // Set selected state for the current selected day
+        if (selectedDayIndex != -1 && selectedDayIndex < daysWithData.size()) {
+            if (selectedDayIndex == 0) {
+                leftDay.setSelected(true);
+            } else if (selectedDayIndex == daysWithData.size() - 1) {
+                rightDay.setSelected(true);
+            } else if (selectedDayIndex > 0 && selectedDayIndex < daysWithData.size() - 1) { // Check bounds for middle days
+                // Adjust index for middle days (since leftDay is index 0 and rightDay is last index)
+                dateContainer.getChildAt(selectedDayIndex - 1).setSelected(true);
+            }
+        }
+    }
+
+
     private void updateMonthText() {
-        if (selectedDayIndex < 0 || selectedDayIndex >= daysWithData.size()) return;
+        if (selectedDayIndex < 0 || selectedDayIndex >= daysWithData.size()) {
+            monthText.setText("No Data Available"); // Set appropriate text if no day is selected
+            return;
+        }
         Calendar cal = daysWithData.get(selectedDayIndex);
         String monthYear = new SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(cal.getTime());
         monthText.setText(monthYear);
     }
 
     private void loadUsageForSelectedDay(View view) {
-        if (selectedDayIndex < 0 || selectedDayIndex >= daysWithData.size()) return;
+        if (selectedDayIndex < 0 || selectedDayIndex >= daysWithData.size()) {
+            // Handle case where no day is selected or available
+            appUsageMap.clear();
+            appColorMap.clear();
+            if (noDataText != null) {
+                noDataText.setText("No usage data available for this day.");
+                noDataText.setVisibility(View.VISIBLE);
+            }
+            progressBarList.setVisibility(View.GONE);
+            pieChart.setVisibility(View.GONE);
+            barChart.setVisibility(View.GONE);
+            View appLabelContainer = getView() != null ? getView().findViewById(R.id.appLabelContainer) : null;
+            if (appLabelContainer != null) {
+                appLabelContainer.setVisibility(View.GONE);
+            }
+            // Update advisor if no data
+            updateAdvisorMessage();
+            return; // Exit if no valid day is selected
+        }
+
         Calendar cal = daysWithData.get(selectedDayIndex);
         loadUsageForDay(
                 cal.get(Calendar.DAY_OF_MONTH),
@@ -215,7 +318,7 @@ public class ActivityFragment extends Fragment {
                 cal.get(Calendar.YEAR),
                 view
         );
-        showChart(currentChartType);
+        // showChart(currentChartType); // Removed from here, called after data loads
     }
 
     // Only one chart visible at a time, progress is default
@@ -224,19 +327,21 @@ public class ActivityFragment extends Fragment {
         boolean hasData = !appUsageMap.isEmpty();
 
         progressBarList.setVisibility(isProgress ? View.VISIBLE : View.GONE);
-        if (btnShowAll != null) btnShowAll.setVisibility(isProgress ? View.VISIBLE : View.GONE);
-        if (btnHide != null) btnHide.setVisibility(isProgress ? View.VISIBLE : View.GONE);
+        if (btnShowAll != null) btnShowAll.setVisibility(isProgress && hasData && getFilteredAndSortedUsage(0).size() > 5 ? View.VISIBLE : View.GONE); // Only show if more than 5 apps
+        if (btnHide != null) btnHide.setVisibility(View.GONE); // Hide hide button initially
 
         pieChart.setVisibility(type.equals("pie") && hasData ? View.VISIBLE : View.GONE);
         barChart.setVisibility(type.equals("bar") && hasData ? View.VISIBLE : View.GONE);
 
-        if (noDataText != null) noDataText.setVisibility(hasData ? View.GONE : View.VISIBLE);
+        // noDataText visibility handled in loadUsageForDay now
 
         View appLabelContainer = getView() != null ? getView().findViewById(R.id.appLabelContainer) : null;
         if (appLabelContainer != null) {
             if (isProgress) {
+                // For progress view, labels are drawn inside displayProgressBarList
                 appLabelContainer.setVisibility(View.GONE);
             } else {
+                // Only show labels if data exists and it's not the progress view
                 appLabelContainer.setVisibility(hasData ? View.VISIBLE : View.GONE);
                 if (hasData) {
                     displayAppLabels(getView());
@@ -274,16 +379,64 @@ public class ActivityFragment extends Fragment {
             ExecutorService executor = Executors.newSingleThreadExecutor();
             Handler handler = new Handler(Looper.getMainLooper());
 
+            // Show loading indicator and potentially hide previous data/advice
+            handler.post(() -> {
+                if (noDataText != null) {
+                    noDataText.setVisibility(View.VISIBLE);
+                    noDataText.setText("Loading Data...");
+                }
+                progressBarList.setVisibility(View.GONE);
+                pieChart.setVisibility(View.GONE);
+                barChart.setVisibility(View.GONE);
+                View appLabelContainer = getView() != null ? getView().findViewById(R.id.appLabelContainer) : null;
+                if (appLabelContainer != null) {
+                    appLabelContainer.setVisibility(View.GONE);
+                }
+                // Hide advisor bubble while loading
+                if (advisorBubble != null) {
+                    advisorBubble.setText("Thinking..."); // Set thinking message while loading data
+                    advisorBubble.setVisibility(advisorToggle != null && advisorToggle.isChecked() ? View.VISIBLE : View.GONE); // Only show if advisor is enabled
+                }
+                // Keep characterIcon visible if advisorLayout is visible AND advisor is checked (handles initial state)
+                if (characterIcon != null) {
+                    characterIcon.setVisibility(advisorToggle != null && advisorToggle.isChecked() ? View.VISIBLE : View.GONE);
+                }
+            });
+
             executor.execute(() -> {
                 collectUsageData(startTime, endTime);
                 generateColorsForApps();
 
                 // Post UI updates back to the main thread
                 handler.post(() -> {
-                    displayProgressBarList();
-                    displayPieChart();
-                    displayBarChart();
-                    showChart(currentChartType);
+                    // Hide loading indicator
+                    if (noDataText != null) {
+                        noDataText.setText(""); // Clear loading text
+                    }
+
+                    if (appUsageMap.isEmpty()) {
+                        if (noDataText != null) {
+                            noDataText.setText("No usage data available for this day.");
+                            noDataText.setVisibility(View.VISIBLE);
+                        }
+                        progressBarList.setVisibility(View.GONE); // Ensure these are hidden
+                        pieChart.setVisibility(View.GONE);
+                        barChart.setVisibility(View.GONE);
+                        View appLabelContainer = getView() != null ? getView().findViewById(R.id.appLabelContainer) : null;
+                        if (appLabelContainer != null) {
+                            appLabelContainer.setVisibility(View.GONE);
+                        }
+
+                        // Also update advisor if no data
+                        updateAdvisorMessage();
+                    } else {
+                        displayProgressBarList();
+                        displayPieChart();
+                        displayBarChart();
+                        showChart(currentChartType);
+                        // Generate and display advisor message after data is loaded
+                        updateAdvisorMessage();
+                    }
                 });
             });
         }
@@ -360,6 +513,7 @@ public class ActivityFragment extends Fragment {
     }
 
     private void collectUsageData(long startTime, long endTime) {
+        appUsageMap.clear(); // Clear before collecting new data
         UsageStatsManager usm = (UsageStatsManager) requireContext().getSystemService(Context.USAGE_STATS_SERVICE);
         UsageEvents events = usm.queryEvents(startTime, endTime);
         UsageEvents.Event event = new UsageEvents.Event();
@@ -389,20 +543,25 @@ public class ActivityFragment extends Fragment {
 
     private String getAppNameFromPackage(String packageName) {
         try {
-            return requireContext().getPackageManager().getApplicationLabel(
-                    requireContext().getPackageManager().getApplicationInfo(packageName, 0)
-            ).toString();
+            PackageManager pm = requireContext().getPackageManager();
+            ApplicationInfo appInfo = pm.getApplicationInfo(packageName, 0);
+            return pm.getApplicationLabel(appInfo).toString();
         } catch (Exception e) {
             return packageName;
         }
     }
 
     private void generateColorsForApps() {
+        // Using Random for color generation as per user's original code preference
         Random rnd = new Random();
+        appColorMap.clear(); // Clear existing colors
         for (String appName : appUsageMap.keySet()) {
-            appColorMap.put(appName, Color.rgb(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
+            // Ensure colors are not too dark or too light for visibility
+            int color = Color.rgb(rnd.nextInt(200) + 55, rnd.nextInt(200) + 55, rnd.nextInt(200) + 55);
+            appColorMap.put(appName, color);
         }
     }
+
 
     // Helper to filter and sort app usage data for charts
     private List<Map.Entry<String, Long>> getFilteredAndSortedUsage(long minDurationMillis) {
@@ -414,23 +573,25 @@ public class ActivityFragment extends Fragment {
         // Sort by duration in descending order
         sortedEntries.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
 
-        // Limit to top 3 to 7 entries
-        int size = sortedEntries.size();
-        if (size > 7) {
-            return sortedEntries.subList(0, 7);
-        } else if (size >= 3) {
-            return sortedEntries;
-        } else {
-            // If less than 3, still return what we have (could be 0, 1, or 2)
-            return sortedEntries;
+        // Limit to top 3 to 7 entries for charts, but not for progress bar list
+        if (minDurationMillis > 0) { // Only apply limit if filtering by duration
+            int size = sortedEntries.size();
+            if (size > 7) {
+                return sortedEntries.subList(0, 7);
+            } else if (size >= 3) {
+                return sortedEntries;
+            }
         }
+        // If less than 3 or not filtering by duration, return the unfiltered, sorted list
+        return sortedEntries;
     }
+
 
     private void displayProgressBarList() {
         progressBarsContainer.removeAllViews(); // Use the new container
         if (appUsageMap == null || appUsageMap.isEmpty()) {
             progressBarsContainer.setVisibility(View.GONE);
-            if (noDataText != null) noDataText.setVisibility(View.VISIBLE);
+            // noDataText visibility is handled in loadUsageForDay
             // Hide buttons when no data
             if (btnShowAll != null) btnShowAll.setVisibility(View.GONE);
             if (btnHide != null) btnHide.setVisibility(View.GONE);
@@ -459,7 +620,7 @@ public class ActivityFragment extends Fragment {
 
             LinearLayout row = new LinearLayout(requireContext());
             row.setOrientation(LinearLayout.HORIZONTAL);
-            row.setPadding(8, 8, 8, 8);
+            row.setPadding(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8)); // Consistent padding
             row.setGravity(Gravity.CENTER_VERTICAL);
 
             ImageView iconView = new ImageView(requireContext());
@@ -481,7 +642,7 @@ public class ActivityFragment extends Fragment {
             nameView.setText(appName);
             nameView.setTextSize(14);
             nameView.setTextColor(Color.BLACK);
-            nameView.setPadding(dpToPx(8), 0, dpToPx(4), 0);
+            nameView.setPadding(dpToPx(8), 0, dpToPx(4), 0); // Padding between icon and text
 
             ProgressBar progressBar = new ProgressBar(requireContext(), null, android.R.attr.progressBarStyleHorizontal);
             LinearLayout.LayoutParams progressBarParams = new LinearLayout.LayoutParams(0, dpToPx(20), 1f);
@@ -496,7 +657,7 @@ public class ActivityFragment extends Fragment {
             percentView.setText(percent + "%");
             percentView.setTextSize(14);
             percentView.setTextColor(Color.DKGRAY);
-            percentView.setPadding(dpToPx(8), 0, 0, 0);
+            percentView.setPadding(dpToPx(8), 0, 0, 0); // Padding after percent
 
             row.addView(iconView);
             row.addView(nameView);
@@ -545,10 +706,10 @@ public class ActivityFragment extends Fragment {
 
     private String getPackageNameFromAppName(String appName) {
         PackageManager pm = requireContext().getPackageManager();
-        List<ApplicationInfo> apps = pm.getInstalledApplications(0);
+        List<ApplicationInfo> apps = pm.getInstalledApplications(PackageManager.GET_META_DATA); // Use GET_META_DATA flag
         for (ApplicationInfo appInfo : apps) {
             String label = pm.getApplicationLabel(appInfo).toString();
-            if (label.equals(appName)) {
+            if (label != null && label.equals(appName)) {
                 return appInfo.packageName;
             }
         }
@@ -562,7 +723,7 @@ public class ActivityFragment extends Fragment {
         if (filteredAndSortedUsage.isEmpty()) {
             pieChart.clear();
             pieChart.setVisibility(View.GONE);
-            if (noDataText != null) noDataText.setVisibility(View.VISIBLE);
+            // noDataText visibility handled in loadUsageForDay
             return;
         }
 
@@ -626,7 +787,7 @@ public class ActivityFragment extends Fragment {
         if (filteredAndSortedUsage.isEmpty()) {
             barChart.clear();
             barChart.setVisibility(View.GONE);
-            if (noDataText != null) noDataText.setVisibility(View.VISIBLE);
+            // noDataText visibility handled in loadUsageForDay
             return;
         }
 
@@ -794,4 +955,137 @@ public class ActivityFragment extends Fragment {
     private int dpToPx(int dp) {
         return (int) (dp * getResources().getDisplayMetrics().density);
     }
+
+    // --- Advisor Methods ---
+
+    private void setupAdvisor() {
+        // Load advisor state
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
+        boolean isAdvisorEnabled = prefs.getBoolean(PREF_ADVISOR_ENABLED, true); // Default to true
+        if (advisorToggle != null) {
+            advisorToggle.setChecked(isAdvisorEnabled);
+            setAdvisorVisibility(isAdvisorEnabled);
+
+            // Set listener for toggle
+            advisorToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putBoolean(PREF_ADVISOR_ENABLED, isChecked);
+                editor.apply();
+                setAdvisorVisibility(isChecked);
+                // Update message immediately when toggled on
+                if (isChecked) {
+                    updateAdvisorMessage();
+                } else {
+                    // Clear bubble text when toggled off
+                    if (advisorBubble != null) {
+                        advisorBubble.setText("");
+                        advisorBubble.setVisibility(View.GONE); // Hide bubble
+                    }
+                }
+            });
+        }
+
+
+        // Initial message or check for data
+        if (isAdvisorEnabled && advisorBubble != null) {
+            // Message will be updated after data loads in loadUsageForDay
+            advisorBubble.setText("Gathering data..."); // Initial state before data loads
+            advisorBubble.setVisibility(View.VISIBLE);
+        } else if (advisorBubble != null) {
+            advisorBubble.setVisibility(View.GONE); // Hide bubble if advisor is off initially
+        }
+        // Ensure advisor layout is visible initially if it exists
+        if (advisorLayout != null) {
+            advisorLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void setAdvisorVisibility(boolean isEnabled) {
+        // Only control the visibility of the icon and bubble based on the toggle state
+        if (characterIcon != null) {
+            characterIcon.setVisibility(isEnabled ? View.VISIBLE : View.GONE);
+        }
+        // The advisorBubble visibility is also controlled by updateAdvisorMessage
+        // We keep the advisorToggle and advisorLayout always visible to allow the user to re-enable the advisor
+        if (advisorBubble != null) {
+            // If disabling, hide the bubble immediately. If enabling, it will be shown by updateAdvisorMessage
+            if (!isEnabled) {
+                advisorBubble.setVisibility(View.GONE);
+            } else {
+                // When enabling, set to GONE initially, updateAdvisorMessage will make it VISIBLE
+                advisorBubble.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void updateAdvisorMessage() {
+        if (advisorToggle != null && advisorToggle.isChecked()) {
+            if (appUsageMap.isEmpty()) {
+                if (advisorBubble != null) {
+                    advisorBubble.setText("Looks like there's no significant app usage data for today yet. Maybe take a break!");
+                    advisorBubble.setVisibility(View.VISIBLE);
+                    if (characterIcon != null) characterIcon.setVisibility(View.VISIBLE); // Show icon even if no data
+                }
+                return; // No need to call Gemini if no data
+            }
+
+            // Show loading indicator
+            if (advisorBubble != null) {
+                advisorBubble.setText("Thinking..."); // Loading message while waiting for API
+                advisorBubble.setVisibility(View.VISIBLE);
+                if (characterIcon != null) characterIcon.setVisibility(View.VISIBLE);
+            }
+
+            // Call the NEW asynchronous method from GeminiApiHelper that uses the internal prompt
+            if (getContext() != null) {
+                GeminiApiHelper.getAppUsageAdviceAsyncWithInternalPrompt(getContext(), appUsageMap, new ApiResponseCallback<String>() { // <--- Changed to call the new method
+                    @Override
+                    public void onSuccess(String advice) {
+                        // This code runs on the main thread
+                        if (advisorBubble != null) {
+                            if (advice != null && !advice.trim().isEmpty()) {
+                                advisorBubble.setText(advice);
+                                advisorBubble.setVisibility(View.VISIBLE);
+                                if (characterIcon != null) characterIcon.setVisibility(View.VISIBLE);
+                            } else {
+                                // Fallback if advice is null or empty
+                                // Log the issue to help debug why advice might be empty even with the new prompt
+                                Log.w("ActivityFragment", "Gemini API returned empty or null advice with internal prompt.");
+                                advisorBubble.setText("Could not generate specific advice.");
+                                advisorBubble.setVisibility(View.VISIBLE);
+                                if (characterIcon != null) characterIcon.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable error) {
+                        // This code runs on the main thread
+                        Log.e("ActivityFragment", "Gemini API call failed (Internal Prompt): " + error.getMessage(), error); // Log with method name context
+                        if (advisorBubble != null) {
+                            advisorBubble.setText("Error getting advice. Please try again later.");
+                            advisorBubble.setVisibility(View.VISIBLE);
+                            if (characterIcon != null) characterIcon.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+            }
+
+
+        } else {
+            // Advisor is turned off
+            if (advisorBubble != null) {
+                advisorBubble.setText(""); // Clear text when off
+                advisorBubble.setVisibility(View.GONE); // Hide bubble if advisor is off
+            }
+            if (characterIcon != null) characterIcon.setVisibility(View.GONE); // Hide icon when advisor is off
+        }
+        // The advisorLayout itself and the toggle remain visible
+        if (advisorLayout != null) {
+            advisorLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    // Removed buildGeminiInputJson method as it's now handled within GeminiApiHelper.getAppUsageAdviceAsyncWithInternalPrompt
+    // private String buildGeminiInputJson(Map<String, Long> usageData) { ... }
 }

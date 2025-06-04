@@ -84,6 +84,48 @@
             android:layout_gravity="center_vertical" />
     </LinearLayout>
 
+    <!-- Advisor Section -->
+    <LinearLayout
+        android:id="@+id/advisorLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp">
+
+        <!-- Advisor Icon -->
+        <ImageView
+            android:id="@+id/character_icon"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/echobot"
+            android:contentDescription="Advisor Icon"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- Advisor Chat Bubble -->
+        <TextView
+            android:id="@+id/advisor_bubble"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="Hello! Let's see your app usage today."
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:visibility="visible"/> <!-- Initial state can be visible or gone -->
+
+        <!-- Advisor Toggle -->
+        <Switch
+            android:id="@+id/advisor_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textOff="Off"
+            android:textOn="On"/>
+
+    </LinearLayout>
+
+
     <!-- Chart Option Buttons -->
     <LinearLayout
         android:id="@+id/chartOptionButtons"
