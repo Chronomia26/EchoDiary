@@ -372,8 +372,6 @@ public class CalendarFragment extends Fragment {
         calendarGrid.post(() -> setCalendarExpandedState(isCalendarExpanded));
     }
 
-
-
     private boolean isMoodEnabled() {
         return requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
                 .getBoolean("mood_enabled", true);
@@ -870,23 +868,25 @@ public class CalendarFragment extends Fragment {
     private void updateDailySummary(TextView summaryView) {
         String todayDate = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(Calendar.getInstance().getTime());
 
-        // 1. Fetch Mood
-        MoodNoteDBHelper.MoodNote moodNote = moodManager.getMood(todayDate);
-        String moodSummary;
-        if (moodNote == null) {
-            moodSummary = "Mood not set";
-        } else {
-            switch (moodNote.mood) {
-                case "happy":
-                    moodSummary = "You're feeling happy today 😊";
-                    break;
-                case "sad":
-                    moodSummary = "You're feeling sad today 😔";
-                    break;
-                case "neutral":
-                default:
-                    moodSummary = "You're feeling neutral today 😐";
-                    break;
+        // 1. Fetch Mood (only if mood tracking is enabled)
+        String moodSummary = "";
+        if (isMoodEnabled()) {
+            MoodNoteDBHelper.MoodNote moodNote = moodManager.getMood(todayDate);
+            if (moodNote == null) {
+                moodSummary = "Mood not set\n";
+            } else {
+                switch (moodNote.mood) {
+                    case "happy":
+                        moodSummary = "You're feeling happy today 😊\n";
+                        break;
+                    case "sad":
+                        moodSummary = "You're feeling sad today 😔\n";
+                        break;
+                    case "neutral":
+                    default:
+                        moodSummary = "You're feeling neutral today 😐\n";
+                        break;
+                }
             }
         }
 
@@ -894,8 +894,8 @@ public class CalendarFragment extends Fragment {
         List<MoodNoteDBHelper.Task> tasks = taskManager.getTasks(todayDate);
         int taskCount = tasks != null ? tasks.size() : 0;
         String taskSummary = (taskCount > 0)
-                ? "You have " + taskCount + (taskCount == 1 ? " task" : " tasks") + " today."
-                : "No tasks scheduled today.";
+                ? "You have " + taskCount + (taskCount == 1 ? " task" : " tasks") + " today.\n"
+                : "No tasks scheduled today.\n";
 
         // 3. Generate Advice
         String advice = (taskCount > 0)
@@ -903,9 +903,10 @@ public class CalendarFragment extends Fragment {
                 : "Enjoy your free time or plan something meaningful! 🌱";
 
         // 4. Combine and display
-        String fullSummary = moodSummary + "\n" + taskSummary + "\n" + advice;
+        String fullSummary = moodSummary + taskSummary + advice;
         summaryView.setText(fullSummary);
     }
+
 
     private String getTodayDate() {
         return new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(Calendar.getInstance().getTime());
