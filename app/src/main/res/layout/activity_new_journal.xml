@@ -99,14 +99,15 @@
 
             <EditText
                 android:id="@+id/journalContent"
-                android:layout_width="380dp"
-                android:layout_height="234dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:layout_marginBottom="32dp"
                 android:background="@drawable/background_text"
                 android:gravity="top"
+                android:minHeight="200dp"
                 android:hint="Journal content goes here..."
                 android:inputType="textMultiLine"
-                android:minHeight="480dp"
                 android:padding="12dp"
                 android:textColor="@color/pale_mocha"
                 android:textColorHint="@color/pale_mocha"

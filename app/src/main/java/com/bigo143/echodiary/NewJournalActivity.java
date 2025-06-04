@@ -39,7 +39,7 @@ public class NewJournalActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_journal);
 
         Window window = getWindow();
-        window.setStatusBarColor(ContextCompat.getColor(this, R.color.coffee_2));
+        window.setStatusBarColor(ContextCompat.getColor(this, R.color.pale_mocha));
 
         journalTitle = findViewById(R.id.journalTitle);
         journalContent = findViewById(R.id.journalContent);
