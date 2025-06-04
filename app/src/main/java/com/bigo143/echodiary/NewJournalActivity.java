@@ -73,7 +73,7 @@ public class NewJournalActivity extends AppCompatActivity {
         journalBack.setOnClickListener(v -> {
             animateClick(journalBack);
             onBackPressed();
-            overridePendingTransition(R.anim.slide_out_left, R.anim.slide_in_right);
+            overridePendingTransition(R.anim.slide_down, R.anim.slide_up);
         });
 
         btnSave.setOnClickListener(v -> {
@@ -112,7 +112,7 @@ public class NewJournalActivity extends AppCompatActivity {
 
             Toast.makeText(this, "Journal saved!", Toast.LENGTH_SHORT).show();
             finish();
-            overridePendingTransition(R.anim.slide_out_left, R.anim.slide_in_right);
+            overridePendingTransition(R.anim.slide_down, R.anim.slide_up);
         });
     }
 

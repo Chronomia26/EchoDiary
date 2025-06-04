@@ -6,13 +6,11 @@
     android:padding="16dp">
 
     <LinearLayout
-        android:id="@+id/settings_menu"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
-            android:layout_marginTop="0dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/settings"
@@ -20,169 +18,396 @@
             android:textStyle="bold"
             android:textColor="#5D4037"
             android:layout_gravity="center_horizontal"
-            android:paddingBottom="16dp" 
-            android:elevation="12dp"/>
+            android:paddingBottom="16dp"
+            android:elevation="12dp" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:background="@color/pale_mocha"
             android:layout_marginBottom="40dp"
-            android:elevation="12dp"/>
+            android:elevation="12dp" />
 
-        <!-- Menu items will be dynamically added here -->
+        <!-- Reusable expandable setting block -->
+        <!-- Summarization Style -->
         <LinearLayout
-            android:id="@+id/btn_summarization_style"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:background="@drawable/background_settings_item"
-            android:padding="8dp"
             android:elevation="12dp">
-            <ImageView
-                android:layout_width="60dp"
-                android:layout_height="match_parent"
-                android:src="@drawable/baseline_format_list_bulleted_24"
-                android:tint="@color/fourmain"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="Summarization Style"
-                android:textColor="@color/fourmain"
-                android:textSize="20sp"/>
+
+            <LinearLayout
+                android:id="@+id/btn_summarization_style"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp">
+
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/baseline_format_list_bulleted_24"
+                    android:tint="@color/fourmain" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Summarization Style"
+                    android:textColor="@color/fourmain"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <RadioGroup
+                android:id="@+id/summarization_style_options"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:layout_marginBottom="16dp">
+
+                <RadioButton
+                    android:id="@+id/style_formal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Formal"
+                    android:textSize="18sp"
+                    android:textColor="@color/radio_text_color"
+                    android:padding="8dp" />
+
+                <RadioButton
+                    android:id="@+id/style_casual"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Casual"
+                    android:textSize="18sp"
+                    android:textColor="@color/radio_text_color"
+                    android:padding="8dp" />
+
+                <RadioButton
+                    android:id="@+id/style_concise"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Concise"
+                    android:textSize="18sp"
+                    android:textColor="@color/radio_text_color"
+                    android:padding="8dp" />
+            </RadioGroup>
         </LinearLayout>
-        
+
+        <!-- Mood Detection -->
         <LinearLayout
-            android:id="@+id/btn_mood_detection"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:background="@drawable/background_settings_item"
-            android:padding="8dp"
             android:elevation="12dp">
-            <ImageView
-                android:layout_width="60dp"
-                android:layout_height="match_parent"
-                android:src="@drawable/baseline_emoji_emotions_24"
-                android:tint="@color/fourmain"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="Mood Detection"
-                android:textColor="@color/fourmain"
-                android:textSize="20sp"/>
+
+            <LinearLayout
+                android:id="@+id/btn_mood_detection"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                >
+
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/baseline_emoji_emotions_24"
+                    android:tint="@color/fourmain" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Mood Detection"
+                    android:textColor="@color/fourmain"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <RadioGroup
+                android:id="@+id/mood_detection_options"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:layout_marginBottom="16dp">
+
+                <RadioButton
+                    android:id="@+id/mood_on"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="On"
+                    android:textSize="18sp"
+                    android:textColor="@color/radio_text_color"
+                    android:padding="8dp" />
+
+                <RadioButton
+                    android:id="@+id/mood_off"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Off"
+                    android:textSize="18sp"
+                    android:textColor="@color/radio_text_color"
+                    android:padding="8dp" />
+            </RadioGroup>
         </LinearLayout>
+
+        <!-- Entry Language -->
         <LinearLayout
-            android:id="@+id/btn_entry_language"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:background="@drawable/background_settings_item"
-            android:padding="8dp"
             android:elevation="12dp">
-            <ImageView
-                android:layout_width="60dp"
-                android:layout_height="match_parent"
-                android:src="@drawable/baseline_language_24"
-                android:tint="@color/fourmain"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="Entry Language"
-                android:textColor="@color/fourmain"
-                android:textSize="20sp"/>
+
+            <LinearLayout
+                android:id="@+id/btn_entry_language"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                >
+
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/baseline_language_24"
+                    android:tint="@color/fourmain" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Entry Language"
+                    android:textColor="@color/fourmain"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <RadioGroup
+                android:id="@+id/entry_language_options"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:layout_marginBottom="16dp">
+
+                <RadioButton
+                    android:id="@+id/language_english"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="English"
+                    android:textSize="18sp"
+                    android:textColor="@color/radio_text_color"
+                    android:padding="8dp" />
+
+                <RadioButton
+                    android:id="@+id/language_filipino"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Filipino"
+                    android:textSize="18sp"
+                    android:textColor="@color/radio_text_color"
+                    android:padding="8dp" />
+
+                <RadioButton
+                    android:id="@+id/language_japanese"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Japanese"
+                    android:textSize="18sp"
+                    android:textColor="@color/radio_text_color"
+                    android:padding="8dp" />
+            </RadioGroup>
         </LinearLayout>
-        
+
+        <!-- Daily Reminder Time (No options for now) -->
         <LinearLayout
             android:id="@+id/btn_daily_reminder_time"
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:background="@drawable/background_settings_item"
             android:padding="8dp"
             android:elevation="12dp">
+
             <ImageView
                 android:layout_width="60dp"
                 android:layout_height="match_parent"
                 android:src="@drawable/baseline_alarm_24"
-                android:tint="@color/fourmain"/>
+                android:tint="@color/fourmain" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="Daily Reminder Time"
                 android:textColor="@color/fourmain"
-                android:textSize="20sp"/>
-            
+                android:textSize="20sp" />
         </LinearLayout>
+
+        <!-- Voice Control -->
         <LinearLayout
-            android:id="@+id/btn_voice_control"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:background="@drawable/background_settings_item"
-            android:padding="8dp"
             android:elevation="12dp">
-            <ImageView
-                android:layout_width="60dp"
-                android:layout_height="match_parent"
-                android:src="@drawable/baseline_mic_24"
-                android:tint="@color/fourmain"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="Voice Control"
-                android:textColor="@color/fourmain"
-                android:textSize="20sp"/>
 
+            <LinearLayout
+                android:id="@+id/btn_voice_control"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                >
+
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/baseline_mic_24"
+                    android:tint="@color/fourmain" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Voice Control"
+                    android:textColor="@color/fourmain"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <RadioGroup
+                android:id="@+id/voice_control_options"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:layout_marginBottom="16dp">
+
+                <RadioButton
+                    android:id="@+id/voice_on"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="On"
+                    android:textSize="18sp"
+                    android:textColor="@color/radio_text_color"
+                    android:padding="8dp" />
+
+                <RadioButton
+                    android:id="@+id/voice_off"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Off"
+                    android:textSize="18sp"
+                    android:textColor="@color/radio_text_color"
+                    android:padding="8dp" />
+            </RadioGroup>
         </LinearLayout>
+
+        <!-- Theme -->
         <LinearLayout
-            android:id="@+id/btn_theme"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:background="@drawable/background_settings_item"
-            android:padding="8dp"
             android:elevation="12dp">
-            <ImageView
-                android:layout_width="60dp"
-                android:layout_height="match_parent"
-                android:src="@drawable/baseline_brightness_6_24"
-                android:tint="@color/fourmain"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="Theme"
-                android:textColor="@color/fourmain"
-                android:textSize="20sp"/>
 
+            <LinearLayout
+                android:id="@+id/btn_theme"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                >
+
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/baseline_brightness_6_24"
+                    android:tint="@color/fourmain" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Theme"
+                    android:textColor="@color/fourmain"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <RadioGroup
+                android:id="@+id/theme_options"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:layout_marginBottom="16dp">
+
+                <RadioButton
+                    android:id="@+id/theme_light"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Light"
+                    android:textSize="18sp"
+                    android:textColor="@color/radio_text_color"
+                    android:padding="8dp" />
+
+                <RadioButton
+                    android:id="@+id/theme_dark"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dark"
+                    android:textSize="18sp"
+                    android:textColor="@color/radio_text_color"
+                    android:padding="8dp" />
+
+                <RadioButton
+                    android:id="@+id/theme_default"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Default"
+                    android:textSize="18sp"
+                    android:textColor="@color/radio_text_color"
+                    android:padding="8dp" />
+            </RadioGroup>
         </LinearLayout>
+
+        <!-- About EchoDiary (No expand) -->
         <LinearLayout
             android:id="@+id/btn_about_echodiary"
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:background="@drawable/background_settings_item"
             android:padding="8dp"
             android:elevation="12dp">
+
             <ImageView
                 android:layout_width="60dp"
                 android:layout_height="match_parent"
                 android:src="@drawable/baseline_settings_24"
-                android:tint="@color/fourmain"/>
+                android:tint="@color/fourmain" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="About EchoDiary"
                 android:textColor="@color/fourmain"
-                android:textSize="20sp"/>
-
+                android:textSize="20sp" />
         </LinearLayout>
 
     </LinearLayout>

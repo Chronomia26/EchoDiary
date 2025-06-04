@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.util.TypedValue;
@@ -13,21 +14,29 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SettingsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class SettingsFragment extends Fragment {
 
     private static final String PREFS_NAME = "app_prefs";
     private static final String KEY_MOOD_ENABLED = "mood_enabled";
 
+    private static final String KEY_SUMMARIZATION_STYLE = "summarization_style";
+    private static final String KEY_MOOD_DETECTION = "mood_detection";
+    private static final String KEY_LANGUAGE = "language";
+    private static final String KEY_VOICE_CONTROL = "voice_control";
+    private static final String KEY_THEME = "theme";
 
-    public SettingsFragment() {
-        // Required empty public constructor
-    }
+    private static final String DEFAULT_SUMMARIZATION = "Casual";
+    private static final String DEFAULT_MOOD = "On";
+    private static final String DEFAULT_LANGUAGE = "English";
+    private static final String DEFAULT_VOICE = "Off";
+    private static final String DEFAULT_THEME = "Light";
+
+
+    private LinearLayout dropdownSummarization, dropdownMood, dropdownLanguage, dropdownVoice, dropdownTheme;
+
+    public SettingsFragment() {}
 
     public static SettingsFragment newInstance(String param1, String param2) {
         SettingsFragment fragment = new SettingsFragment();
@@ -43,201 +52,189 @@ public class SettingsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
+        // Summarization Style
         LinearLayout btnSummarizationStyle = view.findViewById(R.id.btn_summarization_style);
+        dropdownSummarization = view.findViewById(R.id.summarization_style_options);
         btnSummarizationStyle.setOnClickListener(v -> {
             animateClick(btnSummarizationStyle);
-            showListDialog(getString(R.string.summarization_style),
-                    getResources().getStringArray(R.array.summarization_styles));
-        });
+            toggleDropdown(dropdownSummarization, () -> {
+            dropdownSummarization.removeAllViews();
+            String[] styles = getResources().getStringArray(R.array.summarization_styles);
+                for (String style : styles) {
+                    addOption(dropdownSummarization, style, () -> {
+                        showToast("Selected: " + style);
+                    }, KEY_SUMMARIZATION_STYLE, DEFAULT_SUMMARIZATION);
+                }
 
+            });});
 
+        // Mood Detection
         LinearLayout btnMoodDetection = view.findViewById(R.id.btn_mood_detection);
+        dropdownMood = view.findViewById(R.id.mood_detection_options);
         btnMoodDetection.setOnClickListener(v -> {
             animateClick(btnMoodDetection);
-            showMoodDetection(getString(R.string.mood_detection));
-        });
+            toggleDropdown(dropdownMood, () -> {
+            dropdownMood.removeAllViews();
+                addOption(dropdownMood, getString(R.string.on), () -> {
+                    saveMoodEnabledToPrefs(true);
+                    showToast("Mood detection: On");
+                }, KEY_MOOD_DETECTION, DEFAULT_MOOD);
 
+                addOption(dropdownMood, getString(R.string.off), () -> {
+                    saveMoodEnabledToPrefs(false);
+                    showToast("Mood detection: Off");
+                }, KEY_MOOD_DETECTION, DEFAULT_MOOD);
+
+            });});
+
+        // Entry Language
         LinearLayout btnEntryLanguage = view.findViewById(R.id.btn_entry_language);
+        dropdownLanguage = view.findViewById(R.id.entry_language_options);
         btnEntryLanguage.setOnClickListener(v -> {
             animateClick(btnEntryLanguage);
-            showLanguageDialog();
-        });
+            toggleDropdown(dropdownLanguage, () -> {
+            dropdownLanguage.removeAllViews();
+                addOption(dropdownLanguage, getString(R.string.english), () -> setLanguage("en"), KEY_LANGUAGE, DEFAULT_LANGUAGE);
+                addOption(dropdownLanguage, getString(R.string.filipino), () -> setLanguage("fil"), KEY_LANGUAGE, DEFAULT_LANGUAGE);
+                addOption(dropdownLanguage, getString(R.string.japanese), () -> setLanguage("ja"), KEY_LANGUAGE, DEFAULT_LANGUAGE);
 
+            });});
+
+        // Voice Control
+        LinearLayout btnVoiceControl = view.findViewById(R.id.btn_voice_control);
+        dropdownVoice = view.findViewById(R.id.voice_control_options);
+        btnVoiceControl.setOnClickListener(v -> {
+            animateClick(btnVoiceControl);
+            toggleDropdown(dropdownVoice, () -> {
+            dropdownVoice.removeAllViews();
+                addOption(dropdownVoice, getString(R.string.on), () -> showToast("Voice Control: On"), KEY_VOICE_CONTROL, DEFAULT_VOICE);
+                addOption(dropdownVoice, getString(R.string.off), () -> showToast("Voice Control: Off"), KEY_VOICE_CONTROL, DEFAULT_VOICE);
+
+            });});
+
+        // Theme
+        LinearLayout btnTheme = view.findViewById(R.id.btn_theme);
+        dropdownTheme = view.findViewById(R.id.theme_options);
+        btnTheme.setOnClickListener(v -> {
+            animateClick(btnTheme);
+            toggleDropdown(dropdownTheme, () -> {
+            dropdownTheme.removeAllViews();
+                String[] themes = getResources().getStringArray(R.array.theme_options);
+                for (int i = 0; i < themes.length; i++) {
+                    int finalI = i;
+                    addOption(dropdownTheme, themes[i], () -> {
+                        applyTheme(finalI);
+                    }, KEY_THEME, DEFAULT_THEME);
+                }
+
+            });});
+
+        // Daily Reminder Time (still dialog)
         LinearLayout btnDailyReminderTime = view.findViewById(R.id.btn_daily_reminder_time);
         btnDailyReminderTime.setOnClickListener(v -> {
             animateClick(btnDailyReminderTime);
-            showTimePickerDialog();
-        });
+            showTimePickerDialog();});
 
-        LinearLayout btnVoiceControl = view.findViewById(R.id.btn_voice_control);
-        btnVoiceControl.setOnClickListener(v -> {
-            animateClick(btnVoiceControl);
-            showToggleDialog(getString(R.string.voice_control));
-        });
-
-        LinearLayout btnTheme = view.findViewById(R.id.btn_theme);
-        btnTheme.setOnClickListener(v -> {
-            animateClick(btnTheme);
-            showListDialog(getString(R.string.theme),
-                    getResources().getStringArray(R.array.theme_options));
-        });
-
+        // About EchoDiary (still dialog)
         LinearLayout btnAboutEchoDiary = view.findViewById(R.id.btn_about_echodiary);
         btnAboutEchoDiary.setOnClickListener(v -> {
             animateClick(btnAboutEchoDiary);
-            showAboutDialog();
-        });
+            showAboutDialog();});
 
         return view;
     }
 
-    private void animateClick(LinearLayout widget) {
-        widget.animate().scaleX(0.9f).scaleY(0.9f).setDuration(50)
-                .withEndAction(() -> widget.animate().scaleX(1f).scaleY(1f).setDuration(350)).start();
-    }
-
-    private int selectableItemBackground() {
-        TypedValue outValue = new TypedValue();
-        requireContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
-        return outValue.resourceId;
-    }
-
-    private void onMenuItemClicked(String title) {
-        if (title.equals(getString(R.string.summarization_style))) {
-            showListDialog(getString(R.string.summarization_style),
-                    getResources().getStringArray(R.array.summarization_styles));
-        } else if (title.equals(getString(R.string.mood_detection))) {
-            showMoodDetection(getString(R.string.mood_detection));
-        } else if (title.equals(getString(R.string.entry_language))) {
-            showLanguageDialog();
-        } else if (title.equals(getString(R.string.daily_reminder_time))) {
-            showTimePickerDialog();
-        } else if (title.equals(getString(R.string.voice_control))) {
-            showToggleDialog(getString(R.string.voice_control));
-        } else if (title.equals(getString(R.string.theme))) {
-            showListDialog(getString(R.string.theme),
-                    getResources().getStringArray(R.array.theme_options));
-        } else if (title.equals(getString(R.string.about_echodiary))) {
-            showAboutDialog();
+    private void toggleDropdown(LinearLayout dropdown, Runnable populate) {
+        if (dropdown.getVisibility() == View.VISIBLE) {
+            dropdown.setVisibility(View.GONE);
+        } else {
+            populate.run();
+            dropdown.setVisibility(View.VISIBLE);
         }
     }
 
-    private void showMoodDetection(String title) {
-        final boolean[] isChecked = {getMoodEnabledFromPrefs()};
-        new AlertDialog.Builder(requireContext())
-                .setTitle(title)
-                .setSingleChoiceItems(
-                        new String[]{getString(R.string.on), getString(R.string.off)},
-                        isChecked[0] ? 0 : 1,
-                        (dialog, which) -> isChecked[0] = (which == 0)
-                )
-                .setPositiveButton(getString(R.string.ok), (dialog, which) -> {
-                    saveMoodEnabledToPrefs(isChecked[0]);
-                    // Inform CalendarFragment or relevant UI to update mood display
-                })
-                .show();
+    private void addOption(LinearLayout container, String text, Runnable action, String prefKey, String defaultValue) {
+        TextView option = new TextView(requireContext());
+        option.setText(text);
+        option.setTextSize(14);
+        option.setPadding(32, 24, 32, 24);
+        option.setTextColor(ContextCompat.getColor(requireContext(), R.color.radio_text_color));
+        option.setBackgroundResource(selectableItemBackground());
+        option.setClickable(true);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(0, 8, 0, 8);
+        option.setLayoutParams(params);
+
+        // Highlight if selected
+        String selectedValue = loadSelection(prefKey, defaultValue);
+        if (text.equals(selectedValue)) {
+            updateSelectedStyle(option, container);
+        }
+
+        option.setOnClickListener(v -> {
+            updateSelectedStyle(option, container);
+            saveSelection(prefKey, text);
+            action.run();
+        });
+
+        container.addView(option);
     }
 
-    private boolean getMoodEnabledFromPrefs() {
-        return requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getBoolean(KEY_MOOD_ENABLED, true); // default enabled
+
+
+    private void showToast(String message) {
+        android.widget.Toast.makeText(requireContext(), message, android.widget.Toast.LENGTH_SHORT).show();
     }
 
-    private void saveMoodEnabledToPrefs(boolean enabled) {
+    private void setLanguage(String langCode) {
+        LocaleHelper.setLocale(requireContext(), langCode);
+
+        AlertDialog loadingDialog = new AlertDialog.Builder(requireContext())
+                .setView(R.layout.dialog_loading)
+                .setCancelable(false)
+                .create();
+        loadingDialog.show();
+
+        new android.os.Handler().postDelayed(() -> {
+            loadingDialog.dismiss();
+            requireActivity().finish();
+            requireActivity().startActivity(requireActivity().getIntent());
+        }, 3000);
+    }
+
+    private void applyTheme(int selectedIndex) {
+        int mode;
+        String modeName;
+
+        if (selectedIndex == 0) {
+            mode = AppCompatDelegate.MODE_NIGHT_NO;
+            modeName = "Light";
+        } else if (selectedIndex == 1) {
+            mode = AppCompatDelegate.MODE_NIGHT_YES;
+            modeName = "Dark";
+        } else {
+            mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+            modeName = "System Default";
+        }
+
         requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .edit()
-                .putBoolean(KEY_MOOD_ENABLED, enabled)
+                .putInt("theme_mode", mode)
+                .putString(KEY_THEME, modeName)
                 .apply();
-    }
 
-    private void showLanguageDialog() {
-        String[] languages = {
-                getString(R.string.english),
-                getString(R.string.filipino),
-                getString(R.string.japanese)
-        };
-
-        new AlertDialog.Builder(requireContext())
-                .setTitle(getString(R.string.entry_language))
-                .setItems(languages, (dialog, which) -> {
-                    String langCode = "en";
-                    switch (which) {
-                        case 0: langCode = "en"; break;
-                        case 1: langCode = "fil"; break;
-                        case 2: langCode = "ja"; break;
-                    }
-
-                    // Set locale
-                    LocaleHelper.setLocale(requireContext(), langCode);
-
-                    // Show loading dialog
-                    AlertDialog loadingDialog = new AlertDialog.Builder(requireContext())
-                            .setView(R.layout.dialog_loading)
-                            .setCancelable(false)
-                            .create();
-                    loadingDialog.show();
-
-                    // Delay for 5 seconds, then recreate activity
-                    new android.os.Handler().postDelayed(() -> {
-                        loadingDialog.dismiss();
-                        requireActivity().finish();
-                        requireActivity().startActivity(requireActivity().getIntent());
-                    }, 3000);
-                })
-                .show();
-    }
-
-
-
-
-    private void showListDialog(String title, String[] options) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle(title)
-                .setItems(options, (dialog, which) -> {
-                    if (title.equals(getString(R.string.theme))) {
-                        // Save preference and apply theme
-                        int mode;
-                        if (which == 0) {
-                            mode = AppCompatDelegate.MODE_NIGHT_NO; // Light mode
-                        } else if (which == 1) {
-                            mode = AppCompatDelegate.MODE_NIGHT_YES; // Dark mode
-                        } else {
-                            mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM; // System default
-                        }
-
-                        // Save to SharedPreferences
-                        requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                                .edit()
-                                .putInt("theme_mode", mode)
-                                .apply();
-
-                        AppCompatDelegate.setDefaultNightMode(mode);
-
-                        // Restart activity to apply theme
-                        requireActivity().recreate();
-                    }
-                })
-                .show();
-    }
-
-
-    private void showToggleDialog(String title) {
-        final boolean[] isChecked = {false};
-        new AlertDialog.Builder(requireContext())
-                .setTitle(title)
-                .setSingleChoiceItems(
-                        new String[]{getString(R.string.on), getString(R.string.off)},
-                        isChecked[0] ? 0 : 1,
-                        (dialog, which) -> isChecked[0] = (which == 0)
-                )
-                .setPositiveButton(getString(R.string.ok), null)
-                .show();
+        AppCompatDelegate.setDefaultNightMode(mode);
+        requireActivity().recreate();
     }
 
 
     private void showTimePickerDialog() {
         TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), (view, hourOfDay, minute) -> {
-            // Handle time
+            showToast("Time set: " + hourOfDay + ":" + String.format("%02d", minute));
         }, 8, 0, true);
         timePickerDialog.show();
     }
@@ -248,6 +245,52 @@ public class SettingsFragment extends Fragment {
                 .setMessage(getString(R.string.about_message))
                 .setPositiveButton(getString(R.string.ok), null)
                 .show();
+    }
+
+    private int selectableItemBackground() {
+        TypedValue outValue = new TypedValue();
+        requireContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+        return outValue.resourceId;
+    }
+
+    private boolean getMoodEnabledFromPrefs() {
+        return requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(KEY_MOOD_ENABLED, true);
+    }
+
+    private void saveMoodEnabledToPrefs(boolean enabled) {
+        requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_MOOD_ENABLED, enabled)
+                .apply();
+    }
+
+    private void animateClick(LinearLayout widget) {
+        widget.animate().scaleX(0.9f).scaleY(0.9f).setDuration(350)
+                .withEndAction(() -> widget.animate().scaleX(1f).scaleY(1f).setDuration(50)).start();
+    }
+
+    private void updateSelectedStyle(TextView selected, LinearLayout parent) {
+        for (int i = 0; i < parent.getChildCount(); i++) {
+            View child = parent.getChildAt(i);
+            if (child instanceof TextView) {
+                child.setBackground(null); // reset background
+                ((TextView) child).setTextColor(ContextCompat.getColor(requireContext(), R.color.radio_text_color)); // default
+            }
+        }
+
+        selected.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.selected_background));
+        selected.setTextColor(ContextCompat.getColor(requireContext(), R.color.pale_mocha));
+    }
+
+    private void saveSelection(String key, String value) {
+        requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit().putString(key, value).apply();
+    }
+
+    private String loadSelection(String key, String defaultValue) {
+        return requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getString(key, defaultValue);
     }
 
 
