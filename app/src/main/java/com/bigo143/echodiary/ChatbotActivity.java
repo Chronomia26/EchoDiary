@@ -25,7 +25,11 @@ public class ChatbotActivity extends AppCompatActivity {
 
     private RecyclerView chatRecyclerView;
     private ChatAdapter chatAdapter;
+    private static final List<ChatMessage> GREETING_PROMPT = new ArrayList<>();
+    static {
+    GREETING_PROMPT.add(new ChatMessage("Greet the user with warm tone", false));}
     private final List<ChatMessage> chatMessages = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,11 +64,17 @@ public class ChatbotActivity extends AppCompatActivity {
             addMessage(userInput, true);
 
             Executors.newSingleThreadExecutor().execute(() -> {
-                String response = GeminiApiHelper.chatWithGemini(this, chatMessages); // ⬅️ Pass full chat history
+                String response = GeminiApiHelper.chatWithGemini(this, chatMessages);
                 runOnUiThread(() -> addMessage(response, false));
             });
-
         });
+
+        // AI greeting at startup
+        Executors.newSingleThreadExecutor().execute(() -> {
+        String greeting = GeminiApiHelper.chatWithGemini(this, GREETING_PROMPT);
+            runOnUiThread(() -> addMessage(greeting, false));
+        });
+
     }
 
     private void hideKeyboard() {
