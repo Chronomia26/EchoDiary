@@ -26,8 +26,8 @@
         android:gravity="center"
         android:padding="8dp"
         android:text="Month Year"
-        android:textColor="#333"
-        android:textSize="20sp"
+        android:textColor="@color/dark_roast"
+        android:textSize="@dimen/_20ssp"
         android:textStyle="bold" />
 
     <LinearLayout

@@ -16,6 +16,7 @@
         android:text="April 27, 2025"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:textColor="@color/dark_roast"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.515"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,22 +41,28 @@
         android:layout_height="wrap_content"
         android:text="Talk with echo!"
         android:textSize="16sp"
+        android:textColor="@color/dark_roast"
         app:layout_constraintTop_toBottomOf="@id/character_icon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp"/>
 
     <!-- DayTrace Activity Log Title -->
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/daytrace_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="24dp"
+        android:autoSizeMaxTextSize="@dimen/_20ssp"
+        android:autoSizeMinTextSize="@dimen/_18ssp"
+        android:autoSizeStepGranularity="2sp"
+        android:autoSizeTextType="uniform"
+        android:padding="@dimen/_4sdp"
         android:text="DayTrace Activity Log"
-        android:textSize="18sp"
+        android:textColor="@color/dark_roast"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/talk_with_echo"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="24dp"/>
+        app:layout_constraintTop_toBottomOf="@id/talk_with_echo" />
 
     <!-- Activity Items (show 5) - Dynamically added into this LinearLayout -->
     <LinearLayout
