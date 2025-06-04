@@ -135,7 +135,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/background_done_button"
-                android:src="@drawable/ic_summarize"
+                android:src="@drawable/wand_stars_24px"
                 android:tint="@color/pale_mocha"
                 app:layout_constraintEnd_toStartOf="@+id/btnVoiceInput"
                 app:layout_constraintTop_toTopOf="parent" />
