@@ -61,10 +61,24 @@ public class MainActivity extends AppCompatActivity {
         setupKeyboardVisibilityListener();
 
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false); // Remove default title
+        // getSupportActionBar().setDisplayShowTitleEnabled(false); // Remove default title
+
+        fab = findViewById(R.id.fab);
+
+        fab.setOnClickListener(view -> showBottomDialog());
+
+        fab.setOnLongClickListener(view -> {
+            // 🚀 Long press detected: go directly to NewJournalActivity
+            Intent intent = new Intent(MainActivity.this, NewJournalActivity.class);
+            ActivityOptions options = ActivityOptions.makeCustomAnimation(
+                    MainActivity.this, R.anim.slide_up, R.anim.slide_down
+            );
+            startActivity(intent, options.toBundle());
+            return true; // important to consume the long click
+        });
 
 
-        View customToolbar = getLayoutInflater().inflate(R.layout.toolbar_custom, null);
+        /*View customToolbar = getLayoutInflater().inflate(R.layout.toolbar_custom, null);
         toolbar.addView(customToolbar);
 
         ImageView profileIcon = customToolbar.findViewById(R.id.toolbar_profile);
@@ -73,15 +87,15 @@ public class MainActivity extends AppCompatActivity {
         // TODO: Load real profile data
         profileName.setText("John Doe"); // Replace with user's name
 
-        profileIcon.setOnClickListener(v -> drawerLayout.openDrawer(Gravity.LEFT));
+        profileIcon.setOnClickListener(v -> drawerLayout.openDrawer(Gravity.LEFT)); */
 
 
 
         // Set up navigation drawer
-        /* ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.open_nav, R.string.close_nav);
         drawerLayout.addDrawerListener(toggle);
-        toggle.syncState(); */
+        toggle.syncState();
 
         // Load default fragment on first launch
         if (savedInstanceState == null) {
@@ -136,9 +150,9 @@ public class MainActivity extends AppCompatActivity {
             return new SettingsFragment();
         } else if (itemId == R.id.nav_about) {
             return new AboutFragment();
-        } else if (itemId == R.id.nav_profile) {
+        } /*else if (itemId == R.id.nav_profile) {
             return new ProfileFragment();
-        } else {
+        }*/ else {
             return null;
         }
     }
@@ -197,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
         if (fabBg != null) fabBg.setVisibility(shouldHideBottomUI ? View.GONE : View.VISIBLE);
         if (bottomNavFrame != null) bottomNavFrame.setVisibility(shouldHideBottomUI ? View.GONE : View.VISIBLE);
     }
+
 
 
 
