@@ -121,7 +121,7 @@ public class HomeFragmentAct extends Fragment { // Corrected class name
     private void displayActivityItem(AppActivityEvent event) {
         LinearLayout itemLayout = new LinearLayout(requireContext());
         itemLayout.setOrientation(LinearLayout.HORIZONTAL);
-        itemLayout.setBackgroundResource(R.drawable.activity_item_background);
+        itemLayout.setBackgroundResource(R.drawable.item_background);
         itemLayout.setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12));
         itemLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         ((LinearLayout.LayoutParams) itemLayout.getLayoutParams()).topMargin = dpToPx(8);
