@@ -41,6 +41,11 @@ import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import android.os.Handler;
+import android.os.Looper;
+
 
 public class ActivityFragment extends Fragment {
 
@@ -261,15 +266,26 @@ public class ActivityFragment extends Fragment {
         cal.set(Calendar.SECOND, 59);
         cal.set(Calendar.MILLISECOND, 999);
         long endTime = cal.getTimeInMillis();
+
         if (!hasUsageStatsPermission()) {
             startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
         } else {
-            collectUsageData(startTime, endTime);
-            generateColorsForApps();
-            displayProgressBarList();
-            displayPieChart();
-            displayBarChart();
-            // displayAppLabels(view); // removed, now handled in showChart
+            // Execute the data loading and processing in a background thread
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Handler handler = new Handler(Looper.getMainLooper());
+
+            executor.execute(() -> {
+                collectUsageData(startTime, endTime);
+                generateColorsForApps();
+
+                // Post UI updates back to the main thread
+                handler.post(() -> {
+                    displayProgressBarList();
+                    displayPieChart();
+                    displayBarChart();
+                    showChart(currentChartType);
+                });
+            });
         }
     }
 
@@ -565,7 +581,7 @@ public class ActivityFragment extends Fragment {
             String appName = entry.getKey();
             long duration = entry.getValue();
 
-            // We already filtered for duration > 0 in getFilteredAndSortedUsage
+
             entries.add(new PieEntry(duration, appName));
 
             Integer color = appColorMap.get(appName);
@@ -573,7 +589,6 @@ public class ActivityFragment extends Fragment {
             colors.add(color);
         }
 
-        // The filtering ensures we have between 0 and 7 entries. The empty check above handles 0.
 
         PieDataSet dataSet = new PieDataSet(entries, "");
         dataSet.setColors(colors);
@@ -668,7 +683,7 @@ public class ActivityFragment extends Fragment {
 
         barChart.setFitBars(true);
         Description desc = new Description();
-        desc.setText("App Usage (min)");
+        desc.setText("Minutes");
         desc.setTextSize(14f);
         barChart.setDescription(desc);
         barChart.getAxisRight().setEnabled(false);
@@ -698,20 +713,21 @@ public class ActivityFragment extends Fragment {
             LinearLayout appLabelLayout = new LinearLayout(requireContext());
             appLabelLayout.setOrientation(LinearLayout.HORIZONTAL);
             appLabelLayout.setGravity(Gravity.CENTER_VERTICAL);
-            appLabelLayout.setPadding(dpToPx(8), dpToPx(2), dpToPx(8), dpToPx(2)); // Adjust padding
+            appLabelLayout.setPadding(dpToPx(8), dpToPx(4), dpToPx(8), dpToPx(4)); // Adjust padding slightly
 
             // Icon with color border
             LinearLayout iconLayout = new LinearLayout(requireContext());
             iconLayout.setOrientation(LinearLayout.VERTICAL);
             iconLayout.setGravity(Gravity.CENTER);
-            // Adjust icon size to match text height
-            LinearLayout.LayoutParams iconLayoutParams = new LinearLayout.LayoutParams(dpToPx(20), dpToPx(20)); // Smaller size
+            // Adjust icon size to match progress bar list (40dp)
+            LinearLayout.LayoutParams iconLayoutParams = new LinearLayout.LayoutParams(dpToPx(40), dpToPx(40));
             iconLayout.setLayoutParams(iconLayoutParams);
             iconLayout.setBackgroundColor(appColorMap.getOrDefault(appName, Color.GRAY)); // Use app color as background
-            iconLayout.setPadding(dpToPx(2), dpToPx(2), dpToPx(2), dpToPx(2)); // Adjust padding for smaller border
+            iconLayout.setPadding(dpToPx(2), dpToPx(2), dpToPx(2), dpToPx(2)); // Keep padding for border effect
 
             ImageView iconView = new ImageView(requireContext());
-            iconView.setLayoutParams(new LinearLayout.LayoutParams(dpToPx(16), dpToPx(16))); // Inner icon size
+            // Inner icon size (slightly smaller than layout for border effect)
+            iconView.setLayoutParams(new LinearLayout.LayoutParams(dpToPx(36), dpToPx(36)));
             iconView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             try {
                 String packageName = getPackageNameFromAppName(appName);
@@ -725,18 +741,34 @@ public class ActivityFragment extends Fragment {
                 iconView.setImageResource(android.R.drawable.sym_def_app_icon); // Default icon on error
             }
             iconLayout.addView(iconView);
+
+
+            // App name and Duration container
+            LinearLayout textContainer = new LinearLayout(requireContext());
+            textContainer.setOrientation(LinearLayout.VERTICAL);
+            textContainer.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)); // Take remaining space
+            textContainer.setGravity(Gravity.CENTER_VERTICAL);
+            textContainer.setPadding(dpToPx(8), 0, dpToPx(8), 0); // Padding between icon and text
+
+            // App Name TextView
+            TextView nameView = new TextView(requireContext());
+            nameView.setText(appName);
+            nameView.setTextSize(14); // Same text size as progress bar list
+            nameView.setTextColor(Color.BLACK);
+            nameView.setSingleLine(true);
+
+            // Duration TextView
+            TextView durationView = new TextView(requireContext());
+            durationView.setText(formatDuration(millis));
+            durationView.setTextSize(14); // Same text size as progress bar list
+            durationView.setTextColor(Color.DKGRAY); // Use a slightly different color for duration
+            durationView.setSingleLine(true);
+
+            textContainer.addView(nameView);
+            textContainer.addView(durationView);
+
             appLabelLayout.addView(iconLayout);
-
-            // Label
-            TextView label = new TextView(requireContext());
-            label.setText(appName + " - " + formatDuration(millis));
-            label.setTextSize(14); // Make label text size match progress bars
-            label.setTextColor(Color.BLACK);
-            label.setPadding(dpToPx(8), 0, dpToPx(8), 0);
-            label.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)); // Give it weight to take remaining space
-            label.setGravity(Gravity.CENTER_VERTICAL); // Center text vertically
-
-            appLabelLayout.addView(label);
+            appLabelLayout.addView(textContainer);
 
             labelContainer.addView(appLabelLayout);
         }
@@ -747,7 +779,7 @@ public class ActivityFragment extends Fragment {
         long minutes = seconds / 60;
         long hours = minutes / 60;
         seconds %= 60;
-        return String.format(Locale.getDefault(), "%02dh %02dm %02ds", hours, minutes % 60, seconds);
+        return String.format(Locale.getDefault(), "%02d %02d %02d", hours, minutes % 60, seconds);
     }
 
     private boolean hasDataBeenSavedToday() {

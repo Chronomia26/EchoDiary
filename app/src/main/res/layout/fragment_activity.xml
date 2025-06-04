@@ -149,7 +149,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="16dp"
-                android:text="No data for this day"
+                android:text="Loading Data..."
                 android:textColor="#666666"
                 android:textSize="16sp"
                 android:visibility="gone" />
