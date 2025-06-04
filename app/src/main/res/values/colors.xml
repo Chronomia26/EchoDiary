@@ -12,20 +12,26 @@
     <color name="white">#FFFFFFFF</color>
     <color name="lavender">#8692f7</color>
     <color name="soft_cream">#F5F0E6</color>
-    <color name="coffee_brown">#5C4033</color>
+    <color name="coffee_brown">#5C4033</color>     <!-- text and Icon -->
     <color name="light_caramel">#D9B382</color>
-    <color name="pale_mocha">#C7A17A</color>
-    <color name="dark_roast">#3E2C23</color>
-    <color name="coffee_4">#a86523</color>
-    <color name="coffee_3">#e9a319</color>
-    <color name="coffee_2">#fad59a</color>
-    <color name="your_background_color">#fcefcb</color>
+    <color name="pale_mocha">#C7A17A</color>     <!-- Most used  -->
+    <color name="dark_roast">#3E2C23</color> <!-- fab text-->
+    <color name="coffee_4">#a86523</color> <!-- not used-->
+    <color name="coffee_3">#e9a319</color> <!-- color Secondary,dialog_background(stroke)-->
+    <color name="coffee_2">#fad59a</color> <!-- toolbar and bottom Navigation bar-->
+    <color name="your_background_color">#fcefcb</color> <!-- Background-->
+
+    <!-- Mood legends-->
     <color name="green">#07F280</color>
     <color name="red">#F20707</color>
     <color name="orange">#FFA500</color>
+
     <color name="gray">#666464</color>
     <color name="fourmain">#FFF8E1</color>
     <color name="blue">#2979FF</color>
+
+    <color name="semi_gray">#CCF4F4F4</color>
+
 
 
 

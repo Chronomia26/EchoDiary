@@ -16,16 +16,19 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="4dp"
             android:paddingHorizontal="3dp"
-            android:weightSum="1">
+            android:padding="5dp"
+            android:weightSum="1"
+            android:background="@drawable/item_background">
 
             <!-- Year and Month -->
             <LinearLayout
                 android:id="@+id/yearMonth"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.41"
+                android:layout_marginLeft="@dimen/_10ssp"
+                android:layout_weight="0.40"
                 android:orientation="horizontal"
                 android:gravity="start|center_vertical">
 
@@ -133,15 +136,16 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:paddingBottom="7dp">
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/item_background">
 
-            <TextView style="@style/WeekDayText" android:text="Sun"/>
-            <TextView style="@style/WeekDayText" android:text="Mon"/>
-            <TextView style="@style/WeekDayText" android:text="Tue"/>
-            <TextView style="@style/WeekDayText" android:text="Wed"/>
-            <TextView style="@style/WeekDayText" android:text="Thu"/>
-            <TextView style="@style/WeekDayText" android:text="Fri"/>
-            <TextView style="@style/WeekDayText" android:text="Sat"/>
+            <TextView style="@style/WeekDayText" android:layout_marginRight="@dimen/_4sdp" android:text="Sun"/>
+            <TextView style="@style/WeekDayText" android:layout_marginRight="@dimen/_4sdp" android:text="Mon"/>
+            <TextView style="@style/WeekDayText" android:layout_marginRight="@dimen/_4sdp" android:text="Tue"/>
+            <TextView style="@style/WeekDayText" android:layout_marginRight="@dimen/_4sdp" android:text="Wed"/>
+            <TextView style="@style/WeekDayText" android:layout_marginRight="@dimen/_4sdp" android:text="Thu"/>
+            <TextView style="@style/WeekDayText" android:layout_marginRight="@dimen/_4sdp" android:text="Fri"/>
+            <TextView style="@style/WeekDayText" android:layout_marginRight="@dimen/_4sdp" android:text="Sat"/>
 
         </LinearLayout>
 
@@ -154,7 +158,8 @@
             android:verticalSpacing="0dp"
             android:stretchMode="columnWidth"
             android:gravity="center"
-            android:layout_marginBottom="6dp"/>
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/item_background"/>
 
 
         <LinearLayout
@@ -166,7 +171,8 @@
             android:layout_marginBottom="5dp"
             android:paddingHorizontal="4dp"
             android:weightSum="0"
-            android:background="@drawable/dialog_background">
+            android:background="@drawable/item_background"
+            android:padding="@dimen/_5sdp">
 
             <TextView
                 android:id="@+id/textViews"
@@ -174,6 +180,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.8"
                 android:text="No Events"
+                android:layout_marginLeft="@dimen/_5sdp"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -195,7 +202,8 @@
         <FrameLayout
             android:id="@+id/maintaskcontainer"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@drawable/item_background">
 
             <LinearLayout
                 android:layout_width="match_parent"
