@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         setupKeyboardVisibilityListener();
 
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false); // Remove default title
+        // getSupportActionBar().setDisplayShowTitleEnabled(false); // Remove default title
 
         fab = findViewById(R.id.fab);
 
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        View customToolbar = getLayoutInflater().inflate(R.layout.toolbar_custom, null);
+        /*View customToolbar = getLayoutInflater().inflate(R.layout.toolbar_custom, null);
         toolbar.addView(customToolbar);
 
         ImageView profileIcon = customToolbar.findViewById(R.id.toolbar_profile);
@@ -87,15 +87,15 @@ public class MainActivity extends AppCompatActivity {
         // TODO: Load real profile data
         profileName.setText("John Doe"); // Replace with user's name
 
-        profileIcon.setOnClickListener(v -> drawerLayout.openDrawer(Gravity.LEFT));
+        profileIcon.setOnClickListener(v -> drawerLayout.openDrawer(Gravity.LEFT)); */
 
 
 
         // Set up navigation drawer
-        /* ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.open_nav, R.string.close_nav);
         drawerLayout.addDrawerListener(toggle);
-        toggle.syncState(); */
+        toggle.syncState();
 
         // Load default fragment on first launch
         if (savedInstanceState == null) {
@@ -150,9 +150,9 @@ public class MainActivity extends AppCompatActivity {
             return new SettingsFragment();
         } else if (itemId == R.id.nav_about) {
             return new AboutFragment();
-        } else if (itemId == R.id.nav_profile) {
+        } /*else if (itemId == R.id.nav_profile) {
             return new ProfileFragment();
-        } else {
+        }*/ else {
             return null;
         }
     }
