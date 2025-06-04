@@ -2,25 +2,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="24dp"
     android:orientation="vertical"
-    android:gravity="center"
+    android:padding="24dp"
+    android:gravity="center_horizontal"
     android:background="@drawable/dialog_background">
 
     <TextView
-        android:id="@+id/monthPickerTitle"
+        android:id="@+id/dialogTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select Year"
+        android:text="Select Mood"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp"
-        android:textColor="@android:color/black" />
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="16dp" />
 
-    <NumberPicker
-        android:id="@+id/yearPicker"
+    <Spinner
+        android:id="@+id/moodSpinner"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -28,6 +29,17 @@
         android:orientation="horizontal"
         android:gravity="center"
         android:layout_marginTop="24dp">
+
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete"
+            android:visibility="gone" />
+
+        <Space
+            android:layout_width="16dp"
+            android:layout_height="wrap_content" />
 
         <Button
             android:id="@+id/btnCancel"
@@ -40,10 +52,10 @@
             android:layout_height="wrap_content" />
 
         <Button
-            android:id="@+id/btnOk"
+            android:id="@+id/btnSave"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="OK" />
+            android:text="Save" />
     </LinearLayout>
 
 </LinearLayout>
