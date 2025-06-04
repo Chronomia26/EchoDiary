@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,71 @@ public class GeminiApiHelper {
                     "Respond in JSON with the following keys:\n" +
                     "- \"summary\": A short summary of the day’s digital behavior.\n" +
                     "- \"advice\": Personalized advice based on the usage data to improve digital wellbeing.";
+
+
+
+    private static String loadSystemPromptFromChatRoleFile(Context context) {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(context.getResources().openRawResource(R.raw.gemini_chat_prompt)))) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        } catch (Exception e) {
+            Log.e("GeminiAPI", "Failed to load chat role: " + e.getMessage());
+            return "You are a helpful assistant.";
+        }
+    }
+
+
+    public static String chatWithGemini(Context context, List<ChatMessage> messages) {
+        OkHttpClient client = new OkHttpClient();
+
+        try {
+            String systemPrompt = loadSystemPromptFromChatRoleFile(context);
+
+            JSONArray contents = new JSONArray();
+
+            // System role prompt
+            JSONObject sysPart = new JSONObject().put("text", systemPrompt);
+            contents.put(new JSONObject()
+                    .put("role", "user")
+                    .put("parts", new JSONArray().put(sysPart)));
+
+            // Accumulate all previous messages
+            for (ChatMessage msg : messages) {
+                JSONObject part = new JSONObject().put("text", msg.message);
+                contents.put(new JSONObject()
+                        .put("role", msg.isUser ? "user" : "model")
+                        .put("parts", new JSONArray().put(part)));
+            }
+
+            JSONObject requestJson = new JSONObject().put("contents", contents);
+            Log.d("GeminiRequest", requestJson.toString(2)); // Pretty print with indent 2
+            System.out.println("GeminiRequest: " + requestJson.toString(2));
+            RequestBody body = RequestBody.create(requestJson.toString(), JSON);
+            Request request = new Request.Builder().url(ENDPOINT).post(body).build();
+
+            Response response = client.newCall(request).execute();
+
+            if (response.isSuccessful()) {
+                JSONObject json = new JSONObject(response.body().string());
+                return json
+                        .getJSONArray("candidates")
+                        .getJSONObject(0)
+                        .getJSONObject("content")
+                        .getJSONArray("parts")
+                        .getJSONObject(0)
+                        .getString("text");
+            } else {
+                Log.e("GeminiAPI", "API Error: " + response.body().string());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "Failed to get response.";
+    }
+
+
 
 
     // ✅ 1. JSON-parsing version (already exists - UNCHANGED)

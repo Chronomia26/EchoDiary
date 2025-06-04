@@ -1,5 +1,6 @@
 package com.bigo143.echodiary;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -59,6 +61,18 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         String today = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
+
+//        ImageView characterIcon = view.findViewById(R.id.character_icon);
+//
+//        characterIcon.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                // Example: open ProfileActivity (replace with your actual target)
+//                Intent intent = new Intent(getActivity(), ChatbotActivity.class);
+//                startActivity(intent);
+//            }
+//        });
+
 
         MoodNoteDBHelper db = new MoodNoteDBHelper(getContext());
         List<MoodNoteDBHelper.Task> tasksToday = db.getTasksByDate(today);
