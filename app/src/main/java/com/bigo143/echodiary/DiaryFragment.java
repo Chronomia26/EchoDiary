@@ -67,7 +67,7 @@ public class DiaryFragment extends Fragment {
         addNoteButton.setOnClickListener(v -> {
             animateClick(addNoteButton);
             Intent intent = new Intent(getContext(), NewJournalActivity.class);
-            ActivityOptions options = ActivityOptions.makeCustomAnimation(getContext(), R.anim.slide_in_right, R.anim.slide_out_left);
+            ActivityOptions options = ActivityOptions.makeCustomAnimation(getContext(), R.anim.slide_up, R.anim.slide_down);
             startActivity(intent, options.toBundle());
 
         });
@@ -90,7 +90,7 @@ public class DiaryFragment extends Fragment {
                 List<DiaryEntry> filteredList = new ArrayList<>();
 
                 // Assuming 'query' is already lowercased for efficiency, if not, do it once outside the loop:
-// String lowerCaseQuery = query.toLowerCase();
+                // String lowerCaseQuery = query.toLowerCase();
 
                 for (DiaryEntry entry : originalList) {
                     // Check if the entry itself is not null (good practice, though less likely the cause here if originalList is populated)

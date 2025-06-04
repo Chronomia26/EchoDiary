@@ -12,6 +12,12 @@
         <item name="colorSecondary">@color/coffee_3</item>
         <item name="colorSecondaryVariant">@color/dark_roast</item>
         <item name="colorOnSecondary">@color/black</item>
+
+        <!-- Transition support -->
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowSharedElementsUseOverlay">false</item>
+
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <!-- Customize your theme here. -->

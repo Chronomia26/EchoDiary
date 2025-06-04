@@ -1,5 +1,6 @@
 package com.bigo143.echodiary;
 
+import android.app.ActivityOptions;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -238,7 +239,8 @@ public class MainActivity extends AppCompatActivity {
             dialog.dismiss();
             dialog.dismiss();
             Intent intent = new Intent(MainActivity.this, NewJournalActivity.class);
-            startActivity(intent);
+            ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.slide_up, R.anim.slide_down);
+            startActivity(intent, options.toBundle());
         });
 
         liveLayout.setOnClickListener(v -> {

@@ -18,6 +18,7 @@ public abstract class DiaryDatabase extends RoomDatabase {
         if (instance == null) {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                             DiaryDatabase.class, "diary_database")
+                    .fallbackToDestructiveMigration()
                     .build();
         }
         return instance;
