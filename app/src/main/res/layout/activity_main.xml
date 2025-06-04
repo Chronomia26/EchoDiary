@@ -71,7 +71,7 @@
             android:scaleType="center"
             app:tint="@color/coffee_2"
             app:maxImageSize="36dp"
-            android:src="@drawable/baseline_mic_24"
+            android:src="@drawable/add_24px"
             app:itemIconTint="@color/coffee_brown"
             app:itemTextColor="@color/coffee_brown"/>
 

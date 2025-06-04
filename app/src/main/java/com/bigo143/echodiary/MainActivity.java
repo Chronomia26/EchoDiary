@@ -63,6 +63,20 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false); // Remove default title
 
+        fab = findViewById(R.id.fab);
+
+        fab.setOnClickListener(view -> showBottomDialog());
+
+        fab.setOnLongClickListener(view -> {
+            // 🚀 Long press detected: go directly to NewJournalActivity
+            Intent intent = new Intent(MainActivity.this, NewJournalActivity.class);
+            ActivityOptions options = ActivityOptions.makeCustomAnimation(
+                    MainActivity.this, R.anim.slide_up, R.anim.slide_down
+            );
+            startActivity(intent, options.toBundle());
+            return true; // important to consume the long click
+        });
+
 
         View customToolbar = getLayoutInflater().inflate(R.layout.toolbar_custom, null);
         toolbar.addView(customToolbar);
@@ -197,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
         if (fabBg != null) fabBg.setVisibility(shouldHideBottomUI ? View.GONE : View.VISIBLE);
         if (bottomNavFrame != null) bottomNavFrame.setVisibility(shouldHideBottomUI ? View.GONE : View.VISIBLE);
     }
+
 
 
 

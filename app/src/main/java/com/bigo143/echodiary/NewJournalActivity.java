@@ -117,9 +117,15 @@ public class NewJournalActivity extends AppCompatActivity {
     }
 
     private void startRewrite() {
+        if (journalContent.getText().toString().isEmpty()) {
+            Toast.makeText(this, "Journal content is empty!", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (originalBeforeRewrite == null) {
             originalBeforeRewrite = journalContent.getText().toString();
         }
+
+
 
         new Thread(() -> {
             JSONObject resultJson = GeminiApiHelper.summarizeToJson(this, journalContent.getText().toString());
