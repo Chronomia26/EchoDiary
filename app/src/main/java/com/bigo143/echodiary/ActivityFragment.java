@@ -779,7 +779,7 @@ public class ActivityFragment extends Fragment {
         long minutes = seconds / 60;
         long hours = minutes / 60;
         seconds %= 60;
-        return String.format(Locale.getDefault(), "%02d %02d %02d", hours, minutes % 60, seconds);
+        return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes % 60, seconds);
     }
 
     private boolean hasDataBeenSavedToday() {
