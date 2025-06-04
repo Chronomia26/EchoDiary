@@ -161,6 +161,7 @@ public class CalendarAdapter extends BaseAdapter {
         // Background highlights
         if (cd.isCurrentMonth && cd.day == currentDay) {
             view.setBackgroundResource(R.drawable.border_today);
+            dayText.setTextColor(Color.parseColor("#F9F6EE"));
         } else if (cd.isCurrentMonth && cd.day == selectedDay) {
             view.setBackgroundResource(R.drawable.border_selected);
         } else {

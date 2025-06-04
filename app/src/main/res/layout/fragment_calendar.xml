@@ -238,7 +238,6 @@
                         android:background="@drawable/edit_text_background"
                         android:clickable="true"
                         android:cursorVisible="false"
-                        android:elevation="8dp"
                         android:focusable="false"
                         android:hint="Tap to add a task"
                         android:inputType="none"
