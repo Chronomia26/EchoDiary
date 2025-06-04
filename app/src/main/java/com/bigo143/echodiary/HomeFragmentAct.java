@@ -4,6 +4,7 @@ import android.app.AppOpsManager;
 import android.app.usage.UsageEvents;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -49,6 +50,20 @@ public class HomeFragmentAct extends Fragment { // Corrected class name
         Calendar now = Calendar.getInstance();
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
         dateText.setText(dateFormat.format(now.getTime()));
+
+
+        ImageView characterIcon = view.findViewById(R.id.character_icon);
+
+        characterIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Example: open ProfileActivity (replace with your actual target)
+                Intent intent = new Intent(getActivity(), ChatbotActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
 
         if (hasUsageStatsPermission()) {
             loadAndDisplayActivityLog();

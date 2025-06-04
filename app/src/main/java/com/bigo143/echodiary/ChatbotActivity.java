@@ -1,5 +1,7 @@
 package com.bigo143.echodiary;
 
+import static com.google.android.material.internal.ViewUtils.hideKeyboard;
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -38,10 +40,22 @@ public class ChatbotActivity extends AppCompatActivity {
         chatRecyclerView.setAdapter(chatAdapter);
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        inputField.setOnEditorActionListener((v, actionId, event) -> {
+            if (event != null && event.getKeyCode() == android.view.KeyEvent.KEYCODE_ENTER) {
+                hideKeyboard();
+                sendButton.performClick(); // Simulate send button click
+                return true;
+            }
+            return false;
+        });
+
+
+
         sendButton.setOnClickListener(v -> {
             String userInput = inputField.getText().toString().trim();
             if (userInput.isEmpty()) return;
 
+            hideKeyboard();
             inputField.setText("");
             addMessage(userInput, true);
 
@@ -51,6 +65,15 @@ public class ChatbotActivity extends AppCompatActivity {
             });
 
         });
+    }
+
+    private void hideKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager)
+                    getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     private void addMessage(String message, boolean isUser) {
