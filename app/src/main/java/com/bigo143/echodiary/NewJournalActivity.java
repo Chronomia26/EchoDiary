@@ -20,10 +20,11 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 
-
 public class NewJournalActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_SPEECH_INPUT = 1;
+    private String originalBeforeRewrite = null;
+    private boolean isRewrittenFlag = false;
 
     private EditText journalTitle, journalContent, journalTags;
     private TextView journalDateTime;
@@ -49,31 +50,18 @@ public class NewJournalActivity extends AppCompatActivity {
         ImageView btnSummarize = findViewById(R.id.btnSummarize);
         btnSummarize.setOnClickListener(v -> {
             animateClick(btnSummarize);
-            new Thread(() -> {
-                JSONObject resultJson = GeminiApiHelper.summarizeToJson(this, journalContent.getText().toString());
 
-                runOnUiThread(() -> {
-                    if (resultJson != null) {
-                        try {
-//                            Log.d("JSON", resultJson.toString());
-                            String newTitle = resultJson.getString("title");
-                            String newBody = resultJson.getString("body");
-                            String newTags = resultJson.getString("tags");
-                            journalTitle.setText(newTitle);
-                            journalContent.setText(newBody);
-                            journalTags.setText(newTags);
-                            Toast.makeText(this, "Rewritten with AI ✨", Toast.LENGTH_SHORT).show();
-                        } catch (Exception e) {
-                            Toast.makeText(this, "Failed to parse AI output", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(this, "AI returned nothing", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }).start();
+            if (isRewrittenFlag) {
+                new android.app.AlertDialog.Builder(this)
+                        .setTitle("Already Rewritten")
+                        .setMessage("You've already rewritten this entry. Rewrite again?")
+                        .setPositiveButton("Rewrite", (dialog, which) -> startRewrite())
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            } else {
+                startRewrite();
+            }
         });
-
-
 
         journalBack = findViewById(R.id.journalBack);
         journalBack.setOnClickListener(v -> {
@@ -88,18 +76,20 @@ public class NewJournalActivity extends AppCompatActivity {
             String body = journalContent.getText().toString();
             String subtitle = journalTags.getText().toString();
             String dateTime = journalDateTime.getText().toString().trim();
+            String original = originalBeforeRewrite != null ? originalBeforeRewrite : journalContent.getText().toString();
 
             if (title.isEmpty() || body.isEmpty()) {
                 Toast.makeText(this, "Please fill in the title and content.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // ✅ Save to Room database using background thread
             DiaryEntry entry = new DiaryEntry();
-            entry.id = System.currentTimeMillis(); // ✅ Prevent primary key collision
+            entry.id = System.currentTimeMillis();
             entry.title = title;
-            entry.subtitle = subtitle; // Assuming you also want to save tags
+            entry.subtitle = subtitle;
             entry.content = body;
+            entry.originalContent = original;
+            entry.isRewritten = isRewrittenFlag;
 
             SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd yyyy hh:mm a", Locale.ENGLISH);
             try {
@@ -120,11 +110,39 @@ public class NewJournalActivity extends AppCompatActivity {
         });
     }
 
+    private void startRewrite() {
+        if (originalBeforeRewrite == null) {
+            originalBeforeRewrite = journalContent.getText().toString();
+        }
+
+        new Thread(() -> {
+            JSONObject resultJson = GeminiApiHelper.summarizeToJson(this, journalContent.getText().toString());
+
+            runOnUiThread(() -> {
+                if (resultJson != null) {
+                    try {
+                        String newTitle = resultJson.getString("title");
+                        String newBody = resultJson.getString("body");
+                        String newTags = resultJson.getString("tags");
+                        journalTitle.setText(newTitle);
+                        journalContent.setText(newBody);
+                        journalTags.setText(newTags);
+                        isRewrittenFlag = true;
+                        Toast.makeText(this, "Rewritten with AI ✨", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Toast.makeText(this, "Failed to parse AI output", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(this, "AI returned nothing", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }).start();
+    }
+
     private void animateClick(ImageView view) {
         view.animate().scaleX(0.9f).scaleY(0.9f).setDuration(50)
                 .withEndAction(() -> view.animate().scaleX(1f).scaleY(1f).setDuration(50)).start();
     }
-
 
     private void startVoiceInput() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);

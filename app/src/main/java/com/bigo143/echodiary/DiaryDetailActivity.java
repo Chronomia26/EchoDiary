@@ -18,6 +18,8 @@ import java.util.concurrent.Executors;
 public class DiaryDetailActivity extends AppCompatActivity {
 
     EditText title, subtitle, content;
+    private boolean isRewritten = false;
+
     TextView timestamp;
     long entryId; // Unique ID or position to identify the entry
 
@@ -34,6 +36,8 @@ public class DiaryDetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         entryId = intent.getLongExtra("entryId", -1); // or use intent.getIntExtra("position", -1)
+        isRewritten = intent.getBooleanExtra("isRewritten", false); // 👈 receive the flag
+
 
         title.setText(intent.getStringExtra("title"));
         subtitle.setText(intent.getStringExtra("subtitle"));
@@ -64,31 +68,46 @@ public class DiaryDetailActivity extends AppCompatActivity {
         ImageView btnSummarize = findViewById(R.id.btnSummarize);
         btnSummarize.setOnClickListener(v -> {
             animateClick(btnSummarize);
-            new Thread(() -> {
-                JSONObject resultJson = GeminiApiHelper.summarizeToJson(this, content.getText().toString());
 
-                runOnUiThread(() -> {
-                    if (resultJson != null) {
-                        try {
-//                            Log.d("JSON", resultJson.toString());
-                            String newTitle = resultJson.getString("title");
-                            String newBody = resultJson.getString("body");
-                            String newTags = resultJson.getString("tags");
-                            title.setText(newTitle);
-                            content.setText(newBody);
-                            subtitle.setText(newTags);
-                            Toast.makeText(this, "Rewritten with AI ✨", Toast.LENGTH_SHORT).show();
-                        } catch (Exception e) {
-                            Toast.makeText(this, "Failed to parse AI output", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(this, "AI returned nothing", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }).start();
+            if (isRewritten) {
+                runOnUiThread(() -> new android.app.AlertDialog.Builder(this)
+                        .setTitle("Already Rewritten")
+                        .setMessage("This entry has already been rewritten by AI. Rewrite again?")
+                        .setPositiveButton("Rewrite", (dialog, which) -> startRewrite())
+                        .setNegativeButton("Cancel", null)
+                        .show());
+            } else {
+                startRewrite();
+            }
         });
-
     }
+    private void startRewrite() {
+        new Thread(() -> {
+            JSONObject resultJson = GeminiApiHelper.summarizeToJson(this, content.getText().toString());
+
+            runOnUiThread(() -> {
+                if (resultJson != null) {
+                    try {
+                        String newTitle = resultJson.getString("title");
+                        String newBody = resultJson.getString("body");
+                        String newTags = resultJson.getString("tags");
+
+                        title.setText(newTitle);
+                        content.setText(newBody);
+                        subtitle.setText(newTags);
+
+                        isRewritten = true; // ✅ mark as rewritten
+                        Toast.makeText(this, "Rewritten with AI ✨", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Toast.makeText(this, "Failed to parse AI output", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(this, "AI returned nothing", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }).start();
+    }
+
 
     private void animateClick(ImageView view) {
         view.animate().scaleX(0.9f).scaleY(0.9f).setDuration(50)
@@ -103,6 +122,8 @@ public class DiaryDetailActivity extends AppCompatActivity {
             updated.subtitle = subtitle.getText().toString();
             updated.content = content.getText().toString();
             updated.timestamp = getIntent().getLongExtra("timestamp", System.currentTimeMillis()); // ✅ Use original
+            updated.isRewritten = isRewritten; // ✅ Save the updated rewritten flag
+
 
 
             DiaryDatabase.getInstance(getApplicationContext()).diaryDao().update(updated);

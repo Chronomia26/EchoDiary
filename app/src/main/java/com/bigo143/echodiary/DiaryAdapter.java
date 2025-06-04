@@ -51,6 +51,8 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
             intent.putExtra("subtitle", entry.subtitle);
             intent.putExtra("content", entry.content);
             intent.putExtra("timestamp", entry.timestamp);
+            intent.putExtra("isRewritten", entry.isRewritten);
+
             ActivityOptions options = ActivityOptions.makeCustomAnimation(context, R.anim.fade_in, R.anim.fade_out);
             context.startActivity(intent, options.toBundle());
         });

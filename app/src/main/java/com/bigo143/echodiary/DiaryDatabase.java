@@ -4,8 +4,10 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {DiaryEntry.class}, version = 3)
+@Database(entities = {DiaryEntry.class}, version = 4)
 // Version 2 and 3 has the ones without Id
 public abstract class DiaryDatabase extends RoomDatabase {
     private static DiaryDatabase instance;
@@ -16,12 +18,7 @@ public abstract class DiaryDatabase extends RoomDatabase {
         if (instance == null) {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                             DiaryDatabase.class, "diary_database")
-                     //PLSS LANG WAG NYO IDAGDAG UNG DESTRUCTIVE MIGRATION
-                    //todo: IMMEDIATELY REMOVE UNG DESTRUCTIVE MIGRATION WHEN PUSHING or COMMENT OUT UNG LINE
-                    //.fallbackToDestructiveMigration()
-                    //THAT IS ONLY FOR TESTING PHASE, NABUBURA UNG DATABASE KO
                     .build();
-
         }
         return instance;
     }
