@@ -165,7 +165,8 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="5dp"
             android:paddingHorizontal="4dp"
-            android:weightSum="0">
+            android:weightSum="0"
+            android:background="@drawable/dialog_background">
 
             <TextView
                 android:id="@+id/textViews"

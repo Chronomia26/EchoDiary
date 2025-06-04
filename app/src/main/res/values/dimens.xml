@@ -11,4 +11,7 @@
     <dimen name="menu_item_padding_vertical">16dp</dimen>
     <dimen name="menu_item_padding_horizontal">24dp</dimen>
     <dimen name="menu_item_margin_bottom">12dp</dimen>
+
+    <dimen name="day_size">23sp</dimen>
+
 </resources>

@@ -1,33 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="24dp"
     android:orientation="vertical"
-    android:gravity="center"
     android:background="@drawable/dialog_background">
 
     <TextView
-        android:id="@+id/monthPickerTitle"
-        android:layout_width="wrap_content"
+        android:id="@+id/dialogTitle"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select Year"
-        android:textSize="20sp"
+        android:text="Edit Task"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp"
-        android:textColor="@android:color/black" />
+        android:gravity="center"
+        android:paddingBottom="12dp" />
 
-    <NumberPicker
-        android:id="@+id/yearPicker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <EditText
+        android:id="@+id/inputField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter new task"
+        android:inputType="text"
+        android:background="@drawable/edittext_background"
+        android:padding="12dp"
+        android:textSize="16sp" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="24dp">
+        android:gravity="end"
+        android:paddingTop="16dp">
 
         <Button
             android:id="@+id/btnCancel"
@@ -35,15 +39,11 @@
             android:layout_height="wrap_content"
             android:text="Cancel" />
 
-        <Space
-            android:layout_width="16dp"
-            android:layout_height="wrap_content" />
-
         <Button
             android:id="@+id/btnOk"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="OK" />
+            android:text="Add"
+            android:layout_marginStart="8dp" />
     </LinearLayout>
-
 </LinearLayout>
