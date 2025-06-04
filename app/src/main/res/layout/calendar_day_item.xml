@@ -11,8 +11,8 @@
         android:gravity="top|center_horizontal"
         android:textColor="@android:color/black"
         android:autoSizeTextType="uniform"
-        android:autoSizeMinTextSize="10sp"
-        android:autoSizeMaxTextSize="18sp"
+        android:autoSizeMinTextSize="15sp"
+        android:autoSizeMaxTextSize="23sp"
         android:autoSizeStepGranularity="2sp" />
 
     <ImageView
