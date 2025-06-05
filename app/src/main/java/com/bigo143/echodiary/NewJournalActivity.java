@@ -112,7 +112,7 @@ public class NewJournalActivity extends AppCompatActivity {
 
             Toast.makeText(this, "Journal saved!", Toast.LENGTH_SHORT).show();
             finish();
-            overridePendingTransition(R.anim.fade_out, R.anim.fade_in);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
     }
 
