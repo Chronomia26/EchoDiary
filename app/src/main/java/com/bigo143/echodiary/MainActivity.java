@@ -153,9 +153,9 @@ public class MainActivity extends AppCompatActivity {
             return new HomeFragmentAct(); // Changed from HomeFragment
         } else if (itemId == R.id.nav_settings) {
             return new SettingsFragment();
-        } else if (itemId == R.id.nav_about) {
+        } /*else if (itemId == R.id.nav_about) {
             return new AboutFragment();
-        } /*else if (itemId == R.id.nav_profile) {
+        } else if (itemId == R.id.nav_profile) {
             return new ProfileFragment();
         }*/ else {
             return null;
