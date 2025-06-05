@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fourmain"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:scrollbarFadeDuration="@integer/material_motion_duration_short_1">
 
     <LinearLayout
         android:orientation="vertical"
@@ -391,7 +392,7 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="100dp"
             android:background="@drawable/background_settings_item"
             android:padding="8dp"
             android:elevation="12dp">
@@ -409,6 +410,8 @@
                 android:textColor="@color/fourmain"
                 android:textSize="20sp" />
         </LinearLayout>
+
+
 
     </LinearLayout>
 </ScrollView>
