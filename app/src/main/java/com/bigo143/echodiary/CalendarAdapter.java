@@ -166,17 +166,19 @@ public class CalendarAdapter extends BaseAdapter {
             view.setBackgroundResource(R.drawable.border_selected);
         } else {
             view.setBackgroundResource(android.R.color.transparent);
-
         }
 
         // Show mood icon if present
-        if (moodMap != null && moodMap.containsKey(cd.day)) {
-            int moodDrawableRes = moodMap.get(cd.day);
+        if (moodMap != null && moodMap.containsKey(position)) {
+            int moodDrawableRes = moodMap.get(position);
             moodIcon.setImageResource(moodDrawableRes);
             moodIcon.setVisibility(View.VISIBLE);
         } else {
             moodIcon.setVisibility(View.INVISIBLE);
         }
+
+
+
         return view;
     }
 

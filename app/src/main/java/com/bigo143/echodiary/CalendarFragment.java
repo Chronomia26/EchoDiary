@@ -131,6 +131,7 @@ public class CalendarFragment extends Fragment {
 
         //addSpecificTaskBtn.setVisibility(View.GONE);  // Hide initially
 
+
         // Capture calendar normal & expanded height after layout
         calendarGrid.post(() -> {
             calendarNormalHeightHolder[0] = calendarGrid.getHeight();
@@ -140,6 +141,7 @@ public class CalendarFragment extends Fragment {
         });
 
         updateDailySummary(dailySummaryView);
+
 
         calendarGrid.setOnVerticalSwipeListener(new GestureDetectingGridView.OnVerticalSwipeListener() {
             @Override
@@ -156,7 +158,6 @@ public class CalendarFragment extends Fragment {
                 }
             }
         });
-
 
 
         calendarGrid.setOnSwipeListener(new GestureDetectingGridView.OnSwipeListener() {
@@ -425,15 +426,22 @@ public class CalendarFragment extends Fragment {
 
         moodMap.clear();
         if (isMoodEnabled()) {
-            for (int i = 1; i <= maxDay; i++) {
+            Calendar temp = (Calendar) currentCalendar.clone();
+            temp.set(Calendar.DAY_OF_MONTH, 1);
+
+            for (int i = 0; i < calendarDays.size(); i++) {
+                CalendarDay cd = calendarDays.get(i);
+                if (!cd.isCurrentMonth) continue; // ✅ skip dimmed days
+
+                temp.set(Calendar.DAY_OF_MONTH, cd.day);
                 String dateKey = String.format(Locale.getDefault(), "%04d/%02d/%02d",
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH) + 1,
-                        i);
+                        temp.get(Calendar.YEAR),
+                        temp.get(Calendar.MONTH) + 1,
+                        cd.day);
+
                 MoodNoteDBHelper.MoodNote moodNote = moodManager.getMood(dateKey);
                 if (moodNote != null) {
-                    // Map moods to your drawable ids
-                    int drawableId = R.drawable.ic_neutral_dot; // default
+                    int drawableId = R.drawable.ic_neutral_dot;
                     switch (moodNote.mood) {
                         case "happy":
                             drawableId = R.drawable.ic_happy_dot;
@@ -445,22 +453,32 @@ public class CalendarFragment extends Fragment {
                             drawableId = R.drawable.ic_neutral_dot;
                             break;
                     }
-                    moodMap.put(i, drawableId);
+                    moodMap.put(i, drawableId); // ✅ use position as key
                 }
             }
         }
 
+        taskDays.clear();
         if (taskManager != null) {
-            for (int i = 1; i <= maxDay; i++) {
+            Calendar temp = (Calendar) currentCalendar.clone();
+            temp.set(Calendar.DAY_OF_MONTH, 1);
+
+            for (int i = 0; i < calendarDays.size(); i++) {
+                CalendarDay cd = calendarDays.get(i);
+                if (!cd.isCurrentMonth) continue;
+
+                temp.set(Calendar.DAY_OF_MONTH, cd.day);
                 String dateKey = String.format(Locale.getDefault(), "%04d/%02d/%02d",
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH) + 1,
-                        i);
-                List<MoodNoteDBHelper.Task> tasks = taskManager.getTasks(dateKey); // <--- here fixed
+                        temp.get(Calendar.YEAR),
+                        temp.get(Calendar.MONTH) + 1,
+                        cd.day);
+
+                List<MoodNoteDBHelper.Task> tasks = taskManager.getTasks(dateKey);
                 if (tasks != null && !tasks.isEmpty()) {
-                    taskDays.add(i);
+                    taskDays.add(i); // ✅ use position index
                 }
             }
+
         }
 
 
@@ -645,6 +663,7 @@ public class CalendarFragment extends Fragment {
                 taskCheckbox.setText(editedText);
                 refreshTaskMarksOnCalendar();
                 dialog.dismiss();
+                loadCalendar();
             } else {
                 Toast.makeText(getContext(), "Task cannot be empty", Toast.LENGTH_SHORT).show();
             }
@@ -686,6 +705,7 @@ public class CalendarFragment extends Fragment {
                 String time = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
                 taskManager.insertTask(selectedDate, taskText, time, false);
                 refreshTaskMarksOnCalendar();
+                loadCalendar();
 
                 if (selectedDate.equals(getTodayDate())) {
                     updateDailySummary(dailySummaryView);
@@ -708,14 +728,17 @@ public class CalendarFragment extends Fragment {
         // Inflate task_item.xml layout for one task
         LayoutInflater inflater = LayoutInflater.from(requireContext());
         View taskView = inflater.inflate(R.layout.task_item, container, false);
+        loadCalendar();
 
         CheckBox taskCheckBox = taskView.findViewById(R.id.taskCheckBox);
         TextView taskTimeText = taskView.findViewById(R.id.taskTimeText);
         ImageButton taskEditButton = taskView.findViewById(R.id.taskEditButton);
 
+
         // Set checkbox text and checked state
         taskCheckBox.setText(task.getText());
         taskCheckBox.setChecked(task.isChecked());
+
 
         // Set task time
         taskTimeText.setText(task.getTime());
