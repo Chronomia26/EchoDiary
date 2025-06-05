@@ -9,6 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_ai_message"
-        android:textColor="#000000"
-        android:padding="10dp" />
+        android:textColor="@color/dark_roast"
+        android:padding="10dp"
+        android:textSize="@dimen/_13ssp"/>
 </LinearLayout>

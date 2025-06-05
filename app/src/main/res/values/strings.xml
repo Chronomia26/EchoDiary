@@ -66,6 +66,7 @@
     <string name="go_live">Go live</string>
     <string name="applying_language">Applying language...</string>
     <string name="daytrace">DayTrace</string>
+    <string name="applying_theme">Applying Theme.....</string>
 
 
 </resources>

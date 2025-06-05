@@ -2,6 +2,8 @@
 <resources>
     <color name="black">#FFFFFFFF</color>
     <color name="white">#FF000000</color>
+    <color name="black1">#FF000000</color>
+    <color name="pale_mocha_1">#FFFFFFFF</color>     <!-- Most used  -->
     <color name="pale_mocha">#fad59a</color>
     <color name="dark_roast">#E9E7E7</color>
     <color name="coffee_3">#2E2E2E</color>

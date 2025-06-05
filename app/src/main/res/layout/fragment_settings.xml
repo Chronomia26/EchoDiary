@@ -25,7 +25,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="2dp"
-            android:background="@color/pale_mocha"
+            android:background="@color/pale_mocha_1"
             android:layout_marginBottom="40dp"
             android:elevation="12dp" />
 

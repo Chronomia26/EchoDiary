@@ -10,5 +10,6 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_user_message"
         android:textColor="#FFFFFF"
-        android:padding="10dp" />
+        android:padding="10dp"
+        android:textSize="@dimen/_13ssp"/>
 </LinearLayout>

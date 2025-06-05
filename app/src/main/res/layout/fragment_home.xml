@@ -14,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="April 27, 2025"
-        android:textSize="18sp"
+        android:textSize="@dimen/_20ssp"
         android:textStyle="bold"
         android:textColor="@color/dark_roast"
         app:layout_constraintEnd_toEndOf="parent"
@@ -25,8 +25,8 @@
     <!-- Character Icon -->
     <ImageView
         android:id="@+id/character_icon"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="@dimen/_90sdp"
+        android:layout_height="@dimen/_100sdp"
         android:layout_marginTop="12dp"
         android:src="@drawable/echobot"
         app:layout_constraintEnd_toEndOf="parent"
@@ -40,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Talk with echo!"
-        android:textSize="16sp"
+        android:textSize="@dimen/_20ssp"
         android:textColor="@color/dark_roast"
         app:layout_constraintTop_toBottomOf="@id/character_icon"
         app:layout_constraintStart_toStartOf="parent"

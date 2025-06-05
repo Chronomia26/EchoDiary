@@ -1,34 +1,61 @@
-<!-- res/layout/activity_chatbot.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:background="@color/fourmain"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="8dp">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chatRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp" />
+        android:padding="8dp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical"
+        android:layout_margin="@dimen/_5sdp"
+        android:background="@drawable/item_background"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:background="@drawable/item_background">
 
         <EditText
             android:id="@+id/inputField"
-            android:layout_weight="1"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="Type a message" />
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="@drawable/edittext_background"
+            android:hint="Type a message"
+            android:inputType="text"
+            android:maxLines="4"
+            android:textColor="@color/black1"
+            android:paddingHorizontal="12dp"
+            android:scrollHorizontally="false"
+            android:textColorHint="#858585" />
+
+        <ImageButton
+            android:id="@+id/voiceButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:tint="@color/dark_roast"
+            android:src="@android:drawable/ic_btn_speak_now"
+            android:contentDescription="Voice input" />
 
         <Button
             android:id="@+id/sendButton"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Send" />
+            android:layout_height="48dp"
+            android:textColor="@color/dark_roast"
+            android:text="Send"
+            android:layout_marginStart="8dp" />
     </LinearLayout>
 </LinearLayout>

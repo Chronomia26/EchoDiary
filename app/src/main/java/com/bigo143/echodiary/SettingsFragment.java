@@ -1,18 +1,24 @@
 package com.bigo143.echodiary;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -74,18 +80,27 @@ public class SettingsFragment extends Fragment {
         btnMoodDetection.setOnClickListener(v -> {
             animateClick(btnMoodDetection);
             toggleDropdown(dropdownMood, () -> {
-            dropdownMood.removeAllViews();
+                dropdownMood.removeAllViews();
+
                 addOption(dropdownMood, getString(R.string.on), () -> {
-                    saveMoodEnabledToPrefs(true);
-                    showToast("Mood detection: On");
+                    Dialog loadingDialog = showLoadingDialog("Turning mood detection on...");
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        saveMoodEnabledToPrefs(true);
+                        showToast("Mood detection: On");
+                        loadingDialog.dismiss();
+                    }, 3000); // delay for user feedback
                 }, KEY_MOOD_DETECTION, DEFAULT_MOOD);
 
                 addOption(dropdownMood, getString(R.string.off), () -> {
-                    saveMoodEnabledToPrefs(false);
-                    showToast("Mood detection: Off");
+                    Dialog loadingDialog = showLoadingDialog("Turning mood detection off...");
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        saveMoodEnabledToPrefs(false);
+                        showToast("Mood detection: Off");
+                        loadingDialog.dismiss();
+                    }, 3000);
                 }, KEY_MOOD_DETECTION, DEFAULT_MOOD);
-
-            });});
+            });
+        });
 
         // Entry Language
         LinearLayout btnEntryLanguage = view.findViewById(R.id.btn_entry_language);
@@ -144,6 +159,23 @@ public class SettingsFragment extends Fragment {
         return view;
     }
 
+    private Dialog showLoadingDialog(String message) {
+        Dialog dialog = new Dialog(requireContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_loading);
+        dialog.setCancelable(false);
+        // Set background for rounded corners
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        TextView loadingText = dialog.findViewById(R.id.text_loader);
+        loadingText.setText(message);
+        dialog.show();
+        return dialog;
+    }
+
+
     private void toggleDropdown(LinearLayout dropdown, Runnable populate) {
         if (dropdown.getVisibility() == View.VISIBLE) {
             dropdown.setVisibility(View.GONE);
@@ -199,6 +231,9 @@ public class SettingsFragment extends Fragment {
                 .create();
         loadingDialog.show();
 
+        if (loadingDialog.getWindow() != null) {
+            loadingDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
         new android.os.Handler().postDelayed(() -> {
             loadingDialog.dismiss();
             requireActivity().finish();
@@ -221,14 +256,29 @@ public class SettingsFragment extends Fragment {
             modeName = "System Default";
         }
 
+        // Show loading dialog
+        Dialog loadingDialog = new Dialog(requireContext());
+        loadingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        loadingDialog.setContentView(R.layout.dialog_loading_theme);
+        loadingDialog.setCancelable(false);
+        if (loadingDialog.getWindow() != null) {
+            loadingDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        loadingDialog.show();
+
         requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .edit()
                 .putInt("theme_mode", mode)
                 .putString(KEY_THEME, modeName)
                 .apply();
 
-        AppCompatDelegate.setDefaultNightMode(mode);
-        requireActivity().recreate();
+
+        // Delay to allow dialog to show before recreation
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            loadingDialog.dismiss();
+            AppCompatDelegate.setDefaultNightMode(mode);
+            requireActivity().recreate();
+        }, 3000); // Short delay to allow dialog visibility
     }
 
 
@@ -280,7 +330,7 @@ public class SettingsFragment extends Fragment {
         }
 
         selected.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.selected_background));
-        selected.setTextColor(ContextCompat.getColor(requireContext(), R.color.pale_mocha));
+        selected.setTextColor(ContextCompat.getColor(requireContext(), R.color.pale_mocha_1));
     }
 
     private void saveSelection(String key, String value) {
