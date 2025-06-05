@@ -63,10 +63,15 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         // getSupportActionBar().setDisplayShowTitleEnabled(false); // Remove default title
 
+
+
+
+
+
+
+
         fab = findViewById(R.id.fab);
-
         fab.setOnClickListener(view -> showBottomDialog());
-
         fab.setOnLongClickListener(view -> {
             // 🚀 Long press detected: go directly to NewJournalActivity
             Intent intent = new Intent(MainActivity.this, NewJournalActivity.class);
@@ -260,7 +265,8 @@ public class MainActivity extends AppCompatActivity {
 
         liveLayout.setOnClickListener(v -> {
             dialog.dismiss();
-            Toast.makeText(MainActivity.this, "Go Live is clicked", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, ChatbotActivity.class);
+            startActivity(intent);
         });
 
         //cancelButton.setOnClickListener(view -> dialog.dismiss());

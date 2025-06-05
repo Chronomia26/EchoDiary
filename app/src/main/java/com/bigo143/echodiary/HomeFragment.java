@@ -1,5 +1,6 @@
 package com.bigo143.echodiary;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -59,6 +61,7 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         String today = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
+
 
         MoodNoteDBHelper db = new MoodNoteDBHelper(getContext());
         List<MoodNoteDBHelper.Task> tasksToday = db.getTasksByDate(today);
