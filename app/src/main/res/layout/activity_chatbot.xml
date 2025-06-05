@@ -46,16 +46,20 @@
             android:layout_marginStart="8dp"
             android:clickable="true"
             android:focusable="true"
-            android:tint="@color/dark_roast"
+            android:tint="@color/fourmain"
             android:src="@android:drawable/ic_btn_speak_now"
+            android:background="@drawable/background_done_button"
+            android:backgroundTint="@color/pale_mocha"
             android:contentDescription="Voice input" />
 
         <Button
             android:id="@+id/sendButton"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:textColor="@color/dark_roast"
+            android:textColor="@color/fourmain"
             android:text="Send"
-            android:layout_marginStart="8dp" />
+            android:layout_marginStart="8dp"
+            android:background="@drawable/background_settings_item"
+            android:backgroundTint="@color/pale_mocha"/>
     </LinearLayout>
 </LinearLayout>
