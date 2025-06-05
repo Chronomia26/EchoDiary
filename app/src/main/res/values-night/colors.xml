@@ -5,6 +5,7 @@
     <color name="black1">#FF000000</color>
     <color name="pale_mocha_1">#FFFFFFFF</color>     <!-- Most used  -->
     <color name="pale_mocha">#fad59a</color>
+    <color name="dark_roast_1">#3E2C23</color>
     <color name="dark_roast">#E9E7E7</color>
     <color name="coffee_3">#2E2E2E</color>
     <color name="coffee_2">#4A3D3D</color>

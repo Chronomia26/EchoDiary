@@ -6,6 +6,7 @@
     android:id="@+id/view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/Theme.NavigationDrawer"
     android:background="@color/fourmain"
     tools:context=".NewJournalActivity">
 
@@ -27,7 +28,7 @@
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:animateLayoutChanges="true"
-            android:background="@color/pale_mocha">
+            android:background="@color/coffee_2">
 
             <ImageView
                 android:id="@+id/journalBack"
@@ -37,7 +38,7 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/background_done_button"
                 android:src="@drawable/ic_back"
-                android:tint="@color/pale_mocha"
+                android:tint="@color/dark_roast"
                 android:elevation="16dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -50,7 +51,7 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/background_done_button"
                 android:src="@drawable/ic_done"
-                android:tint="@color/pale_mocha"
+                android:tint="@color/dark_roast"
                 android:elevation="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -62,8 +63,8 @@
                 android:layout_marginTop="16dp"
                 android:hint="Title"
                 android:textSize="20sp"
-                android:textColor="@color/pale_mocha"
-                android:textColorHint="@color/pale_mocha"
+                android:textColor="@color/dark_roast"
+                android:textColorHint="@color/dark_roast"
                 android:background="@drawable/background_text"
                 android:padding="12dp"
                 android:inputType="text"
@@ -93,8 +94,8 @@
                 android:hint="Subtitle"
                 android:inputType="textMultiLine"
                 android:padding="12dp"
-                android:textColor="@color/pale_mocha"
-                android:textColorHint="@color/pale_mocha"
+                android:textColor="@color/dark_roast"
+                android:textColorHint="@color/dark_roast"
                 android:textSize="16sp"
                 android:elevation="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -113,8 +114,8 @@
                 android:hint="Journal content goes here..."
                 android:inputType="textMultiLine"
                 android:padding="12dp"
-                android:textColor="@color/pale_mocha"
-                android:textColorHint="@color/pale_mocha"
+                android:textColor="@color/dark_roast"
+                android:textColorHint="@color/dark_roast"
                 android:textSize="16sp"
                 android:elevation="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -129,7 +130,7 @@
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/background_done_button"
                 android:src="@drawable/ic_voice"
-                android:tint="@color/pale_mocha"
+                android:tint="@color/dark_roast"
                 android:elevation="16dp"
                 app:layout_constraintEnd_toStartOf="@+id/btnSave"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -142,7 +143,7 @@
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/background_done_button"
                 android:src="@drawable/wand_stars_24px"
-                android:tint="@color/pale_mocha"
+                android:tint="@color/dark_roast"
                 android:elevation="16dp"
                 app:layout_constraintEnd_toStartOf="@+id/btnVoiceInput"
                 app:layout_constraintTop_toTopOf="parent" />
