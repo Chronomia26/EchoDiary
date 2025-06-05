@@ -112,7 +112,7 @@ public class CalendarFragment extends Fragment {
         taskManager = new TaskManager(requireContext());
         rootLayout = view.findViewById(R.id.rootLayout);
         LinearLayout moodLegend = view.findViewById(R.id.moodLegend);
-        ImageView addSpecificTaskBtn = view.findViewById(R.id.addSpecificTasks);
+        // ImageView addSpecificTaskBtn = view.findViewById(R.id.addSpecificTasks);
         dailySummaryView = view.findViewById(R.id.textViews);
 
         EditText taskInput = view.findViewById(R.id.taskInput);
@@ -129,7 +129,7 @@ public class CalendarFragment extends Fragment {
         final int SWIPE_THRESHOLD = 100;  // Minimum vertical swipe distance
         final int animationDuration = 300;
 
-        addSpecificTaskBtn.setVisibility(View.GONE);  // Hide initially
+        //addSpecificTaskBtn.setVisibility(View.GONE);  // Hide initially
 
         // Capture calendar normal & expanded height after layout
         calendarGrid.post(() -> {
@@ -203,7 +203,7 @@ public class CalendarFragment extends Fragment {
                         calendarAdapter.setCurrentDay(-1);
                     }
 
-                    addSpecificTaskBtn.setVisibility(View.GONE);
+                    //addSpecificTaskBtn.setVisibility(View.GONE);
                     calendarGrid.invalidateViews();
 
                     return true; // consume event to prevent further propagation
@@ -239,7 +239,7 @@ public class CalendarFragment extends Fragment {
 
         calendarGrid.setOnItemClickListener((parent, view1, position, id) -> {
             CalendarDay day = calendarAdapter.getItem(position);
-            addSpecificTaskBtn.setVisibility(View.GONE);  // Hide button if invalid day clicked
+            //addSpecificTaskBtn.setVisibility(View.GONE);  // Hide button if invalid day clicked
             if (day == null || day.day <= 0) return;
 
             if (day.isCurrentMonth) {
@@ -253,7 +253,7 @@ public class CalendarFragment extends Fragment {
 
                 showTasksForDate(tasksContainer);
 
-                addSpecificTaskBtn.setVisibility(View.VISIBLE); // Show button when valid date selected
+                //addSpecificTaskBtn.setVisibility(View.VISIBLE); // Show button when valid date selected
 
 
                 if (isMoodEnabled() && !promptedDates.contains(selectedDate)) {
@@ -270,13 +270,13 @@ public class CalendarFragment extends Fragment {
                 loadCalendar(); // This will re-highlight the selected day for the new month
                 setCalendarExpandedState(isCalendarExpanded); // Reapply expanded/collapsed layout
 
-                addSpecificTaskBtn.setVisibility(View.GONE); // Hide button after month switch
+                //addSpecificTaskBtn.setVisibility(View.GONE); // Hide button after month switch
             }
         });
 
         calendarGrid.setOnItemLongClickListener((parent, view1, position, id) -> {
             CalendarDay day = calendarAdapter.getItem(position);
-            addSpecificTaskBtn.setVisibility(View.GONE);  // Hide button if invalid day clicked
+            //addSpecificTaskBtn.setVisibility(View.GONE);  // Hide button if invalid day clicked
             if (day == null || !day.isCurrentMonth || day.day <= 0) return false;
 
             selectedDay = day.day;
@@ -288,7 +288,8 @@ public class CalendarFragment extends Fragment {
                     currentCalendar.get(Calendar.MONTH) + 1, selectedDay);
 
             showTasksForDate(tasksContainer);
-            addSpecificTaskBtn.setVisibility(View.VISIBLE); // Show button when valid date selected
+            //addSpecificTaskBtn.setVisibility(View.VISIBLE); // Show button when valid date selected
+            //addSpecificTaskBtn.setVisibility(View.VISIBLE); // Show button when valid date selected
 
 
             if (isMoodEnabled()) {

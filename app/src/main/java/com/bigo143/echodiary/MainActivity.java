@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
             navigationView.setCheckedItem(R.id.nav_home);
         }
 
+        /*
         ImageView helpIcon = new ImageView(this);
         helpIcon.setImageResource(R.drawable.baseline_help_outline_24); // your icon
         helpIcon.setPadding(24, 0, 24, 0);
@@ -122,6 +123,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Help clicked", Toast.LENGTH_SHORT).show();
         });
         toolbar.addView(helpIcon);
+
+        */
 
         // Handle Drawer Navigation
         setupDrawerNavigation();
