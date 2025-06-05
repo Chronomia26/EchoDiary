@@ -12,14 +12,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="@color/pale_mocha"
+        android:elevation="12dp">
 
         <TextView
             android:id="@+id/entryTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Sample Title"
-            android:textColor="#4E342E"
+            android:textColor="@color/fourmain"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginBottom="4dp" />
@@ -29,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="May 11, 2025"
-            android:textColor="#6D4C41"
+            android:textColor="@color/fourmain"
             android:textSize="14sp" />
 
     </LinearLayout>
